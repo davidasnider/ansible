@@ -1,0 +1,33 @@
+- name: reboot server
+  reboot:
+    reboot_timeout: 300
+
+- name: restart smartmontools
+  service:
+    name: smartmontools
+    state: restarted
+
+- name: restart open-iscsi
+  service:
+    name: open-iscsi
+    state: restarted
+
+- name: restart autofs
+  service:
+    name: autofs
+    state: restarted
+
+- name: restart collectd
+  service:
+    name: collectd
+    state: restarted
+
+- name: restart nrpe
+  service:
+    name: nagios-nrpe-server
+    state: restarted
+
+- name: restart ntp
+  service:
+    name: ntp 
+    state: restarted

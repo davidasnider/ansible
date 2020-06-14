@@ -1,0 +1,6 @@
+*.retry
+.password
+*.swp
+__pycache__
+*.pyc
+.hashivault-password

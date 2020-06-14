@@ -1,0 +1,26 @@
+- import_tasks: debian.yaml
+  when:
+    - ansible_facts['os_family'] == "Debian"
+  tags: debian
+
+- import_tasks: bionic.yaml
+  when:
+    - ansible_facts['os_family'] == "Debian"
+    - ansible_facts['distribution_release'] == 'bionic'
+  tags: bionic
+
+- import_tasks: raspbian.yaml
+  when:
+    - ansible_facts['os_family'] == "Debian"
+    - ansible_facts['lsb']['id'] == "Raspbian"
+  tags: raspbian
+
+- import_tasks: clearos.yaml
+  when:
+    - ansible_facts['os_family'] == "ClearOS"
+  tags: clearos
+  
+- import_tasks: gen_rundeck_inventory.yaml
+  tags: rundeck_inventory
+  when: test_env is undefined
+

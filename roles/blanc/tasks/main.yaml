@@ -1,0 +1,19 @@
+- name: Get a list of kubeconfig files
+  command: ls {{ item }}
+  register: dir_out
+  delegate_to: localhost
+  with_fileglob: /Users/david/.kube/*.kubeconfig
+  become: false
+  changed_when: false
+
+- name: Copy kubeconfigs to blanc
+  copy:
+      dest: /Users/admin/.kube
+      src: "{{ item.item }}"
+      group: staff 
+      owner: admin 
+  delegate_to: blanc
+  become: false
+  changed_when: false
+  tags: kubeconfig
+  with_items: "{{dir_out.results }}"

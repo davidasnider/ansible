@@ -1,0 +1,31 @@
+# .bashrc
+
+test -r /sw/bin/init.sh && . /sw/bin/init.sh
+
+# User specific aliases and functions
+set -o vi
+if [ $(uname) = "Darwin" ]
+then
+	alias ls='ls -G -F'
+else
+	alias ls='ls --color --classify'
+fi
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
+
+export PS1='
+\[\033[01;39m\]\D{%c}
+\[\033[01;32m\]\u@\h \[\033[01;34m\]\w 
+\$ \[\033[00m\]'
+
+
+export HISTFILESIZE=1500
+export HISTSIZE=1500
+export HISTCONTROL=ignoredups
+
+#export DISPLAY=:0.0
+
+alias top=htop

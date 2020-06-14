@@ -1,0 +1,68 @@
+# Start from a clean state
+- name: Clean git repository if it exists
+  file:
+    state: absent
+    path: /tmp/rundeck
+  delegate_to: localhost
+  run_once: true
+  become: no
+  changed_when: false
+
+# pull the local repo down
+- name: Get the Rundeck Inventory git repository
+  command: git clone git@bitbucket.org:davidasnider/rundeck.git
+  become: no
+  args:
+    chdir: /tmp
+  delegate_to: localhost
+  run_once: true
+  changed_when: false
+
+# Create inventory files
+- name: Write inventory into yaml files
+  template:
+    src: rundeck_inventory.yaml
+    dest: /tmp/rundeck/inventory/{{ inventory_hostname_short }}.yaml
+  delegate_to: localhost
+  become: false
+
+# Did anything change?
+- name: Check for updated files
+  command: git status
+  register: git_result
+  become: no
+  args:
+    chdir: /tmp/rundeck
+  delegate_to: localhost
+  run_once: true
+  changed_when: false
+
+# Commit
+- name: Add files
+  command: git add -A
+  become: no
+  args:
+    chdir: /tmp/rundeck
+  delegate_to: localhost
+  run_once: true
+  when: '"yaml" in git_result.stdout'
+
+# Commit
+- name: Add files
+  command: git commit -m "Auto add files"
+  become: no
+  args:
+    chdir: /tmp/rundeck
+  delegate_to: localhost
+  run_once: true
+  when: '"yaml" in git_result.stdout'
+
+# Push
+- name: Add files
+  command: git push
+  become: no
+  args:
+    chdir: /tmp/rundeck
+  delegate_to: localhost
+  run_once: true
+  when: '"yaml" in git_result.stdout'

@@ -1,0 +1,14 @@
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: k8s2-thesniderpad-com
+  namespace: kubernetes-dashboard
+spec:
+  secretName: k8s2-thesniderpad-com-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: k8s2.thesniderpad.com
+  dnsNames:
+  - k8s2.thesniderpad.com

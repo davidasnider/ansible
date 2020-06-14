@@ -1,0 +1,9 @@
+- name: Restart Mysql
+  service:
+    name: mysqld
+    state: restarted
+
+- name: Restart Mythtv
+  service:
+    name: mythtv-backend
+    state: restarted

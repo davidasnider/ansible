@@ -1,0 +1,14 @@
+---
+- import_playbook: turn_cluster_off.yaml
+
+- import_playbook: reset_environment.yaml
+
+- import_playbook: turn_cluster_on.yaml
+
+- import_playbook: ../bootstrap/all_nodes_wait.yaml
+
+- import_playbook: ../bootstrap/rpi_init.yaml
+
+- import_playbook: ../bootstrap/ubuntu_init.yaml
+
+- import_playbook: ../bootstrap/main.yaml

@@ -1,0 +1,335 @@
+
+# - name: Update all packages to the latest version
+#   apt:
+#     upgrade: dist
+#     update_cache: yes
+
+- name: Install default packages on all Debian
+  apt:
+    autoclean: yes
+    autoremove: yes
+    install_recommends: no
+    name: "{{ packages }}"
+    cache_valid_time: '604800'
+  vars:
+    packages:
+    - htop
+    - iftop
+    - open-iscsi
+    - lm-sensors
+    - nfs-common
+    - autofs
+    - collectd
+    - nagios-nrpe-server
+    - monitoring-plugins
+    - ntp
+    - mailutils
+    - ethtool
+  tags:
+    - autofs
+    - collectd
+    - nrpe
+    - ntp
+    - ssmtp
+
+# Mount boot volume for iscsi mounted servers
+- name: Mount boot volume for iscsi mounted servers
+  mount:
+    path: /boot
+    src: gw.thesniderpad.com:/tftproot/{{ serial }}
+    fstype: nfs
+    state: mounted
+  when:
+    - boot_from_san | bool
+    - serial is defined
+
+
+- name: Install packages for physical servers that aren't raspberry pi
+  apt:
+    autoclean: yes
+    autoremove: yes
+    install_recommends: no
+    update_cache: yes
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - smartmontools
+      - libatasmart4
+  when:
+    - ansible_facts['lsb']['id'] != "Raspbian"
+
+- name: Update config for /etc/default/smartmontools
+  lineinfile:
+    path: /etc/default/smartmontools
+    regexp: ".*start_smartd.*"
+    line: "start_smartd=yes"
+  notify:
+    - restart smartmontools
+  when:
+    - ansible_facts['lsb']['id'] != "Raspbian"
+
+- name: Create Rundeck user
+  user:
+    name: rundeck
+    shell: /bin/bash
+    comment: "Ansible management user"
+    home: /home/rundeck
+    createhome: yes
+    uid: "2000"
+    password: "{{ vaulted.data.LINUX_PASSWORD }}"
+
+- name: Create David
+  user:
+    name: david
+    shell: /bin/bash
+    comment: "David Snider"
+    home: /home/david
+    createhome: yes
+    uid: "1001"
+    password: "{{ vaulted.data.LINUX_PASSWORD }}"
+
+- name: Create Ansible user
+  user:
+    name: ansible
+    shell: /bin/bash
+    comment: "Ansible management user"
+    home: /home/ansible
+    createhome: yes
+    uid: "3000"
+    password: "{{ vaulted.data.LINUX_PASSWORD }}"
+
+- name: Ensure admin group can sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%sudo'
+    line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+  when:
+    - ansible_facts['os_family'] == "Debian"
+    - hostvars[inventory_hostname].serial is not defined
+
+- name: Add authorized key
+  authorized_key:
+    user: "{{ item }}"
+    state: present
+    key: "{{ vaulted.data.id_rsa_pub }}"
+  loop:
+    - ansible
+    - rundeck
+    - david
+
+- name: Add authorized key
+  authorized_key:
+    user: rundeck
+    state: present
+    key: "{{ vaulted.data.RUNDECK_AUTHORIZED_KEY }}"
+
+- name: Add ssh public key to ansible
+  copy:
+    dest: /home/ansible/.ssh/id_rsa.pub
+    content: "{{ vaulted.data.id_rsa_pub }}"
+    mode: '0600'
+    owner: ansible
+    group: ansible
+
+- name: Add ssh privagte key to ansible
+  copy:
+    dest: /home/ansible/.ssh/id_rsa
+    content: "{{ vaulted.data.id_rsa }}"
+    mode: '0600'
+    owner: ansible
+    group: ansible
+
+- name: Add .profile to users
+  copy:
+    src: non_root_profile
+    dest: /home/{{ item }}/.profile
+    mode: '0640'
+  loop:
+    - ansible
+    - rundeck
+    - david
+
+- name: Start collectd service
+  service:
+    name: collectd
+    state: started
+    enabled: yes
+
+# Include the k8s cluster IP and the k8s cluster host network. Important because the nodes that run the server will see the clusterip not the external IP
+- name: allow hosts to talk to nrpe
+  lineinfile:
+    path: /etc/nagios/nrpe.cfg
+    regexp: '.*allowed_hosts=.*'
+    line: 'allowed_hosts=10.244.0.0/16,10.9.9.0/24'
+  tags: nrpe
+  notify: restart nrpe
+
+- name: disable ssl for nrpe (I know... it is dumb)
+  lineinfile:
+    path: /etc/default/nagios-nrpe-server
+    regexp: '.*NRPE_OPTS=.*'
+    line: 'NRPE_OPTS="-n"'
+  tags: nrpe
+  notify: restart nrpe
+
+- name: setup default nrpe commands
+  blockinfile:
+    path: /etc/nagios/nrpe.cfg
+    block: |
+      command[check_root]=/usr/lib/nagios/plugins/check_disk -w 20% -c 10% -u GB -p /
+      command[check_boot]=/usr/lib/nagios/plugins/check_disk -w 20% -c 10% -u GB -p /boot
+      command[check_ntp_time]=/usr/lib/nagios/plugins/check_ntp_time -q -H 0.pool.ntp.org -w 2 -c 3
+  tags: nrpe
+  notify: restart nrpe
+
+- name: nagios gets sudo
+  lineinfile:
+    path: /etc/sudoers
+    line: 'nagios ALL=(ALL) NOPASSWD: ALL'
+  tags: nrpe
+
+- name: start nrpe service
+  service:
+    name: nagios-nrpe-server
+    state: started
+    enabled: yes
+  tags: nrpe
+
+- name: create nagios host monitoring file
+  blockinfile:
+    create: true
+    path: /shared/docker/icinga_master/conf.d/auto/{{ ansible_hostname }}.conf
+    block: |
+      object Host "{{ ansible_hostname }}" {
+        address = "{{ ansible_default_ipv4.address }}"
+        import "generic-host"
+        vars.nrpe_no_ssl = "true"
+        vars.kernel = "Linux"
+      }
+  tags: nrpe
+  when: test_env is not defined
+
+- name: install ntp.conf
+  template:
+    src: ntp.conf
+    dest: /etc/ntp.conf
+    owner: root
+    mode: 0644
+  tags: ntp
+  notify: restart ntp
+
+- name: start ntp
+  service:
+    name: ntp
+    state: started
+    enabled: yes
+  tags: ntp
+
+- name: Configure AutoFS
+  copy:
+    dest: /etc/{{ item }}
+    src: "{{ item }}"
+  loop:
+    - auto.shared
+    - auto.master
+  when:
+    - ansible_facts['os_family'] == "Debian"
+  tags: autofs
+  notify:
+    - restart autofs
+
+# Everyone gets the same git settings
+- name: Copy gitconfig
+  copy:
+    src: gitconfig
+    dest: /home/{{ item }}/.gitconfig
+    mode: '0644'
+  loop:
+    - ansible
+    - david
+    - rundeck
+  tags: git
+
+- name: Make sure /etc/hostname has the right name
+  copy:
+    dest: "/etc/hostname"
+    content: |
+      {{ hostname }}
+  notify:
+    - reboot server
+
+- name: set timezone to UTC
+  timezone:
+    name: UTC
+    hwclock: UTC
+  notify:
+    - reboot server
+
+- name: Install and configure SSMTP
+  include_role:
+    name: sansible.ssmtp
+  vars:
+    sansible_ssmtp_mailserver_host: mail.thesniderpad.com
+    sansible_ssmtp_mailserver_port: 2525
+    sansible_ssmtp_mailserver_root: root@thesniderpad.com
+    sansible_ssmtp_mailserver_rewritedomain: thesniderpad.com
+    sansible_ssmtp_auth: false
+    sansible_ssmtp_revaliases: true
+    sansible_ssmtp_user: root
+    sansible_ssmtp_restrict: no
+    sansible_ssmtp_mailserver_username: "{{ ansible_hostname }}@thesniderpad.com"
+  tags: ssmtp
+
+- name: Install and configure openssh
+  include_role:
+    name: arillso.sshd
+  vars:
+    sftp_enabled: true
+    sftp_chroot: false
+  tags: ssh
+
+- name: Delete the administrator user
+  user:
+    name: administrator
+    state: absent
+    remove: yes
+    force: yes
+
+# Make sure we're in the docker group
+- name: Check if user exists
+  shell: /usr/bin/getent group | awk -F":" '{print $1}'
+  register: etc_groups
+  changed_when: false
+
+- name: Add secondary Groups to user
+  user: 
+    name: "{{item.0}}"
+    groups: "{{item.1}}"
+    append: yes
+  when: 'item.1 in etc_groups.stdout_lines'
+  with_nested:
+    - [ 'david', 'ansible', 'rundeck' ]
+    - [ 'docker', 'sudo' ]
+
+- name: ensure interfaces are wol
+  copy:
+    dest: "/etc/systemd/system/wol.service"
+    content: |
+      [Unit]
+      Description=Wake-on-LAN for {{ ansible_default_ipv4.interface }}
+      Requires=network.target
+      After=network.target
+
+      [Service]
+      ExecStart=/sbin/ethtool -s {{ ansible_default_ipv4.interface }} wol g
+      Type=oneshot
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: start wol service
+  service:
+    name: wol
+    # state: started
+    enabled: yes

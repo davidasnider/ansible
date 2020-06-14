@@ -1,0 +1,224 @@
+all:
+  hosts:
+    gw:
+      ansible_user: root
+      static_dns_records:
+        - name: k8s1
+          ip: 10.9.9.200
+        - name: k8s2
+          ip: 10.9.9.201
+        - name: mail
+          ip: 10.9.9.202
+        - name: registry
+          ip: 10.9.9.203
+        - name: ssh
+          ip: 10.9.9.204
+        - name: rundeck
+          ip: 10.9.9.205
+        - name: icinga-sec
+          ip: 10.9.9.206
+        - name: icinga-pri
+          ip: 10.9.9.207
+        - name: metrics
+          ip: 10.9.9.208
+        - name: cava
+          ip: 10.9.9.209
+    shiraz:
+      ansible_user: root
+      ansible_python_interpreter: /usr/local/bin/python
+      ups: server
+    blanc:
+      ansible_user: admin
+    franc:
+      hostname: franc
+    giro:
+      hostname: giro
+    grigio:
+      hostname: grigio
+  children:
+    k8s1:
+      children:
+        k8s1masters:
+          hosts:
+            r301:
+              hostname: r301
+              hostmac: b8:27:eb:ae:b6:d6
+              ip: 10.9.9.1
+              serial: bfaeb6d6
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r302:
+              hostname: r302
+              hostmac: b8:27:eb:ab:95:ef
+              ip: 10.9.9.2
+              serial: 38ab95ef
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r305:
+              hostname: r305
+              hostmac: b8:27:eb:f7:67:e4
+              ip: 10.9.9.5
+              serial: 31f767e4
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+        k8s1workers:
+          hosts:
+            r303:
+              hostname: r303
+              hostmac: b8:27:eb:c4:4c:7c
+              ip: 10.9.9.3
+              serial: 02c44c7c
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r304:
+              hostname: r304
+              hostmac: b8:27:eb:24:c3:5c
+              ip: 10.9.9.4
+              serial: c524c35c
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r306:
+              hostname: r306
+              hostmac: b8:27:eb:ca:0b:cf
+              ip: 10.9.9.6
+              pool: SAMSUNG_1TB_NVME
+              serial: 6fca0bcf
+              boot_from_san: true
+            ia02:
+              hostname: ia02
+              hostmac: 90:2b:34:11:9a:e0
+              ip: 10.9.9.14
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+              extent_filename: iamaster
+              k8s_disks: #these will be added to a /mnt folder for local pvcs
+                disk1:
+                  disk: /dev/disk/by-path/pci-0000:03:00.0-ata-1
+                  path: /mnt/disk1
+            ia03:
+              hostname: ia03
+              hostmac: 68:05:ca:28:1c:09
+              ip: 10.9.9.15
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+              extent_filename: iamaster
+              k8s_disks: #these will be added to a /mnt folder for local pvcs
+                disk1:
+                  disk: /dev/disk/by-path/pci-0000:00:1f.2-ata-1
+                  path: /mnt/disk1
+      vars:
+        vrrp: 92
+        zfs_snapshot: 20200425
+        vip: 10.9.9.101
+        lb_range: 10.9.10.1-10.9.10.254
+        masters:
+          - r301
+          - r302
+          - r305
+        workers:
+          - r303
+          - r304
+          - r306
+          - ia02
+          - ia03
+        token: udy29x.ugyyk3tumg27atmr
+        podnet: 10.244.0.0/16
+        kubernetes_package_version: "1.18.2-00"
+        kubernetes_version: "v1.18.2"
+        docker_ce_version: "5:19.03"
+        metallb_version: "v0.9.3"
+        flannel_version: "master"
+        dashboard_ip: "10.9.9.200"
+        power_url: http://blanc:8000/devices/K8s%20Cluster%20-%20Power%20Switch%201
+        cluster_name: k8s1
+        prod_cluster: true
+    k8s2:
+      children:
+        k8s2masters:
+          hosts:
+            r307:
+              hostname: r307
+              hostmac: b8:27:eb:95:81:bc
+              ip: 10.9.9.7
+              serial: 219581bc
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r309:
+              hostname: r309
+              hostmac: b8:27:eb:0b:e4:83
+              ip: 10.9.9.9
+              serial: 550be483
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r310:
+              hostname: r310
+              hostmac: b8:27:eb:38:8a:39
+              ip: 10.9.9.10
+              serial: ed388a39
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+        k8s2workers:
+          hosts:
+            r308:
+              hostname: r308
+              hostmac: b8:27:eb:cd:2c:bd
+              ip: 10.9.9.8
+              serial: 1ccd2cbd
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r311:
+              hostname: r311
+              hostmac: b8:27:eb:2d:54:9b
+              ip: 10.9.9.11
+              serial: a62d549b
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r312:
+              hostname: r312
+              hostmac: b8:27:eb:9e:63:e5
+              ip: 10.9.9.12
+              pool: SAMSUNG_1TB_NVME
+              serial: ba9e63e5
+              boot_from_san: true
+            ia01:
+              hostname: ia01
+              hostmac: 00:01:2e:48:a8:89
+              ip: 10.9.9.13
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+              extent_filename: iamaster
+              # zfs_snapshot: 20200425 # Comment this if it's the same for rpi's as well
+              k8s_disks: #these will be added to a /mnt folder for local pvcs
+                disk1:
+                  disk: /dev/disk/by-path/pci-0000:00:1f.2-ata-1
+                  path: /mnt/disk1
+      vars:
+        vrrp: 93
+        zfs_snapshot: 20200425
+        vip: 10.9.9.102
+        lb_range: 10.9.11.1-10.9.11.254
+        masters:
+          - r307
+          - r309
+          - r310
+        workers:
+          - r308
+          - r311
+          - r312
+          - ia01
+        token: udy29x.ugyyk3tumg27atmr
+        podnet: 10.244.0.0/16
+        kubernetes_package_version: "1.18.2-00"
+        kubernetes_version: "v1.18.2"
+        docker_ce_version: "5:19.03"
+        metallb_version: "v0.9.3"
+        flannel_version: "master"
+        dashboard_ip: "10.9.9.201"
+        power_url: http://blanc:8000/devices/K8s%20Cluster%20-%20Power%20Switch%202
+        cluster_name: k8s2
+        extent_filename: rpimaster
+        prod_cluster: false
+  vars:
+    ansible_user: ansible
+    boot_from_san: false
+    ups: client

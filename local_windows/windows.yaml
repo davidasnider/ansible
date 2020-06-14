@@ -1,0 +1,14 @@
+---
+- hosts: windows
+  # connection: local
+  become: true
+
+  tasks:
+
+  - name: Install multiple packages
+    win_chocolatey:
+      name:
+      - steam
+      - vscode
+      - git
+      state: present

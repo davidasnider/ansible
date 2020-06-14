@@ -1,0 +1,2 @@
+/shared	/etc/auto.shared --timeout=60 --ghost
+/Network/Servers -hosts --timeout=60 

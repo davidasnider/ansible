@@ -1,0 +1,146 @@
+- name: set k8s setup fact to false
+  set_fact:
+    k8s_setup: false
+
+- name: Kubeadm init
+  shell: kubeadm init --config=/tmp/kubeadm-ha/kubeadm-config.yaml --upload-certs
+  register: rslt
+  tags: init-first-k8s-master
+  args:
+    creates: /etc/kubernetes/pki/ca.key
+
+- name: Store init output
+  action: copy content="{{ rslt.stdout }}" dest="/etc/kubernetes/kubeadm-init.stdout"
+  tags: init-first-k8s-master
+
+- name: set k8s setup fact to true when kubeadm init runs
+  set_fact:
+    k8s_setup: true
+  when: rslt.changed
+
+- name: Create .kube folder
+  file:
+    path: "~{{ item }}/.kube"
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  tags: init-first-k8s-master
+  loop:
+    - ansible
+    - root
+    - david
+
+- name: Copy admin.conf to .kube folder
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "~{{ item }}/.kube/config"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    remote_src: yes
+  tags: init-first-k8s-master
+  loop:
+    - ansible
+    - root
+    - david
+
+- name: Install flannel
+  # Do this till the next release which fixes it the cni version setting in the config map
+  shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/2be363419f0cf6a497235a457f6511df396685d4/Documentation/kube-flannel.yml
+  # shell: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+  tags: init-first-k8s-master
+  when: rslt.changed
+
+- name: Install metallb namespace
+  shell: kubectl apply -f https://raw.githubusercontent.com/google/metallb/{{ metallb_version }}/manifests/namespace.yaml
+  tags: init-first-k8s-master
+  when: rslt.changed
+
+- name: Install metallb
+  shell: kubectl apply -f https://raw.githubusercontent.com/google/metallb/{{ metallb_version }}/manifests/metallb.yaml
+  tags: init-first-k8s-master
+  when: rslt.changed
+
+- name: Install metallb secret
+  shell: kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
+  tags: init-first-k8s-master
+  when: rslt.changed
+
+- name: Copy configuration file for metallb
+  template:
+    src: metallb-config.yaml
+    dest: /etc/kubernetes/metallb-config.yaml
+  tags: init-first-k8s-master
+  when: rslt.changed
+
+- name: configure metallb
+  shell: kubectl apply -f /etc/kubernetes/metallb-config.yaml
+  tags: init-first-k8s-master
+  when: rslt.changed
+
+- name: install freenas secret
+  template:
+    src: freenas-secret.yaml
+    dest: /etc/kubernetes/freenas-secret.yaml
+  when: rslt.changed
+  tags: init-first-k8s-master
+
+- name: install freenas files
+  copy:
+    src: "{{ item }}"
+    dest: /etc/kubernetes/{{ item }}
+  loop:
+    - freenas-rbac.yaml
+    - freenas-deployment.yaml
+    - freenas-class.yaml
+    - test-claim.yaml
+    - test-pod.yaml
+  when: rslt.changed
+  tags: init-first-k8s-master
+
+- name: install freenas storage provider
+  shell: kubectl apply -f /etc/kubernetes/freenas-rbac.yaml -f /etc/kubernetes/freenas-deployment.yaml
+    -f /etc/kubernetes/freenas-secret.yaml -f /etc/kubernetes/freenas-class.yaml
+  when: rslt.changed
+  tags: init-first-k8s-master
+
+- name: Install Final Health Check Script for Kube-Apiserver
+  template:
+    src: check-kube-apiserver.sh
+    dest: /usr/local/bin/check-kube-apiserver.sh
+    owner: root
+    group: root
+    mode: "0755"
+  tags: init-first-k8s-master
+
+- name: Fetching Kubernetes Master PKI files from primary master
+  fetch:
+    src: /etc/kubernetes/pki/{{item}}
+    dest: /tmp/kubeadm-ha/pki/{{item}}
+    flat: yes
+  with_items:
+    - ca.crt
+    - ca.key
+    - sa.key
+    - sa.pub
+    - front-proxy-ca.crt
+    - front-proxy-ca.key
+  when: rslt.changed
+
+- name: Fetching Kubernetes Master ETCD files from primary master
+  fetch:
+    src: /etc/kubernetes/pki/etcd/{{item}}
+    dest: /tmp/kubeadm-ha/pki/etcd/{{item}}
+    flat: yes
+  with_items:
+    - ca.crt
+    - ca.key
+  when: rslt.changed
+
+- name: Fetching Kubernetes Master Admin files from primary master
+  fetch:
+    src: /etc/kubernetes/{{item}}
+    dest: /tmp/kubeadm-ha/{{item}}
+    flat: yes
+  with_items:
+    - admin.conf
+  when: rslt.changed

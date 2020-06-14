@@ -1,0 +1,5 @@
+[user]
+	name = David Snider
+	email = david@davidsnider.org
+[push]
+	default = simple

@@ -1,0 +1,20 @@
+---
+- hosts: 127.0.0.1
+  tasks:
+
+# First, we turn off all of the raspberrry pis:
+  - name: Turn On Raspberry Pi Cluster
+    uri:
+      url: "{{ hostvars[groups[cluster][0]]['power_url'] }}"
+      method: PUT
+      body: "isOn=1"
+      status_code: 303
+
+- hosts: gw
+  tasks:
+
+  - name: Send a magic Wake-on-LAN packet to intel atom servers
+    shell: "ether-wake -i enp2s0 {{ hostvars[item].hostmac }}"
+    loop: "{{ groups[cluster]|flatten(levels=1) }}"
+    when: hostvars[item].serial is not defined
+    tags: wakeonlan

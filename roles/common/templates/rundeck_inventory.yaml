@@ -1,0 +1,19 @@
+{{ inventory_hostname_short }}:
+  hostname: {{ inventory_hostname_short }}.thesniderpad.com
+  nodename: {{ inventory_hostname_short }}
+  osArch: {{ ansible_architecture }}
+  osFamily: {{ ansible_os_family }}
+  osName: {{ ansible_distribution }}
+  osVersion: {{ ansible_distribution_version }}
+  tags: '{{ group_names | join(",") }}'
+  # If we have a username named ansible, we've also created rundeck.  Otherwise
+  # we've likely used a specific ID for logging into ansible, use that.
+  username: {{ 'rundeck' if ansible_user == 'ansible' else ansible_user }}
+  kernel: {{ ansible_kernel }}
+  lsb_codename: {{ ansible_lsb.codename if ansible_os_family == 'Debian' else 'na'}}
+  lsb_id: {{ ansible_lsb.id if ansible_os_family == 'Debian' else 'na'}}
+  lsb_release: {{ ansible_lsb.release if ansible_os_family == 'Debian' else 'na'}}
+  ansible_iscsi_iqn: {{ ansible_iscsi_iqn if boot_from_san == true else 'na'}}
+  system: {{ ansible_system }}
+  prod_cluster: {{ prod_cluster if prod_cluster is defined else 'na' }}
+  docker_host: {{ 'true' if docker_ce_version is defined else 'false' }}

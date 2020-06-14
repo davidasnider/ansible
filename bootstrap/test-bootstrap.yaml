@@ -1,0 +1,8 @@
+
+- import_playbook: ../bootstrap/ubuntu_init.yaml
+
+- hosts: all
+  become: true
+  gather_facts: true
+
+- import_playbook: ../bootstrap/main.yaml

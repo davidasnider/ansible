@@ -1,0 +1,8 @@
+- name: Generate all static IP mappings
+  lineinfile:
+    path: /etc/hosts
+    regexp: "^{{ item.ip }} .*"
+    line: "{{ item.ip}} {{ item.name }}.thesniderpad.com"
+  loop: "{{ static_dns_records }}"
+  notify:
+    - restart dnsmasq

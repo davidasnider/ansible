@@ -1,0 +1,205 @@
+  # We do this here because at least one node needs to be installed in order to
+  # get the loadBalancerIP
+  # Let's wait for the controller to be available
+
+- name: Wait for MetalLB Deployment to be ready
+  command: kubectl rollout status deployment.v1.apps/controller -n metallb-system
+  register: cmd_res
+  retries: 30
+  delay: 10
+  when:
+    - masters[0] == inventory_hostname
+  until: cmd_res.stdout.find("successfully rolled out") != -1
+  changed_when: false
+
+# Install Cert Manager 
+- name: Get the Cert Manager repo
+  git:
+    repo: git@bitbucket.org:davidasnider/cert-manager.git
+    dest: /usr/local/src/cert-manager
+    key_file: /home/ansible/.ssh/id_rsa
+    depth: '1'
+    accept_hostkey: yes
+  when:
+    - masters[0] == inventory_hostname
+  tags: cert-manager
+
+- name: Apply Cert Manager manifest
+  command: kubectl apply -f cert-manager.yaml
+  args:
+    chdir: /usr/local/src/cert-manager
+  when:
+    - masters[0] == inventory_hostname
+  changed_when: false
+  tags: cert-manager
+
+- name: Wait for cert-manager-webhook Deployment to be ready
+  command: kubectl -n cert-manager rollout status deployment cert-manager-webhook
+  register: cmd_webhook_res
+  retries: 30
+  delay: 10
+  when:
+    - masters[0] == inventory_hostname
+  until: cmd_webhook_res.stdout.find("successfully rolled out") != -1
+  changed_when: false
+  tags: cert-manager
+
+# Create a cluster issuer
+- name: Apply Cert Manager ClusterIssuer Manifest
+  command: kubectl apply -k prod
+  args:
+    chdir: /usr/local/src/cert-manager
+  when:
+    - masters[0] == inventory_hostname
+  changed_when: false
+  tags: cert-manager
+
+- import_tasks: nonprod_services.yaml
+  when:
+    - not prod_cluster
+    - masters[0] == inventory_hostname
+
+- import_tasks: prod_services.yaml
+  when:
+    - prod_cluster | bool
+    - masters[0] == inventory_hostname
+
+- name: download the dashboard kustomize files
+  copy:
+    src: dashboard
+    dest: /etc/kubernetes
+  tags: dashboard-install
+  delegate_to: "{{ masters[0] }}"
+  when:
+    - masters[0] == inventory_hostname
+
+- name: install the Dashboard on nonprod
+  shell: kubectl apply -k /etc/kubernetes/dashboard/nonprod
+  register: dashboard_install
+  tags: dashboard-install
+  delegate_to: "{{ masters[0] }}"
+  when:
+    - masters[0] == inventory_hostname
+    - prod_cluster == false 
+  changed_when: "'configured' in dashboard_install.stdout"
+
+- name: install the Dashboard on prod
+  shell: kubectl apply -k /etc/kubernetes/dashboard/prod
+  register: dashboard_install
+  tags: dashboard-install
+  delegate_to: "{{ masters[0] }}"
+  when:
+    - masters[0] == inventory_hostname
+    - prod_cluster == true 
+  changed_when: "'configured' in dashboard_install.stdout"
+
+- name: download the dashboard users files
+  copy:
+    src: dashboard-user.yaml
+    dest: /etc/kubernetes/dashboard-user.yaml
+  tags: dashboard-install
+  delegate_to: "{{ masters[0] }}"
+  when:
+    - masters[0] == inventory_hostname
+
+- name: install the dashboard user
+  shell: kubectl apply -f /etc/kubernetes/dashboard-user.yaml
+  tags: dashboard-install
+  register: dashboard_user
+  delegate_to: "{{ masters[0] }}"
+  when:
+    - masters[0] == inventory_hostname
+  changed_when: "'configured' in dashboard_user.stdout"
+
+## Generate a kubeconfig file for the person running the ansible playbooks.
+- name: get cluster admin token
+  shell: 'kubectl get secret --namespace kube-system $(kubectl get serviceaccount admin-user --namespace kube-system -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode'
+  register: cluster_token
+  changed_when: false
+  tags: kubeconfig
+  when:
+    - masters[0] == inventory_hostname
+
+- name: get cluster ca cert
+  shell: "kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[0].cluster.certificate-authority-data}'"
+  register: cluster_ca_cert
+  changed_when: false
+  tags: kubeconfig
+  when:
+    - masters[0] == inventory_hostname
+
+- name: generate the kubeconfig file
+  shell: |
+    kubeconfig_file="$HOME/.kube/{{ cluster_name }}.kubeconfig"
+    kubectl config --kubeconfig=$kubeconfig_file \
+      set-cluster {{ cluster_name }} \
+      --server=https://{{ vip }}:6443
+    kubectl config --kubeconfig=$kubeconfig_file \
+      set clusters.{{ cluster_name }}.certificate-authority-data {{ cluster_ca_cert.stdout }}
+    kubectl config --kubeconfig=$kubeconfig_file \
+      set-credentials {{ cluster_name }}-admin \
+      --token {{ cluster_token.stdout }}
+    kubectl config --kubeconfig=$kubeconfig_file \
+     set-context {{ cluster_name }} \
+     --cluster={{ cluster_name }} \
+     --user={{ cluster_name }}-admin
+    kubectl config --kubeconfig=$kubeconfig_file \
+     use-context {{ cluster_name }}
+  delegate_to: localhost
+  become: false
+  changed_when: false
+  tags: kubeconfig
+  when:
+    - masters[0] == inventory_hostname
+  # forks: 1  # Wait for this feature to come available
+
+# Setup local storage volumes on servers who have fast disks
+- name: download the local storage class file
+  copy:
+    src: local-storage.yaml
+    dest: /etc/kubernetes/local-storage.yaml
+  tags: localstorage
+  when:
+    - masters[0] == inventory_hostname
+
+- name: Setup the local storage class
+  shell: "kubectl apply -f /etc/kubernetes/local-storage.yaml"
+  when:
+    - masters[0] == inventory_hostname
+  tags: localstorage
+  register: localstorageclass
+  changed_when: "'configured' in localstorageclass.stdout"
+
+- name: Copy the provisioner manifest
+  copy:
+    src: provisioner_generated.yaml
+    dest: /etc/kubernetes/provisioner_generated.yaml
+  tags: localstorage
+  when:
+    - masters[0] == inventory_hostname
+
+- name: Setup the local storage provisioner
+  shell: "kubectl apply -f /etc/kubernetes/provisioner_generated.yaml"
+  when:
+    - masters[0] == inventory_hostname
+  tags: localstorage
+  register: storageprovisioner
+  changed_when: "'configured' in storageprovisioner.stdout"
+
+# Ensure CoreDNS has anti affinity rules 
+- name: Copy the coredns patch file
+  copy:
+    src: dns-antiaffinity.yaml
+    dest: /etc/kubernetes/dns-antiaffinity.yaml
+  tags: dns-antiaffinity
+  when:
+    - masters[0] == inventory_hostname
+
+- name: Apply coredns anti affinity rules
+  shell: "kubectl patch deployment coredns -n kube-system --type merge --patch \"$(cat /etc/kubernetes/dns-antiaffinity.yaml)\""
+  when:
+    - masters[0] == inventory_hostname
+  tags: dns-antiaffinity
+  register: coredns
+  changed_when: "'configured' in coredns.stdout"
+

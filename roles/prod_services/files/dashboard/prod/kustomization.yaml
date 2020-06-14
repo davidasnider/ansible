@@ -1,0 +1,9 @@
+# kustomization.yaml
+bases:
+- ../base
+
+patchesStrategicMerge:
+- prod.yaml
+
+resources:
+- certificate.yaml

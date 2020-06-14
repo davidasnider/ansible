@@ -1,0 +1,36 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.9.9.201
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  labels:
+    k8s-app: kubernetes-dashboard
+  name: kubernetes-dashboard
+  namespace: kubernetes-dashboard
+spec:
+  selector:
+    matchLabels:
+      k8s-app: kubernetes-dashboard
+  template:
+    spec:
+      containers:
+        - name: kubernetes-dashboard
+          args:
+            - --namespace=kubernetes-dashboard
+            - --auto-generate-certificates=false
+            - --tls-cert-file=tls.crt
+            - --tls-key-file=tls.key
+      volumes:
+        - name: kubernetes-dashboard-certs
+          secret:
+            secretName: k8s2-thesniderpad-com-tls

@@ -1,0 +1,40 @@
+---
+- name: check reachable hosts
+  hosts: "{{ cluster }}"
+  gather_facts: no
+  tasks:
+    - name: Ping server, check if it is up
+      command: ping -c1 {{ inventory_hostname }}
+      delegate_to: localhost
+      register: ping_result
+      ignore_errors: yes
+
+    - group_by:
+        key: reachable
+      when: ping_result is success
+
+- hosts: reachable
+  become: true
+  gather_facts: no
+  tasks:
+
+    - name: try to shutdown host
+      command: /sbin/shutdown -h now
+      ignore_errors: yes
+
+    - meta: clear_host_errors
+
+    - name: wait for host to go down
+      local_action: wait_for host={{ ansible_ssh_host }} port=22 state=stopped
+      become: false
+
+- hosts: 127.0.0.1
+  tasks:
+
+# Turn off all of the raspberrry pis:
+  - name: Turn Off Raspberry Pi Cluster
+    uri:
+      url: "{{ hostvars[groups[cluster][0]]['power_url'] }}"
+      method: PUT
+      body: "isOn=0"
+      status_code: 303

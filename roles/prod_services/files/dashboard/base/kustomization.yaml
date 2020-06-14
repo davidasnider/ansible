@@ -1,0 +1,14 @@
+# kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: kubernetes-dashboard
+
+# list of Resource Config to be Applied
+resources:
+# Get this file by running this command with the correct version of the URL:
+#  wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+- recommended.yaml
+
+generatorOptions:
+  disableNameSuffixHash: true

@@ -1,0 +1,136 @@
+---
+- hosts: 127.0.0.1
+  vars_files:
+    - ../site-variables.yaml
+  environment:
+    VAULT_TOKEN: "{{ vault_ansible_token }}"
+    VAULT_ADDR: "https://vault.thesniderpad.com"
+    PASSWORD: "{{ vaulted.data.LINUX_CLEAR_PASSWORD }}"
+    USERNAME: "{{ vaulted.data.SHIRAZ_ADMIN_USER }}"
+  vars:
+    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+  tasks:
+
+  # This will run a script that will delete all the luns. It loops through
+  # the group passed on the cmd line as cluster
+  # Todo: make that a variable somehow.
+  - name: Delete each of the iscsi luns for the nodes in the group
+    command: ./utilities/delete_lun.py {{ item }}
+    loop: "{{ groups[cluster]|flatten(levels=1) }}"
+
+- hosts: gw
+  tasks:
+
+    # Every host should have a host setting on the gateway as well as
+    # working DNS.
+    - name: Make sure the static dhcp entry is on the gateway
+      lineinfile:
+        path: /etc/ethers
+        regexp: "^{{ hostvars[item].hostmac }}.*"
+        line: "{{ hostvars[item].hostmac }} {{ hostvars[item].ip }}"
+      loop: "{{ groups[cluster]|flatten(levels=1) }}"
+      notify:
+        - restart dnsmasq
+
+    - name: Make sure the dns entry is on the gateway
+      lineinfile:
+        path: /etc/hosts
+        regexp: "^{{ hostvars[item].ip }} .*"
+        line: "{{ hostvars[item].ip}} {{ hostvars[item].hostname }}.thesniderpad.com"
+      loop: "{{ groups[cluster]|flatten(levels=1) }}"
+      notify:
+        - restart dnsmasq
+
+    # Create the file that is used to copy the boot directory for the PXE clients
+    - name: Create the create_new_pxe_client file
+      copy:
+        src: create_new_pxe_client.sh
+        dest: /tftproot/create_new_pxe_client.sh
+        owner: root
+        group: root
+        mode: 0755
+
+    # Create/recreate the boot directory
+    - name: Recreate the boot directory
+      command: /tftproot/create_new_pxe_client.sh {{ hostvars[item].serial }} {{ hostvars[item].hostname }}
+      args:
+        chdir: /tftproot
+      loop: "{{ groups[cluster]|flatten(levels=1) }}"
+      when: hostvars[item].serial is defined # we only do this for raspberry pi's, intel boxes boot straight from the iscsi lun
+      tags: recreate-boot-directory
+
+  handlers:
+    - name: restart dnsmasq
+      service:
+        name: dnsmasq
+        state: restarted
+
+- hosts: shiraz
+  tasks:
+
+    - name: delete the zfs boot disks
+      command: zfs destroy -rf {{ hostvars[item].pool }}/{{ hostvars[item].hostname }}_iscsi_luns
+      args:
+        removes: /mnt/{{ hostvars[item].pool }}/{{ hostvars[item].hostname }}_iscsi_luns
+      loop: "{{ groups[cluster]|flatten(levels=1) }}"
+      tags: iamaster
+
+    - name: get a list of the master iscsi snapshots
+      shell: zfs list -t snapshot -o name | grep iscsi | awk -F @ '{print $1}'|sort -u
+      register: snapshots
+
+    - name: reset the master snapshots
+      shell: zfs rollback `zfs list -t snapshot -o name -s creation -r {{ item }} | tail -1`
+      loop: "{{ snapshots.stdout_lines }}"
+
+# run these commands to create the iscsi_luns for Raspberry Pi
+    - name: create the physical boot disks for raspberry pi
+      shell: |
+        zfs set compression=off {{ hostvars[item].pool }}
+        zfs clone {{ hostvars[item].pool }}/rpimaster_iscsi_luns@{{ hostvars[item].zfs_snapshot }} {{ hostvars[item].pool }}/{{ item }}_iscsi_luns
+        zfs set compression=off {{ hostvars[item].pool }}/{{ item }}_iscsi_luns
+        zfs set compression=lz4 {{ hostvars[item].pool }}
+      args:
+        creates: /mnt/{{ hostvars[item].pool }}/{{ hostvars[item].hostname }}_iscsi_luns/rpimaster
+      loop: "{{ groups[cluster]|flatten(levels=1) }}"
+      when: hostvars[item].serial is defined
+
+# run these commands to create the iscsi_luns for Intel Atom
+    - name: create the physical boot disks for intel atom
+      shell: |
+        zfs set compression=off {{ hostvars[item].pool }}
+        zfs clone {{ hostvars[item].pool }}/iamaster_iscsi_luns@{{ hostvars[item].zfs_snapshot }} {{ hostvars[item].pool }}/{{ item }}_iscsi_luns
+        zfs set compression=off {{ hostvars[item].pool }}/{{ item }}_iscsi_luns
+        zfs set compression=lz4 {{ hostvars[item].pool }}
+      args:
+        creates: /mnt/{{ hostvars[item].pool }}/{{ hostvars[item].hostname }}_iscsi_luns/iamaster
+      loop: "{{ groups[cluster]|flatten(levels=1) }}"
+      when: hostvars[item].serial is not defined
+      tags: iamaster
+
+- hosts: 127.0.0.1
+  vars_files:
+    - ../site-variables.yaml
+  environment:
+    VAULT_TOKEN: "{{ vault_ansible_token }}"
+    VAULT_ADDR: "https://vault.thesniderpad.com"
+    PASSWORD: "{{ vaulted.data.LINUX_CLEAR_PASSWORD }}"
+  vars:
+    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+  tasks:
+
+# Create the LUNS on shiraz for Raspberry Pi
+  - name: Create each of the iscsi luns for the nodes in the group rpimaster
+    command: ./utilities/create_lun.py {{ item }} {{ hostvars[item].pool }} rpimaster
+    loop: "{{ groups[cluster]|flatten(levels=1) }}"
+    when: hostvars[item].serial is defined
+
+# Create the LUNS on shiraz for Intel Atom
+  - name: Create each of the iscsi luns for the nodes in the group iamaster
+    command: ./utilities/create_lun.py {{ item }} {{ hostvars[item].pool }} iamaster
+    loop: "{{ groups[cluster]|flatten(levels=1) }}"
+    when: hostvars[item].serial is not defined
+
+# Restart the ISCSI service
+  - name: Restart iSCSI Service
+    command: ./utilities/restart_iscsi.py

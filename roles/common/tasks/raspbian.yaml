@@ -1,0 +1,78 @@
+- name: Create Ansible user
+  user:
+    name: ansible
+    shell: /bin/bash
+    comment: "Ansible management user"
+    home: /home/ansible
+    createhome: yes
+    uid: "3000"
+
+- name: Add Ansible user to admin group
+  user:
+    name: ansible
+    groups: sudo
+    append: yes
+
+- name: Ensure admin group can sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%sudo'
+    line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+
+- name: Delete the pi user
+  user:
+    name: pi
+    state: absent
+    remove: yes
+
+- name: copy collectd.Conf
+  template:
+    src: collectd.conf
+    dest: /etc/collectd/collectd.conf
+  notify:
+    - restart collectd
+  tags:
+    - collectd
+
+- name: Start collectd service
+  service:
+    name: collectd
+    state: started
+    enabled: yes
+  tags:
+    - collectd
+
+- name: see if get_boot_wait is set
+  command: raspi-config nonint get_boot_wait
+  register: get_boot_wait
+  changed_when: false
+
+- name: Set Wait for Boot
+  command: raspi-config nonint do_boot_wait 0
+  when:
+    - "'0' not in get_boot_wait.stdout"
+
+- name: Check Default locale
+  shell: cat /etc/default/locale
+  register: get_default_locale
+  ignore_errors: yes
+  changed_when: false
+  tags: raspberrypi_commands
+
+- name: Set Default Locale
+  shell: raspi-config nonint do_change_locale en_US.UTF-8
+  when: "'LANG=en_US.UTF-8' not in get_default_locale.stdout"
+  tags: raspberrypi_commands
+
+- name: Check Keyboard
+  shell: cat /etc/default/keyboard
+  register: get_default_keyboard
+  ignore_errors: yes
+  changed_when: false
+  tags: raspberrypi_commands
+
+- name: Configure Keyboard
+  command: raspi-config nonint do_configure_keyboard us
+  when: "'XKBLAYOUT=\"us\"' not in get_default_keyboard.stdout"
+  tags: raspberrypi_commands

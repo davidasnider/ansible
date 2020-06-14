@@ -1,0 +1,6 @@
+data			-fstype=nfs    shiraz:/mnt/HITACHI_2TB_SLOT3/data
+backups			-fstype=nfs    shiraz:/mnt/HITACHI_2TB_SLOT3/backups
+mythtv_media		-fstype=nfs    shiraz:/mnt/HITACHI_2TB_SLOT1/mythtv_media
+mythtv_media1		-fstype=nfs    shiraz:/mnt/SEAGATE_3TB_SLOT2/mythtv_media
+docker			-fstype=nfs    shiraz:/mnt/SEAGATE_3TB_SLOT2/docker
+archive			-fstype=nfs    shiraz:/mnt/SEAGATE_4TB_SLOT5/archive

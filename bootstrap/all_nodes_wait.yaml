@@ -1,0 +1,15 @@
+- name: Wait for all Nodes
+  hosts: "{{ cluster }}"
+  gather_facts: no
+
+  pre_tasks:
+  - meta: clear_host_errors
+
+  - name: Wait 300 seconds for port 22 to become open and contain "OpenSSH"
+    become: no
+    wait_for:
+      port: 22
+      host: '{{ inventory_hostname }}'
+      delay: 10
+      timeout: 300
+    connection: local

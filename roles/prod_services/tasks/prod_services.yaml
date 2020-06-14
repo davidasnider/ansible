@@ -1,0 +1,136 @@
+- name: Get all existing namespaces
+  command: kubectl get namespaces
+  args:
+    warn: no
+  register: namespaces
+  changed_when: false
+  ignore_errors: true
+
+#### Create the docker registry
+# Validate the namespace doesn't already exist
+- name: Create the registry namespace when it does not exist
+  command: kubectl create namespace docker-registry
+  when: "'docker-registry' not in namespaces.stdout"
+
+- name: Get the docker-registry repo
+  git:
+    repo: git@bitbucket.org:davidasnider/docker-registry.git
+    dest: /usr/local/src/docker-registry
+    key_file: /home/ansible/.ssh/id_rsa
+    depth: '1'
+    accept_hostkey: yes
+
+- name: Create the registry physical volume
+  command: kubectl apply -f /usr/local/src/docker-registry/registry-pv.yaml
+  changed_when: false
+
+- name: Create the docker registry services and pods
+  command: kubectl apply -f /usr/local/src/docker-registry/registry-manifest.yaml
+  changed_when: false
+
+#### Setup the Remote-ssh service
+# Get the code
+- name: Get the python-scripts repo
+  git:
+    repo: git@bitbucket.org:davidasnider/python-scripts.git
+    dest: /usr/local/src/python-scripts
+    key_file: /home/ansible/.ssh/id_rsa
+    depth: '1'
+    accept_hostkey: yes
+
+# Create the namespace and secrets
+- name: Run the script to create remote-shell
+  command: /usr/local/src/python-scripts/docker-remote-shell/create_secrets.sh
+  args:
+    chdir: /usr/local/src/python-scripts/docker-remote-shell
+  changed_when: false
+
+# Create the pods and services
+- name: Run the script to create remote-shell pods and services
+  command: kubectl apply -f /usr/local/src/python-scripts/docker-remote-shell/remote-shell.yaml
+  args:
+    chdir: /usr/local/src/python-scripts/docker-remote-shell
+  changed_when: false
+
+#### Create the mailrelay service
+- name: Create the mailrelay namespace when it does not exist
+  command: kubectl create namespace mailrelay
+  when: "'mailrelay' not in namespaces.stdout"
+
+- name: copy the mailrelay manifest
+  template:
+    src: mailrelay.yaml
+    dest: /etc/kubernetes/mailrelay.yaml
+    owner: root
+    group: root
+    mode: '0644'
+  register: mailrelay_manifest_changed
+
+- name: Create the mailrelay pods and services
+  command: kubectl apply -f /etc/kubernetes/mailrelay.yaml
+  register: mailrelay
+  changed_when: "'configured' in mailrelay.stdout"
+
+
+# Setup rundeck
+- name: Get the rundeck repo
+  git:
+    repo: git@bitbucket.org:davidasnider/rundeck.git
+    dest: /usr/local/src/rundeck
+    key_file: /home/ansible/.ssh/id_rsa
+    depth: '1'
+    accept_hostkey: yes
+
+# Create the pods and services
+- name: Apply Rundeck Prod Kustomize script
+  command: kubectl apply -k prod
+  args:
+    chdir: /usr/local/src/rundeck
+  changed_when: false
+
+#### Create the tesla namespace and secrets
+- name: Get the tesla-collector repo
+  git:
+    repo: git@bitbucket.org:davidasnider/tesla-collector.git
+    dest: /usr/local/src/tesla-collector
+    key_file: /home/ansible/.ssh/id_rsa
+    depth: '1'
+    accept_hostkey: yes
+
+- name: Run the setup command for tesla collector
+  command: kubectl apply -k prod
+  args:
+    chdir: /usr/local/src/tesla-collector/k8s
+  changed_when: false
+  
+# Setup Icinga Prod Services
+- name: Get the Icinga repo
+  git:
+    repo: git@bitbucket.org:davidasnider/icinga_k8s.git
+    dest: /usr/local/src/icinga
+    key_file: /home/ansible/.ssh/id_rsa
+    depth: '1'
+    accept_hostkey: yes
+
+# Create the pods and services
+- name: Apply Icinga Primary Kustomize script
+  command: kubectl apply -k primary
+  args:
+    chdir: /usr/local/src/icinga
+  changed_when: false
+
+# Setup Metrics Services
+- name: Get the Metrics repo
+  git:
+    repo: git@bitbucket.org:davidasnider/metrics_k8s.git
+    dest: /usr/local/src/metrics_k8s
+    key_file: /home/ansible/.ssh/id_rsa
+    depth: '1'
+    accept_hostkey: yes
+
+# Create the pods and services
+- name: Apply Metrics Kustomize script
+  command: kubectl apply -k prod
+  args:
+    chdir: /usr/local/src/metrics_k8s
+  changed_when: false

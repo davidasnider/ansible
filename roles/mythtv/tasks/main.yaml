@@ -1,0 +1,129 @@
+- name: Add mythtv-light apt signing key
+  apt_key:
+    url: https://bintray.com/user/downloadSubjectPublicKey?username=bintray
+    state: present
+
+- name: Add mythtv-light repo
+  apt_repository:
+    repo: deb http://dl.bintray.com/bennettpeter/deb/ buster myth30
+    state: present
+
+- name: install mythtv-light packages
+  apt:
+    install_recommends: no
+    name: [
+      mythtv-light,
+      mariadb-server,
+      libxinerama1
+    ]
+    state: present
+    update_cache: true
+
+- name: create mythtv group
+  group:
+      name: mythtv
+      state: present
+      gid: '1007'
+
+- name: create mythtv user
+  user:
+      name: mythtv
+      create_home: yes
+      groups:
+        - video
+        - audio
+      uid: '1007'
+      group: mythtv
+      state: present
+      password: "{{ vaulted.data.LINUX_PASSWORD }}"
+
+- name: Add authorized lkey for mythtv user
+  authorized_key:
+    user: mythtv
+    state: present
+    key: "{{ vaulted.data.id_rsa_pub }}"
+
+- name: Check if the timezone tables are populated
+  shell: mysql -u root -e "SELECT COUNT(*) FROM mysql.time_zone_name;" -sN
+  register: tz_tables
+  changed_when: false
+
+- name: Populate timezone tables when necessary
+  shell: mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -uroot mysql
+  when: tz_tables.stdout == "0"
+  notify: Restart Mysql
+
+- name: bind mysql remote address
+  ini_file: 
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    section: mysqld
+    option: bind-address
+    value: "0.0.0.0"
+  notify:
+  - Restart Mysql
+
+- name: Get all backup files
+  find:
+    paths: "/shared/data/mythtv_backups"
+  register: found_files
+
+- name: Get latest backup file from found files
+  set_fact:
+    latest_file: "{{ found_files.files | sort(attribute='mtime',reverse=true) | first }}"
+
+- name: Create database
+  mysql_db:
+      name: mythconverg
+      state: present
+  register: db_created
+  notify: Restart Mythtv
+
+- name: Restore Database when DB is created
+  shell: /usr/share/mythtv/mythconverg_restore.pl --filename="{{ latest_file.path }}"
+  when: db_created.changed
+  notify: Restart Mythtv
+
+- name: Create mythtv@localhost with password and all database privileges and 'WITH GRANT OPTION'
+  mysql_user:
+    name: mythtv
+    password: "{{ vaulted.data.MYTHTV_DB_PASSWORD }}"
+    priv: '*.*:ALL,GRANT'
+    state: present
+
+- name: Create mythtv@'%' with password and all database privileges and 'WITH GRANT OPTION'
+  mysql_user:
+    name: mythtv
+    host: '%'
+    password: "{{ vaulted.data.MYTHTV_DB_PASSWORD }}"
+    priv: '*.*:ALL,GRANT'
+    state: present
+
+- name: Set sysctl values for mythtv
+  sysctl:
+    name: net.core.rmem_max
+    value: "1048576"
+    state: present
+
+- name: Copy database backup file
+  copy:
+      dest: /etc/cron.daily/mythtv-database
+      src: mythtv-database.cron.daily
+      mode: '0555'
+
+- name: Copy mythtv service definition
+  copy:
+    dest: /lib/systemd/system/mythtv-backend.service
+    src: mythtv-backend.service
+
+- name: Create log path
+  file:
+    path: /var/log/mythtv
+    state: directory
+    owner: mythtv
+    group: mythtv
+
+- name: Ensure mythtv service is started
+  service:
+      name: mythtv-backend
+      enabled: true
+      state: started

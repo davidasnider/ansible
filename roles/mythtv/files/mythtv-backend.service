@@ -1,0 +1,16 @@
+[Unit]
+Description=MythTV Backend
+Documentation=https://www.mythtv.org/wiki/Mythbackend
+After=mysql.service network.target
+ 
+[Service]
+User=mythtv
+EnvironmentFile=-/etc/mythtv/additional.args
+ExecStart=/usr/bin/mythbackend --logpath /var/log/mythtv/
+StartLimitBurst=10
+StartLimitInterval=10m
+Restart=on-failure
+RestartSec=1
+ 
+[Install]
+WantedBy=multi-user.target

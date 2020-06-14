@@ -1,0 +1,77 @@
+- name: check node cluster status
+  shell: kubectl get node {{ ansible_hostname }}
+  register: node_cluster_status
+  delegate_to: "{{ masters[0] }}"
+  changed_when: false
+  ignore_errors: yes
+
+- name: "Create kubernetes folders"
+  file:
+    path: /etc/kubernetes/pki/etcd
+    state: directory
+    mode: "0640"
+    owner: root
+    group: root
+  when: node_cluster_status.failed
+
+- name: "Push Kubernetes Master PKI files to master replicas"
+  copy:
+    src: /tmp/kubeadm-ha/
+    dest: /etc/kubernetes/
+    owner: root
+    group: root
+    mode: preserve
+  when: node_cluster_status.failed
+
+- name: Generate master join token
+  shell: kubeadm token create --print-join-command
+  register: kubeadm_join_cmd
+  delegate_to: "{{ masters[0] }}"
+  when: node_cluster_status.failed
+
+- name: Create kubeadmin fact
+  set_fact:
+    kubeadm_join: "{{ kubeadm_join_cmd.stdout }}"
+  when: node_cluster_status.failed
+
+- name: "Installing Kubernetes Master Admin files from primary master"
+  copy:
+    dest: /etc/kubernetes/{{item}}
+    src: /tmp/kubeadm-ha/{{item}}
+    flat: yes
+  with_items:
+    - admin.conf
+  when: node_cluster_status.failed
+
+- name: Create .kube folder
+  file:
+    path: "~{{ item }}/.kube"
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  tags: init-first-k8s-master
+  loop:
+    - ansible
+    - root
+    - david
+  when: node_cluster_status.failed
+
+- name: Copy admin.conf to .kube folder
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "~{{ item }}/.kube/config"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    remote_src: yes
+  tags: init-first-k8s-master
+  loop:
+    - ansible
+    - root
+    - david
+  when: node_cluster_status.failed
+
+- name: Join Master replicas to cluster
+  shell: "{{ kubeadm_join }} --control-plane"
+  args:
+    creates: /etc/kubernetes/bootstrap-kubelet.conf
+  when: node_cluster_status.failed

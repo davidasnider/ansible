@@ -1,0 +1,47 @@
+#### Setup the Remote-ssh service
+# Get the code
+# Create the pods and services
+
+- name: Get all existing namespaces
+  command: kubectl get namespaces
+  args:
+    warn: no
+  register: namespaces
+  changed_when: false
+  ignore_errors: true
+
+#### Delete Docker Registry namespace
+- name: Delete the docker registry services and pods
+  command: kubectl delete namespace docker-registry
+  when: "'docker-registry' in namespaces.stdout"
+
+### Delete remote-shell instance
+- name: Run the script to delete remote-shell pods and services
+  command: kubectl delete namespace remote-shell
+  when: "'remote-shell' in namespaces.stdout"
+
+#### Delete the mailrelay service
+- name: Delete the mailrelay pods and services
+  command: kubectl delete namespace mailrelay
+  when: "'mailrelay' in namespaces.stdout"
+
+#### Delete rundeck
+- name: Delete rundeck
+  command: kubectl delete namespace rundeck
+  when: "'rundeck' in namespaces.stdout"
+
+# Setup Icinga Prod Services
+- name: Get the Icinga repo
+  git:
+    repo: git@bitbucket.org:davidasnider/icinga_k8s.git
+    dest: /usr/local/src/icinga
+    key_file: /home/ansible/.ssh/id_rsa
+    depth: "1"
+    accept_hostkey: yes
+
+# Create the pods and services
+- name: Apply Icinga Secondary Kustomize script
+  command: kubectl apply -k secondary
+  args:
+    chdir: /usr/local/src/icinga
+  changed_when: false

@@ -1,0 +1,56 @@
+all:
+  hosts:
+  children:
+    k8stest:
+      children:
+        k8stestmasters:
+          hosts:
+            testserver1:
+              hostname: testserver1
+              ip: 10.9.8.1
+              boot_from_san: false
+            testserver2:
+              hostname: testserver2
+              ip: 10.9.8.2
+              boot_from_san: false
+            testserver3:
+              hostname: testserver3
+              ip: 10.9.8.3
+              boot_from_san: false
+        k8stestworkers:
+          hosts:
+            testserver4:
+              hostname: testserver4
+              ip: 10.9.8.4
+              boot_from_san: false
+            testserver5:
+              hostname: testserver5
+              ip: 10.9.8.5
+              boot_from_san: false
+      vars:
+        vrrp: 89
+        zfs_snapshot: 20190425
+        vip: 10.9.8.101
+        lb_range: 10.9.8.100-10.9.8.254
+        masters:
+          - testserver1
+          - testserver2
+          - testserver3
+        workers:
+          - testserver4
+          - testserver5
+        token: udy29x.ugyyk3tumg27atmr
+        podnet: 10.244.0.0/16
+        kubernetes_package_version: "1.18.2-00"
+        kubernetes_version: "v1.18.2"
+        docker_ce_version: "5:19.03"
+        metallb_version: "v0.9.3"
+        flannel_version: "master"
+        dashboard_ip: "10.9.8.200"
+        cluster_name: k8stest
+        prod_cluster: false
+  vars:
+    ansible_user: ansible
+    boot_from_san: false
+    ups: client
+    test_env: true

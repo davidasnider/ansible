@@ -1,0 +1,14 @@
+[Unit]
+Description=Hashicorp Vault
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+WorkingDirectory=/usr/local/vault
+
+ExecStart=/usr/bin/docker-compose up
+ExecStop=/usr/bin/docker-compose down
+
+[Install]
+WantedBy=multi-user.target
