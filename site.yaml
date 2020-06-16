@@ -1,8 +1,8 @@
+---
 # Main site file for all ansible playbooks and things scheduled
 # For some reason hvac won't be bundled with ansible via brew, so this commmand fixes it
 # "$(brew --cellar ansible)/$(brew info ansible --json=v1 | jq -r '.[].linked_keg')/libexec/bin/pip" install hvac
 
----
 - name: Add common settings for all servers
   hosts: all
   become: true
