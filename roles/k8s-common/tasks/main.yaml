@@ -47,7 +47,6 @@
     name: docker-ce={{ docker_ce_version }}*
     state: present
     dpkg_options: force-downgrade
-    force: yes  # Necessary to ensure we get the right package version
   tags: docker
 
 - name: Hold docker version
