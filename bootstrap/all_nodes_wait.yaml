@@ -1,5 +1,5 @@
 - name: Wait for all Nodes
-  hosts: "{{ cluster }}"
+  hosts: '{{ cluster }}'
   gather_facts: no
 
   pre_tasks:

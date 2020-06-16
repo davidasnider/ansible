@@ -1,4 +1,3 @@
-
 # - name: Update all packages to the latest version
 #   apt:
 #     upgrade: dist
@@ -9,7 +8,7 @@
     autoclean: yes
     autoremove: yes
     install_recommends: no
-    name: "{{ packages }}"
+    name: '{{ packages }}'
     cache_valid_time: '604800'
   vars:
     packages:
@@ -26,11 +25,11 @@
     - mailutils
     - ethtool
   tags:
-    - autofs
-    - collectd
-    - nrpe
-    - ntp
-    - ssmtp
+  - autofs
+  - collectd
+  - nrpe
+  - ntp
+  - ssmtp
 
 # Mount boot volume for iscsi mounted servers
 - name: Mount boot volume for iscsi mounted servers
@@ -40,8 +39,8 @@
     fstype: nfs
     state: mounted
   when:
-    - boot_from_san | bool
-    - serial is defined
+  - boot_from_san | bool
+  - serial is defined
 
 
 - name: Install packages for physical servers that aren't raspberry pi
@@ -50,84 +49,84 @@
     autoremove: yes
     install_recommends: no
     update_cache: yes
-    name: "{{ packages }}"
+    name: '{{ packages }}'
   vars:
     packages:
-      - smartmontools
-      - libatasmart4
+    - smartmontools
+    - libatasmart4
   when:
-    - ansible_facts['lsb']['id'] != "Raspbian"
+  - ansible_facts['lsb']['id'] != "Raspbian"
 
 - name: Update config for /etc/default/smartmontools
   lineinfile:
     path: /etc/default/smartmontools
-    regexp: ".*start_smartd.*"
-    line: "start_smartd=yes"
+    regexp: .*start_smartd.*
+    line: start_smartd=yes
   notify:
-    - restart smartmontools
+  - restart smartmontools
   when:
-    - ansible_facts['lsb']['id'] != "Raspbian"
+  - ansible_facts['lsb']['id'] != "Raspbian"
 
 - name: Create Rundeck user
   user:
     name: rundeck
     shell: /bin/bash
-    comment: "Ansible management user"
+    comment: Ansible management user
     home: /home/rundeck
     createhome: yes
-    uid: "2000"
-    password: "{{ vaulted.data.LINUX_PASSWORD }}"
+    uid: '2000'
+    password: '{{ vaulted.data.LINUX_PASSWORD }}'
 
 - name: Create David
   user:
     name: david
     shell: /bin/bash
-    comment: "David Snider"
+    comment: David Snider
     home: /home/david
     createhome: yes
-    uid: "1001"
-    password: "{{ vaulted.data.LINUX_PASSWORD }}"
+    uid: '1001'
+    password: '{{ vaulted.data.LINUX_PASSWORD }}'
 
 - name: Create Ansible user
   user:
     name: ansible
     shell: /bin/bash
-    comment: "Ansible management user"
+    comment: Ansible management user
     home: /home/ansible
     createhome: yes
-    uid: "3000"
-    password: "{{ vaulted.data.LINUX_PASSWORD }}"
+    uid: '3000'
+    password: '{{ vaulted.data.LINUX_PASSWORD }}'
 
 - name: Ensure admin group can sudo
   lineinfile:
     dest: /etc/sudoers
     state: present
-    regexp: '^%sudo'
+    regexp: ^%sudo
     line: '%sudo ALL=(ALL) NOPASSWD: ALL'
   when:
-    - ansible_facts['os_family'] == "Debian"
-    - hostvars[inventory_hostname].serial is not defined
+  - ansible_facts['os_family'] == "Debian"
+  - hostvars[inventory_hostname].serial is not defined
 
 - name: Add authorized key
   authorized_key:
-    user: "{{ item }}"
+    user: '{{ item }}'
     state: present
-    key: "{{ vaulted.data.id_rsa_pub }}"
+    key: '{{ vaulted.data.id_rsa_pub }}'
   loop:
-    - ansible
-    - rundeck
-    - david
+  - ansible
+  - rundeck
+  - david
 
 - name: Add authorized key
   authorized_key:
     user: rundeck
     state: present
-    key: "{{ vaulted.data.RUNDECK_AUTHORIZED_KEY }}"
+    key: '{{ vaulted.data.RUNDECK_AUTHORIZED_KEY }}'
 
 - name: Add ssh public key to ansible
   copy:
     dest: /home/ansible/.ssh/id_rsa.pub
-    content: "{{ vaulted.data.id_rsa_pub }}"
+    content: '{{ vaulted.data.id_rsa_pub }}'
     mode: '0600'
     owner: ansible
     group: ansible
@@ -135,7 +134,7 @@
 - name: Add ssh privagte key to ansible
   copy:
     dest: /home/ansible/.ssh/id_rsa
-    content: "{{ vaulted.data.id_rsa }}"
+    content: '{{ vaulted.data.id_rsa }}'
     mode: '0600'
     owner: ansible
     group: ansible
@@ -146,9 +145,9 @@
     dest: /home/{{ item }}/.profile
     mode: '0640'
   loop:
-    - ansible
-    - rundeck
-    - david
+  - ansible
+  - rundeck
+  - david
 
 - name: Start collectd service
   service:
@@ -160,16 +159,16 @@
 - name: allow hosts to talk to nrpe
   lineinfile:
     path: /etc/nagios/nrpe.cfg
-    regexp: '.*allowed_hosts=.*'
-    line: 'allowed_hosts=10.244.0.0/16,10.9.9.0/24'
+    regexp: .*allowed_hosts=.*
+    line: allowed_hosts=10.244.0.0/16,10.9.9.0/24
   tags: nrpe
   notify: restart nrpe
 
 - name: disable ssl for nrpe (I know... it is dumb)
   lineinfile:
     path: /etc/default/nagios-nrpe-server
-    regexp: '.*NRPE_OPTS=.*'
-    line: 'NRPE_OPTS="-n"'
+    regexp: .*NRPE_OPTS=.*
+    line: NRPE_OPTS="-n"
   tags: nrpe
   notify: restart nrpe
 
@@ -229,15 +228,15 @@
 - name: Configure AutoFS
   copy:
     dest: /etc/{{ item }}
-    src: "{{ item }}"
+    src: '{{ item }}'
   loop:
-    - auto.shared
-    - auto.master
+  - auto.shared
+  - auto.master
   when:
-    - ansible_facts['os_family'] == "Debian"
+  - ansible_facts['os_family'] == "Debian"
   tags: autofs
   notify:
-    - restart autofs
+  - restart autofs
 
 # Everyone gets the same git settings
 - name: Copy gitconfig
@@ -246,25 +245,25 @@
     dest: /home/{{ item }}/.gitconfig
     mode: '0644'
   loop:
-    - ansible
-    - david
-    - rundeck
+  - ansible
+  - david
+  - rundeck
   tags: git
 
 - name: Make sure /etc/hostname has the right name
   copy:
-    dest: "/etc/hostname"
+    dest: /etc/hostname
     content: |
       {{ hostname }}
   notify:
-    - reboot server
+  - reboot server
 
 - name: set timezone to UTC
   timezone:
     name: UTC
     hwclock: UTC
   notify:
-    - reboot server
+  - reboot server
 
 - name: Install and configure SSMTP
   include_role:
@@ -278,7 +277,7 @@
     sansible_ssmtp_revaliases: true
     sansible_ssmtp_user: root
     sansible_ssmtp_restrict: no
-    sansible_ssmtp_mailserver_username: "{{ ansible_hostname }}@thesniderpad.com"
+    sansible_ssmtp_mailserver_username: '{{ ansible_hostname }}@thesniderpad.com'
   tags: ssmtp
 
 - name: Install and configure openssh
@@ -304,17 +303,17 @@
 
 - name: Add secondary Groups to user
   user:
-    name: "{{item.0}}"
-    groups: "{{item.1}}"
+    name: '{{item.0}}'
+    groups: '{{item.1}}'
     append: yes
-  when: 'item.1 in etc_groups.stdout_lines'
+  when: item.1 in etc_groups.stdout_lines
   with_nested:
-    - [ 'david', 'ansible', 'rundeck' ]
-    - [ 'docker', 'sudo' ]
+  - [david, ansible, rundeck]
+  - [docker, sudo]
 
 - name: ensure interfaces are wol
   copy:
-    dest: "/etc/systemd/system/wol.service"
+    dest: /etc/systemd/system/wol.service
     content: |
       [Unit]
       Description=Wake-on-LAN for {{ ansible_default_ipv4.interface }}

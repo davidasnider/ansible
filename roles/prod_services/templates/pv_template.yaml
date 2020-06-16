@@ -4,14 +4,14 @@ metadata:
   name: local-pv-{{ ansible_hostname }}-{{ item.0.key }}-{{ item.1 }}
 spec:
   capacity:
-    storage: "{{ item.0.value.size }}Gi"
+    storage: '{{ item.0.value.size }}Gi'
   accessModes:
   - ReadWriteOnce
   - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   local:
-    path: "{{ item.0.value.path }}/{{ item.1 }}"
+    path: '{{ item.0.value.path }}/{{ item.1 }}'
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -19,4 +19,4 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - {{ ansible_hostname }}
+          - {{ansible_hostname: !!null ''}: !!null ''}

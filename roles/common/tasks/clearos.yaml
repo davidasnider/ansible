@@ -11,7 +11,7 @@
     group: root
     mode: 0644
   notify:
-    - restart collectd
+  - restart collectd
 
 - name: Start collectd service
   service:

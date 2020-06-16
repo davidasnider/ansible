@@ -4,9 +4,9 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: "pv-provisioner"
+  name: pv-provisioner
   labels:
-    release: "release-name"
+    release: release-name
     chart: provisioner-2.3.4
 
 ---
@@ -17,7 +17,7 @@ metadata:
   name: local-provisioner-config
   namespace: pv-provisioner
   labels:
-    release: "release-name"
+    release: release-name
     chart: provisioner-2.3.4
 data:
   storageClassMap: |
@@ -37,7 +37,7 @@ metadata:
   namespace: pv-provisioner
   labels:
     app: local-volume-provisioner
-    release: "release-name"
+    release: release-name
     chart: provisioner-2.3.4
 spec:
   selector:
@@ -52,40 +52,40 @@ spec:
       nodeSelector:
         beta.kubernetes.io/arch: amd64
       containers:
-        - image: "quay.io/external_storage/local-volume-provisioner:v2.3.4"
-          name: provisioner
-          securityContext:
-            privileged: true
-          env:
-          - name: MY_NODE_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: spec.nodeName
-          - name: MY_NAMESPACE
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.namespace
-          - name: JOB_CONTAINER_IMAGE
-            value: "quay.io/external_storage/local-volume-provisioner:v2.3.4"
-          volumeMounts:
-            - mountPath: /etc/provisioner/config
-              name: provisioner-config
-              readOnly: true
-            - mountPath: /dev
-              name: provisioner-dev
-            - mountPath: /k8s_local
-              name: fast-disks
-              mountPropagation: "HostToContainer"
+      - image: quay.io/external_storage/local-volume-provisioner:v2.3.4
+        name: provisioner
+        securityContext:
+          privileged: true
+        env:
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: MY_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: JOB_CONTAINER_IMAGE
+          value: quay.io/external_storage/local-volume-provisioner:v2.3.4
+        volumeMounts:
+        - mountPath: /etc/provisioner/config
+          name: provisioner-config
+          readOnly: true
+        - mountPath: /dev
+          name: provisioner-dev
+        - mountPath: /k8s_local
+          name: fast-disks
+          mountPropagation: HostToContainer
       volumes:
-        - name: provisioner-config
-          configMap:
-            name: local-provisioner-config
-        - name: provisioner-dev
-          hostPath:
-            path: /dev
-        - name: fast-disks
-          hostPath:
-            path: /k8s_local
+      - name: provisioner-config
+        configMap:
+          name: local-provisioner-config
+      - name: provisioner-dev
+        hostPath:
+          path: /dev
+      - name: fast-disks
+        hostPath:
+          path: /k8s_local
 
 ---
 # Source: provisioner/templates/provisioner-service-account.yaml
@@ -96,7 +96,7 @@ metadata:
   name: local-storage-admin
   namespace: pv-provisioner
   labels:
-    release: "release-name"
+    release: release-name
     chart: provisioner-2.3.4
 
 ---
@@ -107,7 +107,7 @@ kind: ClusterRoleBinding
 metadata:
   name: local-storage-provisioner-pv-binding
   labels:
-    release: "release-name"
+    release: release-name
     chart: provisioner-2.3.4
 subjects:
 - kind: ServiceAccount
@@ -123,19 +123,19 @@ kind: ClusterRole
 metadata:
   name: local-storage-provisioner-node-clusterrole
   labels:
-    release: "release-name"
+    release: release-name
     chart: provisioner-2.3.4
 rules:
-- apiGroups: [""]
-  resources: ["nodes"]
-  verbs: ["get"]
+- apiGroups: ['']
+  resources: [nodes]
+  verbs: [get]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: local-storage-provisioner-node-binding
   labels:
-    release: "release-name"
+    release: release-name
     chart: provisioner-2.3.4
 subjects:
 - kind: ServiceAccount

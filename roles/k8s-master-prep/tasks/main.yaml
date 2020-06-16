@@ -2,26 +2,26 @@
 - name: Configure Non Local Binding
   sysctl:
     name: net.ipv4.ip_nonlocal_bind
-    value: "1"
+    value: '1'
     state: present
 
 # Install keepalived and nginx
 - name: Install keepalived and Nginx
   apt:
-    name: "{{ packages }}"
+    name: '{{ packages }}'
   vars:
     packages:
     - keepalived
     - nginx
   tags:
-    - keepalived
+  - keepalived
   register: keepalived_installed
 
 - name: Ensure hostname is in /etc/hosts
   lineinfile:
     dest: /etc/hosts
-    regexp: "^{{ ansible_default_ipv4.address }}.+$"
-    line: "{{ ansible_default_ipv4.address }} {{ ansible_fqdn }} {{ ansible_hostname }} kubernetes.default"
+    regexp: ^{{ ansible_default_ipv4.address }}.+$
+    line: '{{ ansible_default_ipv4.address }} {{ ansible_fqdn }} {{ ansible_hostname }} kubernetes.default'
   register: hostname
   tags: hostname
 
@@ -32,11 +32,11 @@
     dest: /etc/keepalived/keepalived.conf
     owner: root
     group: root
-    mode: "0644"
+    mode: '0644'
   notify:
-    - restart keepalived
+  - restart keepalived
   tags:
-    - keepalived
+  - keepalived
 
 # Service keepalived started
 - name: Keepalived needs to be started
@@ -44,7 +44,7 @@
     name: keepalived
     state: started
   tags:
-    - keepalived
+  - keepalived
 
 # Service Nginx Configure
 - name: Install nginx conf file
@@ -52,9 +52,9 @@
     src: nginx.conf
     dest: /etc/nginx/nginx.conf
   notify:
-    - restart nginx
+  - restart nginx
   tags:
-    - keepalived
+  - keepalived
 
 # revers proxy health Check
 - name: Install the proxy health check
@@ -62,9 +62,9 @@
     src: kubernetes.default.svc.cluster.local
     dest: /etc/nginx/sites-available/kubernetes.default.svc.cluster.local
   notify:
-    - restart nginx
+  - restart nginx
   tags:
-    - keepalived
+  - keepalived
 
 # reverse proxy symlink
 - name: Create nginx proxy health check symbolic link
@@ -73,9 +73,9 @@
     dest: /etc/nginx/sites-enabled/kubernetes.default.svc.cluster.local
     state: link
   notify:
-    - restart nginx
+  - restart nginx
   tags:
-    - keepalived
+  - keepalived
 
 # health cheek for kubeapiserver
 - name: Install Health Check Script for Kube-Apiserver
@@ -84,13 +84,13 @@
     dest: /usr/local/bin/check-kube-apiserver.sh
     owner: root
     group: root
-    mode: "0755"
+    mode: '0755'
   notify:
-    - restart nginx
+  - restart nginx
   tags:
-    - keepalived
+  - keepalived
   when:
-    - keepalived_installed.changed
+  - keepalived_installed.changed
 
 # Service nginx started
 - name: Nginx needs to be started
@@ -98,18 +98,18 @@
     name: nginx
     state: started
   tags:
-    - keepalived
+  - keepalived
 
 - name: Create /tmp/kubeadm-ha directory
   file:
     path: /tmp/kubeadm-ha
     state: directory
   tags:
-    - kubeadminit
+  - kubeadminit
 
 - name: Copy kubeadm init config
   template:
     src: kubeadm-config.yaml
     dest: /tmp/kubeadm-ha/kubeadm-config.yaml
   tags:
-    - kubeadminit
+  - kubeadminit

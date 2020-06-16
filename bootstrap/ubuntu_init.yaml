@@ -1,17 +1,17 @@
 - name: Initiating Intel Architecture bootstrap
-  hosts: "{{ cluster }}"
+  hosts: '{{ cluster }}'
   gather_facts: no
   become: yes
   vars_files:
-    - ../site-variables.yaml
+  - ../site-variables.yaml
   environment:
-    VAULT_TOKEN: "{{ vault_ansible_token }}"
-    VAULT_ADDR: "https://vault.thesniderpad.com"
+    VAULT_TOKEN: '{{ vault_ansible_token }}'
+    VAULT_ADDR: https://vault.thesniderpad.com
   vars:
     vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
     ansible_user: administrator
-    ansible_ssh_pass: "{{ vaulted.data.LINUX_CLEAR_PASSWORD }}"
-    ansible_become_pass: "{{ vaulted.data.LINUX_CLEAR_PASSWORD }}"
+    ansible_ssh_pass: '{{ vaulted.data.LINUX_CLEAR_PASSWORD }}'
+    ansible_become_pass: '{{ vaulted.data.LINUX_CLEAR_PASSWORD }}'
 
   pre_tasks:
   - meta: clear_host_errors
@@ -30,21 +30,21 @@
     raw: sudo apt-get update
     when: hostvars[inventory_hostname].serial is not defined
 
-  - name: 'install python'
+  - name: install python
     raw: sudo apt-get -y install python
     when: hostvars[inventory_hostname].serial is not defined
 
-- hosts: "{{ cluster }}"
+- hosts: '{{ cluster }}'
   vars_files:
-    - ../site-variables.yaml
+  - ../site-variables.yaml
   environment:
-    VAULT_TOKEN: "{{ vault_ansible_token }}"
-    VAULT_ADDR: "https://vault.thesniderpad.com"
+    VAULT_TOKEN: '{{ vault_ansible_token }}'
+    VAULT_ADDR: https://vault.thesniderpad.com
   vars:
     vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
     ansible_user: administrator
-    ansible_ssh_pass: "{{ vaulted.data.LINUX_CLEAR_PASSWORD }}"
-    ansible_become_pass: "{{ vaulted.data.LINUX_CLEAR_PASSWORD }}"
+    ansible_ssh_pass: '{{ vaulted.data.LINUX_CLEAR_PASSWORD }}'
+    ansible_become_pass: '{{ vaulted.data.LINUX_CLEAR_PASSWORD }}'
   become: yes
   gather_facts: yes
   ignore_unreachable: yes
@@ -54,14 +54,14 @@
     user:
       name: ansible
       shell: /bin/bash
-      comment: "Ansible management user"
+      comment: Ansible management user
       home: /home/ansible
       createhome: yes
       uid: 3000
     when:
-      - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution_release'] == 'bionic'
-      - hostvars[inventory_hostname].serial is not defined
+    - ansible_facts['os_family'] == "Debian"
+    - ansible_facts['distribution_release'] == 'bionic'
+    - hostvars[inventory_hostname].serial is not defined
 
   - name: Add Ansible user to admin group
     user:
@@ -69,27 +69,27 @@
       groups: sudo
       append: yes
     when:
-      - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution_release'] == 'bionic'
-      - hostvars[inventory_hostname].serial is not defined
+    - ansible_facts['os_family'] == "Debian"
+    - ansible_facts['distribution_release'] == 'bionic'
+    - hostvars[inventory_hostname].serial is not defined
 
   - name: Add authorized key
     authorized_key:
       user: ansible
       state: present
-      key: "{{ vaulted.data.id_rsa_pub }}"
+      key: '{{ vaulted.data.id_rsa_pub }}'
     when:
-      - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution_release'] == 'bionic'
-      - hostvars[inventory_hostname].serial is not defined
+    - ansible_facts['os_family'] == "Debian"
+    - ansible_facts['distribution_release'] == 'bionic'
+    - hostvars[inventory_hostname].serial is not defined
 
   - name: Ensure admin group can sudo
     lineinfile:
       dest: /etc/sudoers
       state: present
-      regexp: '^%sudo'
+      regexp: ^%sudo
       line: '%sudo ALL=(ALL) NOPASSWD: ALL'
     when:
-      - ansible_facts['os_family'] == "Debian"
-      - ansible_facts['distribution_release'] == 'bionic'
-      - hostvars[inventory_hostname].serial is not defined
+    - ansible_facts['os_family'] == "Debian"
+    - ansible_facts['distribution_release'] == 'bionic'
+    - hostvars[inventory_hostname].serial is not defined

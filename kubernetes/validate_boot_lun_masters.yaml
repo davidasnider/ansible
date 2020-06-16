@@ -3,14 +3,14 @@
 
   tasks:
 
-    - name: ensure boot_lun script is on shiraz
-      copy:
-        src: create_all_master_luns.sh
-        dest: /usr/local/bin/create_all_master_luns.sh
-        owner: root
-        group: wheel
-        mode: 0770
+  - name: ensure boot_lun script is on shiraz
+    copy:
+      src: create_all_master_luns.sh
+      dest: /usr/local/bin/create_all_master_luns.sh
+      owner: root
+      group: wheel
+      mode: 0770
 
-    - name: run boot_lun master creation script
-      command: /usr/local/bin/create_all_master_luns.sh
-      changed_when: false
+  - name: run boot_lun master creation script
+    command: /usr/local/bin/create_all_master_luns.sh
+    changed_when: false

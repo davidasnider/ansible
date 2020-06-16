@@ -8,21 +8,21 @@
 
 - name: create /home/rundeck/.kube folder
   file:
-      path: /home/rundeck/.kube
-      group: rundeck
-      state: directory
-      owner: rundeck
+    path: /home/rundeck/.kube
+    group: rundeck
+    state: directory
+    owner: rundeck
 
 - name: Copy kubeconfigs to host
   copy:
-      dest: /home/rundeck/.kube
-      src: "{{ item.item }}"
-      group: rundeck
-      owner: rundeck
+    dest: /home/rundeck/.kube
+    src: '{{ item.item }}'
+    group: rundeck
+    owner: rundeck
   become: true
   changed_when: false
   tags: kubeconfig
-  with_items: "{{dir_out.results }}"
+  with_items: '{{dir_out.results }}'
 
 - name: Add Docker APT GPG key
   when: ansible_os_family == "Debian"
@@ -60,11 +60,11 @@
 
 - name: Add Kubernetes to Available apt Sources
   when:
-    - ansible_os_family == "Debian"
+  - ansible_os_family == "Debian"
   apt_repository:
     repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
     state: present
-    filename: 'kubernetes'
+    filename: kubernetes
 
 - name: Install kubectl
   apt:
@@ -74,18 +74,18 @@
 - name: Add ssh private key to rundeck
   copy:
     dest: /home/rundeck/.ssh/id_rsa
-    mode: "0600"
+    mode: '0600'
     owner: rundeck
     group: rundeck
-    content: "{{ vaulted.data.id_rsa }}"
+    content: '{{ vaulted.data.id_rsa }}'
 
 - name: Add ssh public key to rundeck
   copy:
     dest: /home/rundeck/.ssh/id_rsa.pub
-    mode: "0600"
+    mode: '0600'
     owner: rundeck
     group: rundeck
-    content: "{{ vaulted.data.id_rsa_pub }}"
+    content: '{{ vaulted.data.id_rsa_pub }}'
 
 - name: Add rundeck to docker group
   user:

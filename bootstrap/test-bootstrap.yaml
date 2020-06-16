@@ -1,4 +1,3 @@
-
 - import_playbook: ../bootstrap/ubuntu_init.yaml
 
 - hosts: all

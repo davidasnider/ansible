@@ -1,2 +1,2 @@
-      nodeSelector:
-        beta.kubernetes.io/arch: arm
+nodeSelector:
+  beta.kubernetes.io/arch: arm

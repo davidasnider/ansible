@@ -1,4 +1,3 @@
----
 kind: Pod
 apiVersion: v1
 metadata:
@@ -8,16 +7,16 @@ spec:
   - name: freenas-test-pod
     image: docker.io/ubuntu:latest
     command:
-      - "/bin/bash"
+    - /bin/bash
     args:
-      - "-c"
+    - -c
 #      - "date >> /mnt/file.log && exit 0 || exit 1"
-      - "dd if=/dev/zero of=/mnt/my_10mb_file bs=1M count=1000 && exit 0 || exit 1"
+    - dd if=/dev/zero of=/mnt/my_10mb_file bs=1M count=1000 && exit 0 || exit 1
     volumeMounts:
-      - name: freenas-test-volume
-        mountPath: "/mnt"
-  restartPolicy: "Never"
-  volumes:
     - name: freenas-test-volume
-      persistentVolumeClaim:
-        claimName: freenas-test-pvc
+      mountPath: /mnt
+  restartPolicy: Never
+  volumes:
+  - name: freenas-test-volume
+    persistentVolumeClaim:
+      claimName: freenas-test-pvc

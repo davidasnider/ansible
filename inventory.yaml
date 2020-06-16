@@ -3,26 +3,26 @@ all:
     gw:
       ansible_user: root
       static_dns_records:
-        - name: k8s1
-          ip: 10.9.9.200
-        - name: k8s2
-          ip: 10.9.9.201
-        - name: mail
-          ip: 10.9.9.202
-        - name: registry
-          ip: 10.9.9.203
-        - name: ssh
-          ip: 10.9.9.204
-        - name: rundeck
-          ip: 10.9.9.205
-        - name: icinga-sec
-          ip: 10.9.9.206
-        - name: icinga-pri
-          ip: 10.9.9.207
-        - name: metrics
-          ip: 10.9.9.208
-        - name: cava
-          ip: 10.9.9.209
+      - name: k8s1
+        ip: 10.9.9.200
+      - name: k8s2
+        ip: 10.9.9.201
+      - name: mail
+        ip: 10.9.9.202
+      - name: registry
+        ip: 10.9.9.203
+      - name: ssh
+        ip: 10.9.9.204
+      - name: rundeck
+        ip: 10.9.9.205
+      - name: icinga-sec
+        ip: 10.9.9.206
+      - name: icinga-pri
+        ip: 10.9.9.207
+      - name: metrics
+        ip: 10.9.9.208
+      - name: cava
+        ip: 10.9.9.209
     shiraz:
       ansible_user: root
       ansible_python_interpreter: /usr/local/bin/python
@@ -112,23 +112,23 @@ all:
         vip: 10.9.9.101
         lb_range: 10.9.10.1-10.9.10.254
         masters:
-          - r301
-          - r302
-          - r305
+        - r301
+        - r302
+        - r305
         workers:
-          - r303
-          - r304
-          - r306
-          - ia02
-          - ia03
+        - r303
+        - r304
+        - r306
+        - ia02
+        - ia03
         token: udy29x.ugyyk3tumg27atmr
         podnet: 10.244.0.0/16
-        kubernetes_package_version: "1.18.2-00"
-        kubernetes_version: "v1.18.2"
-        docker_ce_version: "5:19.03"
-        metallb_version: "v0.9.3"
-        flannel_version: "master"
-        dashboard_ip: "10.9.9.200"
+        kubernetes_package_version: 1.18.2-00
+        kubernetes_version: v1.18.2
+        docker_ce_version: 5:19.03
+        metallb_version: v0.9.3
+        flannel_version: master
+        dashboard_ip: 10.9.9.200
         power_url: http://blanc:8000/devices/K8s%20Cluster%20-%20Power%20Switch%201
         cluster_name: k8s1
         prod_cluster: true
@@ -198,22 +198,22 @@ all:
         vip: 10.9.9.102
         lb_range: 10.9.11.1-10.9.11.254
         masters:
-          - r307
-          - r309
-          - r310
+        - r307
+        - r309
+        - r310
         workers:
-          - r308
-          - r311
-          - r312
-          - ia01
+        - r308
+        - r311
+        - r312
+        - ia01
         token: udy29x.ugyyk3tumg27atmr
         podnet: 10.244.0.0/16
-        kubernetes_package_version: "1.18.2-00"
-        kubernetes_version: "v1.18.2"
-        docker_ce_version: "5:19.03"
-        metallb_version: "v0.9.3"
-        flannel_version: "master"
-        dashboard_ip: "10.9.9.201"
+        kubernetes_package_version: 1.18.2-00
+        kubernetes_version: v1.18.2
+        docker_ce_version: 5:19.03
+        metallb_version: v0.9.3
+        flannel_version: master
+        dashboard_ip: 10.9.9.201
         power_url: http://blanc:8000/devices/K8s%20Cluster%20-%20Power%20Switch%202
         cluster_name: k8s2
         extent_filename: rpimaster

@@ -2,10 +2,10 @@
   user:
     name: ansible
     shell: /bin/bash
-    comment: "Ansible management user"
+    comment: Ansible management user
     home: /home/ansible
     createhome: yes
-    uid: "3000"
+    uid: '3000'
 
 - name: Add Ansible user to admin group
   user:
@@ -17,7 +17,7 @@
   lineinfile:
     dest: /etc/sudoers
     state: present
-    regexp: '^%sudo'
+    regexp: ^%sudo
     line: '%sudo ALL=(ALL) NOPASSWD: ALL'
 
 - name: Delete the pi user
@@ -31,9 +31,9 @@
     src: collectd.conf
     dest: /etc/collectd/collectd.conf
   notify:
-    - restart collectd
+  - restart collectd
   tags:
-    - collectd
+  - collectd
 
 - name: Start collectd service
   service:
@@ -41,7 +41,7 @@
     state: started
     enabled: yes
   tags:
-    - collectd
+  - collectd
 
 - name: see if get_boot_wait is set
   command: raspi-config nonint get_boot_wait
@@ -51,7 +51,7 @@
 - name: Set Wait for Boot
   command: raspi-config nonint do_boot_wait 0
   when:
-    - "'0' not in get_boot_wait.stdout"
+  - "'0' not in get_boot_wait.stdout"
 
 - name: Check Default locale
   shell: cat /etc/default/locale

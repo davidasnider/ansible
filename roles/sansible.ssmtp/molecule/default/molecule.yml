@@ -1,15 +1,13 @@
----
-
 driver:
   name: docker
 
 platforms:
-  - name: sansible_ssmtp-trusty
-    image: ubuntu:trusty
-  - name: sansible_ssmtp-xenial
-    image: ubuntu:xenial
-  - name: sansible_ssmtp-bionic
-    image: ubuntu:bionic
+- name: sansible_ssmtp-trusty
+  image: ubuntu:trusty
+- name: sansible_ssmtp-xenial
+  image: ubuntu:xenial
+- name: sansible_ssmtp-bionic
+  image: ubuntu:bionic
 
 provisioner:
   name: ansible

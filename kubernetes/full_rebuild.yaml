@@ -1,4 +1,3 @@
----
 - import_playbook: turn_cluster_off.yaml
 
 - import_playbook: reset_environment.yaml

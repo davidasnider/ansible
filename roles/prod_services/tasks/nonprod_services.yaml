@@ -36,7 +36,7 @@
     repo: git@bitbucket.org:davidasnider/icinga_k8s.git
     dest: /usr/local/src/icinga
     key_file: /home/ansible/.ssh/id_rsa
-    depth: "1"
+    depth: '1'
     accept_hostkey: yes
 
 # Create the pods and services

@@ -1,19 +1,24 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.4.0
-    hooks:
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.4.0
+  hooks:
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
     # -   id: check-yaml
     #     args: [--allow-multiple-documents]
-    -   id: check-added-large-files
-    -   id: check-docstring-first
-    -   id: check-executables-have-shebangs
-    -   id: check-json
-    -   id: pretty-format-json
--   repo: https://github.com/asottile/dead
-    rev: v1.3.0
-    hooks:
-    -   id: dead
+  - id: check-added-large-files
+  - id: check-docstring-first
+  - id: check-executables-have-shebangs
+  - id: check-json
+  - id: pretty-format-json
+- repo: https://github.com/asottile/dead
+  rev: v1.3.0
+  hooks:
+  - id: dead
+- repo: git@github.com:macisamuele/language-formatters-pre-commit-hooks
+  rev: master
+  hooks:
+  - id: pretty-format-yaml
+    args: [--autofix, --indent, '2']

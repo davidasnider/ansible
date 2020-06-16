@@ -1,4 +1,3 @@
----
 - hosts: localhost
   connection: local
   become: true
@@ -8,27 +7,7 @@
   - name: Install Brew Packages
     become: false
     homebrew:
-      name: [
-        'ansible',
-        'black',
-        'flake8',
-        'htop',
-        'iperf',
-        'kubernetes-cli',
-        'kustomize',
-        'minikube',
-        'nmap',
-        'packer',
-        'plantuml',
-        'pre-commit',
-        'qemu',
-        'watch',
-        'wget',
-        'wireshark',
-        'zsh-autosuggestions',
-        'zsh-history-substring-search',
-        'zsh-syntax-highlighting',
-      ]
+      name: [ansible, black, flake8, htop, iperf, kubernetes-cli, kustomize, minikube, nmap, packer, plantuml, pre-commit, qemu, watch, wget, wireshark, zsh-autosuggestions, zsh-history-substring-search, zsh-syntax-highlighting]
       state: present
       update_homebrew: yes
       upgrade_all: yes
@@ -36,29 +15,8 @@
   - name: Install Brew Casks
     become: false
     homebrew_cask:
-        name: [
-          # '1password',
-          'adoptopenjdk',
-          'balenaetcher',
-          'docker',
-          'flowdock',
-          'font-menlo-for-powerline',
-          'font-meslo-for-powerline',
-          'google-chrome',
-          'google-cloud-sdk',
-          'indigo',
-          'istat-menus',
-          'iterm2',
-          'microsoft-office',
-          'onedrive',
-          'quicken',
-          'virtualbox',
-          'virtualbox-extension-pack',
-          'wireshark',
-          'x2goclient',
-          'xquartz',
-          ]
-        state: present
+      name: [adoptopenjdk, balenaetcher, docker, flowdock, font-menlo-for-powerline, font-meslo-for-powerline, google-chrome, google-cloud-sdk, indigo, istat-menus, iterm2, microsoft-office, onedrive, quicken, virtualbox, virtualbox-extension-pack, wireshark, x2goclient, xquartz]
+      state: present
 
   - name: install pip
     command: easy_install pip
@@ -79,12 +37,12 @@
   - name: Install python libraries globally
     pip:
       name:
-        - requests
+      - requests
 
   - name: Install python libraries globally
     pip:
       name:
-        - requests
+      - requests
       executable: pip3
 
 # Todo Copy important files, .vscode directory, .zshrc, iterm profiles, istat menus

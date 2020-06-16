@@ -1,4 +1,3 @@
----
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -6,7 +5,7 @@ metadata:
 spec:
   storageClassName: freenas-nfs
   accessModes:
-    - ReadWriteMany
+  - ReadWriteMany
   resources:
     requests:
       storage: 1Gi

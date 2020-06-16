@@ -1,12 +1,11 @@
----
 - name: Bootstrap a host operating system
-  hosts: "{{ cluster }}"
+  hosts: '{{ cluster }}'
   become: true
   vars_files:
-    - ../site-variables.yaml
+  - ../site-variables.yaml
   environment:
-    VAULT_TOKEN: "{{ vault_ansible_token }}"
-    VAULT_ADDR: "https://vault.thesniderpad.com"
+    VAULT_TOKEN: '{{ vault_ansible_token }}'
+    VAULT_ADDR: https://vault.thesniderpad.com
   vars:
     vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
   gather_facts: false
@@ -14,12 +13,12 @@
 
   - name: Make sure /etc/hostname has the right name
     copy:
-      dest: "/etc/hostname"
+      dest: /etc/hostname
       content: |
         {{ hostname }}
     when: ansible_facts['os_family'] == "Debian"
     notify:
-      - reboot server
+    - reboot server
 
   - name: set timezone to UTC
     timezone:
@@ -27,17 +26,17 @@
       hwclock: UTC
     when: ansible_facts['os_family'] == "Debian"
     notify:
-      - reboot server
+    - reboot server
 
   - name: Create Ansible user
     user:
       name: ansible
       shell: /bin/bash
-      comment: "Ansible management user"
+      comment: Ansible management user
       home: /home/ansible
       createhome: yes
       uid: 3000
-      password: "{{ vaulted.data.LINUX_PASSWORD }}"
+      password: '{{ vaulted.data.LINUX_PASSWORD }}'
     when: ansible_facts['os_family'] == "Debian"
 
   - name: Add Ansible user to admin group
@@ -51,14 +50,14 @@
     authorized_key:
       user: ansible
       state: present
-      key: "{{ vaulted.data.id_rsa_pub }}"
+      key: '{{ vaulted.data.id_rsa_pub }}'
     when: ansible_facts['os_family'] == "Debian"
 
   - name: Ensure admin group can sudo
     lineinfile:
       dest: /etc/sudoers
       state: present
-      regexp: '^%sudo'
+      regexp: ^%sudo
       line: '%sudo ALL=(ALL) NOPASSWD: ALL'
     when: ansible_os_family == 'Debian'
 
@@ -67,7 +66,7 @@
       upgrade: dist
       update_cache: yes
     notify:
-      - reboot server
+    - reboot server
 
   handlers:
   - name: reboot server

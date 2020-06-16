@@ -1,17 +1,15 @@
----
-
 - name: Install certbot
   apt:
-      name: [ certbot, python3-certbot-dns-route53 ]
-      state: present
+    name: [certbot, python3-certbot-dns-route53]
+    state: present
 
 - name: Add AWS Creds to environment
   blockinfile:
-      path: /root/.bashrc
-      state: present
-      block: |
-        export AWS_ACCESS_KEY_ID={{ certbot_aws_access_key_id }}
-        export AWS_SECRET_ACCESS_KEY={{ certbot_aws_secret_access_key }}
+    path: /root/.bashrc
+    state: present
+    block: |
+      export AWS_ACCESS_KEY_ID={{ certbot_aws_access_key_id }}
+      export AWS_SECRET_ACCESS_KEY={{ certbot_aws_secret_access_key }}
 
 - name: Create certificate for vault.thesniderpad.com
   shell: . ~/.bashrc && certbot certonly --dns-route53 -d vault.thesniderpad.com -m david@davidsniderorg --agree-tos -n --eff-email
@@ -45,8 +43,8 @@
 
 - name: Copy config.hcl
   template:
-      dest: /usr/local/vault/config/config.hcl
-      src: config.hcl
+    dest: /usr/local/vault/config/config.hcl
+    src: config.hcl
 
 - name: Copy service file
   copy:

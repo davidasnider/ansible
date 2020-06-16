@@ -1,4 +1,3 @@
----
 # The 'Disable IP V6' task will fail if this file doesn't exist.
 - name: check if ipv6 file exists
   stat:
@@ -9,7 +8,7 @@
 - name: Disable IP V6
   sysctl:
     name: net.ipv6.conf.all.disable_ipv6
-    value: "1"
+    value: '1'
     state: present
   when: disable_ipv6.stat.exists == True
 
@@ -21,31 +20,31 @@
 
 - name: Add Docker APT repository for Raspbian
   when:
-    - ansible_os_family == "Debian"
-    - ansible_lsb['codename'] == "stretch"
-    - ansible_lsb['id'] == "Raspbian"
+  - ansible_os_family == "Debian"
+  - ansible_lsb['codename'] == "stretch"
+  - ansible_lsb['id'] == "Raspbian"
   apt_repository:
     repo: deb https://download.docker.com/linux/raspbian stretch stable
     state: present
-    filename: 'docker'
+    filename: docker
   tags: docker
 
 - name: Add Docker APT repository for Ubuntu Bionic
   when:
-    - ansible_os_family == "Debian"
-    - ansible_lsb['codename'] == "bionic"
-    - ansible_lsb['id'] == "Ubuntu"
+  - ansible_os_family == "Debian"
+  - ansible_lsb['codename'] == "bionic"
+  - ansible_lsb['id'] == "Ubuntu"
   apt_repository:
     repo: deb https://download.docker.com/linux/ubuntu bionic stable
     state: present
-    filename: 'docker'
+    filename: docker
   tags: docker
 
 - name: Install docker engine (Debian/Ubuntu)
   when: ansible_os_family == "Debian"
   apt:
     update_cache: yes
-    name: "docker-ce={{ docker_ce_version }}*"
+    name: docker-ce={{ docker_ce_version }}*
     state: present
     dpkg_options: force-downgrade
     force: yes  # Necessary to ensure we get the right package version
@@ -63,25 +62,25 @@
     src: docker-daemon.json
     dest: /etc/docker/daemon.json
   notify:
-    - restart docker
+  - restart docker
 
 - name: Make docker systemd directory
   file:
     path: /etc/systemd/system/docker.service.d
     state: directory
   notify:
-    - restart docker
+  - restart docker
 
 # Make sure we get docker installed
 - name: Disable Swap on raspbian
   shell: dphys-swapfile swapoff && dphys-swapfile uninstall && update-rc.d dphys-swapfile remove
-  ignore_errors: True
+  ignore_errors: true
   args:
     removes: /var/swap
   when:
-    - ansible_os_family == "Debian"
-    - ansible_lsb['codename'] == "stretch"
-    - ansible_lsb['id'] == "Raspbian"
+  - ansible_os_family == "Debian"
+  - ansible_lsb['codename'] == "stretch"
+  - ansible_lsb['id'] == "Raspbian"
 
 - name: Remove swapfile from /etc/fstab
   mount:
@@ -90,9 +89,9 @@
     src: /swapfile
     state: absent
   when:
-    - ansible_os_family == "Debian"
-    - ansible_lsb['codename'] == "bionic"
-    - ansible_lsb['id'] == "Ubuntu"
+  - ansible_os_family == "Debian"
+  - ansible_lsb['codename'] == "bionic"
+  - ansible_lsb['id'] == "Ubuntu"
   tags: swap
 
 - name: Disable swap
@@ -109,7 +108,7 @@
 - name: Pass bridged IPv4 traffic to iptables' chains
   sysctl:
     name: net.bridge.bridge-nf-call-iptables
-    value: "1"
+    value: '1'
     state: present
 
 # https://kubernetes.io/docs/setup/independent/install-kubeadm/
@@ -125,11 +124,11 @@
 
 - name: Add Kubernetes to Available apt Sources
   when:
-    - ansible_os_family == "Debian"
+  - ansible_os_family == "Debian"
   apt_repository:
     repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
     state: present
-    filename: 'kubernetes'
+    filename: kubernetes
 
 - name: apt-get update
   apt:
@@ -140,39 +139,39 @@
 
 - name: Install k8s {{ kubernetes_package_version }}
   apt:
-    name: "{{ item }}={{ kubernetes_package_version }}"
+    name: '{{ item }}={{ kubernetes_package_version }}'
     state: present
     force: yes
   loop:
-    - kubectl
-    - kubelet
-    - kubeadm
+  - kubectl
+  - kubelet
+  - kubeadm
 
 - name: Hold k8s version
   when: ansible_os_family == "Debian"
   dpkg_selections:
-    name: "{{ item }}"
+    name: '{{ item }}'
     selection: hold
   loop:
-    - kubectl
-    - kubelet
-    - kubeadm
+  - kubectl
+  - kubelet
+  - kubeadm
 
 - name: Create filesystems on extra disks
   filesystem:
     fstype: ext4
-    dev: "{{ item.value.disk }}"
-  loop: "{{k8s_disks|default({})|dict2items}}"
+    dev: '{{ item.value.disk }}'
+  loop: '{{k8s_disks|default({})|dict2items}}'
   when: item.key is defined
   tags: testing
 
 - name: Mount and bind a volumes on extra disks
   mount:
-    path: "{{ item.value.path }}"
-    src: "{{ item.value.disk }}"
+    path: '{{ item.value.path }}'
+    src: '{{ item.value.disk }}'
     state: mounted
     fstype: ext4
-  loop: "{{k8s_disks|default({})|dict2items}}"
+  loop: '{{k8s_disks|default({})|dict2items}}'
   when: item.key is defined
   tags: testing
 
@@ -180,23 +179,23 @@
 # created inside the mount, we'll use this to create "extra" physical volumes later
 - name: create directories for sharing the filesystems
   file:
-    path: "{{ item.0.value.path }}/{{ item.1}}"
+    path: '{{ item.0.value.path }}/{{ item.1}}'
     state: directory
   with_nested:
-    - "{{k8s_disks|default({})|dict2items}}"
-    - [ '1', '2', '3', '4' ]
+  - '{{k8s_disks|default({})|dict2items}}'
+  - ['1', '2', '3', '4']
   when: item.0.key is defined
   tags: testing
 
 - name: bind mount directories for sharing the filesystems
   mount:
-    src: "{{ item.0.value.path }}/{{ item.1 }}"
+    src: '{{ item.0.value.path }}/{{ item.1 }}'
     path: /k8s_local/{{ item.0.key }}-{{ item.1 }}
     state: mounted
     fstype: none
     opts: bind
   with_nested:
-    - "{{k8s_disks|default({})|dict2items}}"
-    - [ '1', '2', '3', '4' ]
+  - '{{k8s_disks|default({})|dict2items}}'
+  - ['1', '2', '3', '4']
   when: item.0.key is defined
   tags: testing

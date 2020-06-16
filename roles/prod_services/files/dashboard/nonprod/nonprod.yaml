@@ -9,7 +9,6 @@ spec:
   loadBalancerIP: 10.9.9.201
 
 ---
-
 kind: Deployment
 apiVersion: apps/v1
 metadata:
@@ -24,13 +23,13 @@ spec:
   template:
     spec:
       containers:
-        - name: kubernetes-dashboard
-          args:
-            - --namespace=kubernetes-dashboard
-            - --auto-generate-certificates=false
-            - --tls-cert-file=tls.crt
-            - --tls-key-file=tls.key
+      - name: kubernetes-dashboard
+        args:
+        - --namespace=kubernetes-dashboard
+        - --auto-generate-certificates=false
+        - --tls-cert-file=tls.crt
+        - --tls-key-file=tls.key
       volumes:
-        - name: kubernetes-dashboard-certs
-          secret:
-            secretName: k8s2-thesniderpad-com-tls
+      - name: kubernetes-dashboard-certs
+        secret:
+          secretName: k8s2-thesniderpad-com-tls

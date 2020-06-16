@@ -1,4 +1,3 @@
----
 # defaults file for arillso.sshd
 
 # true if IPv6 is needed
@@ -28,7 +27,7 @@ ssh_server_ports: ['22'] # sshd
 ssh_client_port: '22' # ssh
 
 # one or more ip addresses, to which ssh-server should listen to. Default is empty, but should be configured for security reasons!
-ssh_listen_to: ['0.0.0.0'] # sshd
+ssh_listen_to: [0.0.0.0]   # sshd
 
 # Host keys to look for when starting sshd.
 ssh_host_key_files: [] # sshd
@@ -160,62 +159,62 @@ ssh_server_match_address: false # sshd
 ssh_server_permit_environment_vars: false
 
 # maximum number of concurrent unauthenticated connections to the SSH daemon
-ssh_max_startups: '10:30:100' # sshd
+ssh_max_startups: 10:30:100   # sshd
 
-ssh_ps53: 'yes'
-ssh_ps59: 'sandbox'
+ssh_ps53: yes
+ssh_ps59: sandbox
 
 ssh_macs: []
 ssh_ciphers: []
 ssh_kex: []
 
 ssh_macs_53_default:
-  - hmac-ripemd160
-  - hmac-sha1
+- hmac-ripemd160
+- hmac-sha1
 
 ssh_macs_59_default:
-  - hmac-sha2-512
-  - hmac-sha2-256
-  - hmac-ripemd160
+- hmac-sha2-512
+- hmac-sha2-256
+- hmac-ripemd160
 
 ssh_macs_66_default:
-  - hmac-sha2-512-etm@openssh.com
-  - hmac-sha2-256-etm@openssh.com
-  - umac-128-etm@openssh.com
-  - hmac-sha2-512
-  - hmac-sha2-256
+- hmac-sha2-512-etm@openssh.com
+- hmac-sha2-256-etm@openssh.com
+- umac-128-etm@openssh.com
+- hmac-sha2-512
+- hmac-sha2-256
 
 ssh_macs_76_default:
-  - hmac-sha2-512-etm@openssh.com
-  - hmac-sha2-256-etm@openssh.com
-  - umac-128-etm@openssh.com
-  - hmac-sha2-512
-  - hmac-sha2-256
+- hmac-sha2-512-etm@openssh.com
+- hmac-sha2-256-etm@openssh.com
+- umac-128-etm@openssh.com
+- hmac-sha2-512
+- hmac-sha2-256
 
 ssh_ciphers_53_default:
-  - aes256-ctr
-  - aes192-ctr
-  - aes128-ctr
+- aes256-ctr
+- aes192-ctr
+- aes128-ctr
 
 ssh_ciphers_66_default:
-  - chacha20-poly1305@openssh.com
-  - aes256-gcm@openssh.com
-  - aes128-gcm@openssh.com
-  - aes256-ctr
-  - aes192-ctr
-  - aes128-ctr
+- chacha20-poly1305@openssh.com
+- aes256-gcm@openssh.com
+- aes128-gcm@openssh.com
+- aes256-ctr
+- aes192-ctr
+- aes128-ctr
 
 ssh_kex_59_default:
-  - diffie-hellman-group-exchange-sha256
+- diffie-hellman-group-exchange-sha256
 
 ssh_kex_66_default:
-  - curve25519-sha256@libssh.org
-  - diffie-hellman-group-exchange-sha256
+- curve25519-sha256@libssh.org
+- diffie-hellman-group-exchange-sha256
 
 # directory where to store ssh_password policy
-ssh_custom_selinux_dir: '/etc/selinux/local-policies'
+ssh_custom_selinux_dir: /etc/selinux/local-policies
 
-sshd_moduli_file: '/etc/ssh/moduli'
+sshd_moduli_file: /etc/ssh/moduli
 sshd_moduli_minimum: 2048
 
 # disable ChallengeResponseAuthentication

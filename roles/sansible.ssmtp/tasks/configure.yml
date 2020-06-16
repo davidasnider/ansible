@@ -1,5 +1,3 @@
----
-
 # - name: Ensure Hostname is Resolvable
 #   become: yes
 #   lineinfile:
@@ -11,11 +9,11 @@
 - name: Ensure SSMTP Configuration
   become: yes
   template:
-    dest: "/etc/ssmtp/{{ item }}"
-    group: "{{ sansible_ssmtp_group }}"
+    dest: /etc/ssmtp/{{ item }}
+    group: '{{ sansible_ssmtp_group }}'
     mode: 0600
-    owner: "{{ sansible_ssmtp_user }}"
-    src: "{{ item }}.j2"
+    owner: '{{ sansible_ssmtp_user }}'
+    src: '{{ item }}.j2'
   with_items:
-    - revaliases
-    - ssmtp.conf
+  - revaliases
+  - ssmtp.conf

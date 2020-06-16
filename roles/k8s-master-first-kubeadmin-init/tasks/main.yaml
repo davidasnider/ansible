@@ -20,28 +20,28 @@
 
 - name: Create .kube folder
   file:
-    path: "~{{ item }}/.kube"
+    path: ~{{ item }}/.kube
     state: directory
-    owner: "{{ item }}"
-    group: "{{ item }}"
+    owner: '{{ item }}'
+    group: '{{ item }}'
   tags: init-first-k8s-master
   loop:
-    - ansible
-    - root
-    - david
+  - ansible
+  - root
+  - david
 
 - name: Copy admin.conf to .kube folder
   copy:
     src: /etc/kubernetes/admin.conf
-    dest: "~{{ item }}/.kube/config"
-    owner: "{{ item }}"
-    group: "{{ item }}"
+    dest: ~{{ item }}/.kube/config
+    owner: '{{ item }}'
+    group: '{{ item }}'
     remote_src: yes
   tags: init-first-k8s-master
   loop:
-    - ansible
-    - root
-    - david
+  - ansible
+  - root
+  - david
 
 - name: Install flannel
   # Do this till the next release which fixes it the cni version setting in the config map
@@ -86,20 +86,19 @@
 
 - name: install freenas files
   copy:
-    src: "{{ item }}"
+    src: '{{ item }}'
     dest: /etc/kubernetes/{{ item }}
   loop:
-    - freenas-rbac.yaml
-    - freenas-deployment.yaml
-    - freenas-class.yaml
-    - test-claim.yaml
-    - test-pod.yaml
+  - freenas-rbac.yaml
+  - freenas-deployment.yaml
+  - freenas-class.yaml
+  - test-claim.yaml
+  - test-pod.yaml
   when: rslt.changed
   tags: init-first-k8s-master
 
 - name: install freenas storage provider
-  shell: kubectl apply -f /etc/kubernetes/freenas-rbac.yaml -f /etc/kubernetes/freenas-deployment.yaml
-    -f /etc/kubernetes/freenas-secret.yaml -f /etc/kubernetes/freenas-class.yaml
+  shell: kubectl apply -f /etc/kubernetes/freenas-rbac.yaml -f /etc/kubernetes/freenas-deployment.yaml -f /etc/kubernetes/freenas-secret.yaml -f /etc/kubernetes/freenas-class.yaml
   when: rslt.changed
   tags: init-first-k8s-master
 
@@ -109,7 +108,7 @@
     dest: /usr/local/bin/check-kube-apiserver.sh
     owner: root
     group: root
-    mode: "0755"
+    mode: '0755'
   tags: init-first-k8s-master
 
 - name: Fetching Kubernetes Master PKI files from primary master
@@ -118,12 +117,12 @@
     dest: /tmp/kubeadm-ha/pki/{{item}}
     flat: yes
   with_items:
-    - ca.crt
-    - ca.key
-    - sa.key
-    - sa.pub
-    - front-proxy-ca.crt
-    - front-proxy-ca.key
+  - ca.crt
+  - ca.key
+  - sa.key
+  - sa.pub
+  - front-proxy-ca.crt
+  - front-proxy-ca.key
   when: rslt.changed
 
 - name: Fetching Kubernetes Master ETCD files from primary master
@@ -132,8 +131,8 @@
     dest: /tmp/kubeadm-ha/pki/etcd/{{item}}
     flat: yes
   with_items:
-    - ca.crt
-    - ca.key
+  - ca.crt
+  - ca.key
   when: rslt.changed
 
 - name: Fetching Kubernetes Master Admin files from primary master
@@ -142,5 +141,5 @@
     dest: /tmp/kubeadm-ha/{{item}}
     flat: yes
   with_items:
-    - admin.conf
+  - admin.conf
   when: rslt.changed

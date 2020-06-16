@@ -1,8 +1,7 @@
----
 # handlers file for arillso.sshd
 
 - name: restart sshd
   become: true
   service:
-    name: "{{ sshd_service_name }}"
+    name: '{{ sshd_service_name }}'
     state: restarted

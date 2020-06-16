@@ -1,5 +1,3 @@
----
-
 # - name: Ensure Hostname is Resolvable
 #   become: yes
 #   lineinfile:
@@ -13,27 +11,27 @@
   apt:
     name: ssmtp
 
-- name: "Restrict SSMTP Usage to User {{ sansible_ssmtp_user }} and Group {{ sansible_ssmtp_group }}"
+- name: Restrict SSMTP Usage to User {{ sansible_ssmtp_user }} and Group {{ sansible_ssmtp_group }}
   become: yes
   file:
     dest: /usr/sbin/ssmtp
-    owner: "{{ sansible_ssmtp_user }}"
-    group: "{{ sansible_ssmtp_group }}"
+    owner: '{{ sansible_ssmtp_user }}'
+    group: '{{ sansible_ssmtp_group }}'
     mode: 0770
   when:
-    - sansible_ssmtp_group is not none
-    - sansible_ssmtp_user is not none
-    - sansible_ssmtp_restrict
+  - sansible_ssmtp_group is not none
+  - sansible_ssmtp_user is not none
+  - sansible_ssmtp_restrict
 
-- name: "Allow access to SSMTP Configuration dir to User {{ sansible_ssmtp_user }} and Group {{ sansible_ssmtp_group }}"
+- name: Allow access to SSMTP Configuration dir to User {{ sansible_ssmtp_user }} and Group {{ sansible_ssmtp_group }}
   become: yes
   file:
     dest: /etc/ssmtp
-    group: "{{ sansible_ssmtp_group }}"
+    group: '{{ sansible_ssmtp_group }}'
     mode: 0700
-    owner: "{{ sansible_ssmtp_user }}"
+    owner: '{{ sansible_ssmtp_user }}'
     state: directory
   when:
-    - sansible_ssmtp_group is not none
-    - sansible_ssmtp_user is not none
-    - sansible_ssmtp_restrict
+  - sansible_ssmtp_group is not none
+  - sansible_ssmtp_user is not none
+  - sansible_ssmtp_restrict

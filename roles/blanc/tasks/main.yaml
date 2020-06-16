@@ -8,12 +8,12 @@
 
 - name: Copy kubeconfigs to blanc
   copy:
-      dest: /Users/admin/.kube
-      src: "{{ item.item }}"
-      group: staff
-      owner: admin
+    dest: /Users/admin/.kube
+    src: '{{ item.item }}'
+    group: staff
+    owner: admin
   delegate_to: blanc
   become: false
   changed_when: false
   tags: kubeconfig
-  with_items: "{{dir_out.results }}"
+  with_items: '{{dir_out.results }}'
