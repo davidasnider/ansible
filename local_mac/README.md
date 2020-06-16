@@ -1,5 +1,5 @@
 To run, from this directory and prompt for sudo password
 
 ```bash
-ansible-playbook config.yaml -K
+cd local_mac; ansible-playbook config.yaml -K
 ```

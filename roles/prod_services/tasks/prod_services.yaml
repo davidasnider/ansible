@@ -102,7 +102,7 @@
   args:
     chdir: /usr/local/src/tesla-collector/k8s
   changed_when: false
-  
+
 # Setup Icinga Prod Services
 - name: Get the Icinga repo
   git:

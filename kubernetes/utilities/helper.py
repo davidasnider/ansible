@@ -21,7 +21,7 @@ def freenas_api_delete(uri):
     return return_text
 
 def freenas_api_put(uri, data):
-    return_text = requests.put(
+    requests.put(
         server + uri,
         data,
         auth=(username, password),
@@ -81,14 +81,6 @@ def create_dataset(pool, dataset):
     result = freenas_api_post("/api/v1.0/storage/volume/" + pool + "/datasets/", json.dumps(dataset_json))
     if result.ok:
         print("Dataset Create: " + dataset + " on pool: " + pool)
-
-def delete_dataset(pool, dataset):
-    # VERY DANGEROUS!!!
-    result = freenas_api_delete("/api/v1.0/storage/volume/" + pool + "/datasets/" + dataset)
-    if result.ok:
-        print("Dataset " + dataset + " on " + pool + " deleted")
-    else:
-        print("Dataset " + dataset + " on " + pool + " failed")
 
 def check_iscsi_target_exists(target_name):
     check = False
@@ -277,49 +269,3 @@ def delete_target_to_extent(target_name):
             else:
                 print("target to extent " + target_name + " with id " + str(target_to_extent_id) + " failed")
         i += 1
-
-def get_pools():
-    result = freenas_api_get("/api/v1.0/storage/volume/")
-    return result
-
-def create_snapshot(pool, dataset, key):
-    snapshot = {
-        'dataset': pool + "/" + dataset,
-        'name': key,
-    }
-    result = freenas_api_post("/api/v1.0/storage/snapshot/", json.dumps(snapshot))
-    if result.ok:
-        print("Snapshot created: " + pool + "/" + dataset + "@" + key)
-
-def get_snapshots():
-    result = freenas_api_get("/api/v1.0/storage/snapshot/")
-    return result
-
-def check_snapshot_exists(snapshot_name, filesystem):
-    exists = False
-    snapshots = get_snapshots()
-    for snapshot in snapshots:
-        if snapshot['name'] == snapshot_name and snapshot['filesystem'] == filesystem:
-            exists = True
-    return exists
-
-def get_snapshot_id(snapshot_name, filesystem):
-    id = None
-    snapshots = get_snapshots()
-    for snapshot in snapshots:
-        if snapshot['name'] == snapshot_name and snapshot['filesystem'] == filesystem:
-            id = snapshot['id']
-    return id
-
-def delete_snapshot(snapshot_id):
-    result = freenas_api_delete("/api/v1.0/storage/snapshot/" + snapshot_id)
-    if result.ok:
-        print("Snapshot Deleted " + snapshot_id)
-
-def replicate_snapshot(source, destination):
-    #TODO write this function
-    print("something")
-    data = {
-
-    }
-    result = freenas_api_post('/api/v1.0/storage/replication/', data)

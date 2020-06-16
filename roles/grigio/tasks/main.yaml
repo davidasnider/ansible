@@ -17,8 +17,8 @@
   copy:
       dest: /home/rundeck/.kube
       src: "{{ item.item }}"
-      group: rundeck 
-      owner: rundeck 
+      group: rundeck
+      owner: rundeck
   become: true
   changed_when: false
   tags: kubeconfig

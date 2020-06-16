@@ -19,8 +19,7 @@
   when:
     - ansible_facts['os_family'] == "ClearOS"
   tags: clearos
-  
+
 - import_tasks: gen_rundeck_inventory.yaml
   tags: rundeck_inventory
   when: test_env is undefined
-

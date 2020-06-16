@@ -1,6 +1,6 @@
 #!/bin/sh
 # /etc/cron.weekly/mythtv-database script - check and backup mythconverg tables
-# Copyright 2005/12/02 2006/10/08 Paul Andreassen 
+# Copyright 2005/12/02 2006/10/08 Paul Andreassen
 #                      2010 Mario Limonciello
 
 set -e -u

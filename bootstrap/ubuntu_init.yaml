@@ -29,7 +29,7 @@
   - name: Update apt
     raw: sudo apt-get update
     when: hostvars[inventory_hostname].serial is not defined
-    
+
   - name: 'install python'
     raw: sudo apt-get -y install python
     when: hostvars[inventory_hostname].serial is not defined

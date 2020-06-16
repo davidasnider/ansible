@@ -1,7 +1,7 @@
 ---
 # The 'Disable IP V6' task will fail if this file doesn't exist.
 - name: check if ipv6 file exists
-  stat: 
+  stat:
     path: /proc/sys/net/ipv6/conf/all/disable_ipv6
   register: disable_ipv6
 

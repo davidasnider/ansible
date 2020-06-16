@@ -54,7 +54,7 @@
   notify: Restart Mysql
 
 - name: bind mysql remote address
-  ini_file: 
+  ini_file:
     path: /etc/mysql/mariadb.conf.d/50-server.cnf
     section: mysqld
     option: bind-address

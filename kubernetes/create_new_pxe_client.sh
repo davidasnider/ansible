@@ -28,4 +28,3 @@ sed -i "s/rpimaster/$2/g" $1/cmdline.txt
 UUID=$(uuidgen -r | awk -F - '{print $5}')
 
 sed -i "s/RANDOM/$UUID/g" $1/cmdline.txt
-

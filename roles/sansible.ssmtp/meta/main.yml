@@ -14,7 +14,7 @@ galaxy_info:
         - bionic
   galaxy_tags:
     - development
-# 
+#
 # dependencies:
 #   - role: sansible.users_and_groups
 #     sansible_users_and_groups_groups:

@@ -1,6 +1,6 @@
 # SSMTP
 
-Master: [![Build Status](https://travis-ci.org/sansible/ssmtp.svg?branch=master)](https://travis-ci.org/sansible/ssmtp)  
+Master: [![Build Status](https://travis-ci.org/sansible/ssmtp.svg?branch=master)](https://travis-ci.org/sansible/ssmtp)
 Develop: [![Build Status](https://travis-ci.org/sansible/ssmtp.svg?branch=develop)](https://travis-ci.org/sansible/ssmtp)
 
 * [Installation and Dependencies](#installation-and-dependencies)

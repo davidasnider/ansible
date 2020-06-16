@@ -303,7 +303,7 @@
   changed_when: false
 
 - name: Add secondary Groups to user
-  user: 
+  user:
     name: "{{item.0}}"
     groups: "{{item.1}}"
     append: yes

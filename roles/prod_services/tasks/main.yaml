@@ -12,7 +12,7 @@
   until: cmd_res.stdout.find("successfully rolled out") != -1
   changed_when: false
 
-# Install Cert Manager 
+# Install Cert Manager
 - name: Get the Cert Manager repo
   git:
     repo: git@bitbucket.org:davidasnider/cert-manager.git
@@ -80,7 +80,7 @@
   delegate_to: "{{ masters[0] }}"
   when:
     - masters[0] == inventory_hostname
-    - prod_cluster == false 
+    - prod_cluster == false
   changed_when: "'configured' in dashboard_install.stdout"
 
 - name: install the Dashboard on prod
@@ -90,7 +90,7 @@
   delegate_to: "{{ masters[0] }}"
   when:
     - masters[0] == inventory_hostname
-    - prod_cluster == true 
+    - prod_cluster == true
   changed_when: "'configured' in dashboard_install.stdout"
 
 - name: download the dashboard users files
@@ -186,7 +186,7 @@
   register: storageprovisioner
   changed_when: "'configured' in storageprovisioner.stdout"
 
-# Ensure CoreDNS has anti affinity rules 
+# Ensure CoreDNS has anti affinity rules
 - name: Copy the coredns patch file
   copy:
     src: dns-antiaffinity.yaml
@@ -202,4 +202,3 @@
   tags: dns-antiaffinity
   register: coredns
   changed_when: "'configured' in coredns.stdout"
-

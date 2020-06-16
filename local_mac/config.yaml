@@ -20,6 +20,7 @@
         'nmap',
         'packer',
         'plantuml',
+        'pre-commit',
         'qemu',
         'watch',
         'wget',
@@ -74,7 +75,7 @@
     command: brew install http://git.io/sshpass.rb
     args:
       creates: /usr/local/bin/sshpass
-      
+
   - name: Install python libraries globally
     pip:
       name:
@@ -87,4 +88,4 @@
       executable: pip3
 
 # Todo Copy important files, .vscode directory, .zshrc, iterm profiles, istat menus
-# todo install oh my zsh 
+# todo install oh my zsh

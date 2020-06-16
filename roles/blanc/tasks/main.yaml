@@ -10,8 +10,8 @@
   copy:
       dest: /Users/admin/.kube
       src: "{{ item.item }}"
-      group: staff 
-      owner: admin 
+      group: staff
+      owner: admin
   delegate_to: blanc
   become: false
   changed_when: false

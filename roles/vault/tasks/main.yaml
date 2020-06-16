@@ -68,4 +68,3 @@
   template:
     dest: /shared/docker/icinga_master/conf.d/auto/vault.conf
     src: icinga_definition.conf
-    
