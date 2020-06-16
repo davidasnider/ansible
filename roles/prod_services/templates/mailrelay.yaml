@@ -1,4 +1,3 @@
----
 # Create the Namespace
 apiVersion: v1
 kind: Namespace
@@ -6,6 +5,7 @@ metadata:
   name: mailrelay
 
 ---
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -90,6 +90,7 @@ data:
     exec exim -bd -q15m -v
 
 ---
+
 apiVersion: cert-manager.io/v1alpha2
 kind: Certificate
 metadata:
@@ -105,6 +106,7 @@ spec:
   - mail.thesniderpad.com
 
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -122,44 +124,44 @@ spec:
       containers:
       - name: mailrelay
         image: carlosedp/docker-smtp:v1.0.1
-        command: [/bin/bash]
-        args: [/bin/entrypoint.sh]
+        command: ["/bin/bash"]
+        args: ["/bin/entrypoint.sh"]
         env:
         - name: RELAY_NETWORKS
-          value: 10.0.0.0/8
+          value: "10.0.0.0/8"
         - name: CERTIFICATE_PATH
-          value: /etc/ssl/certs/tls.crt
+          value: "/etc/ssl/certs/tls.crt"
         - name: KEY_PATH
-          value: /etc/ssl/certs/tls.key
+          value: "/etc/ssl/certs/tls.key"
         - name: MAILNAME
-          value: mail.thesniderpad.com
+          value: "mail.thesniderpad.com"
         - name: DISABLE_IPV6
-          value: yes
+          value: "yes"
         - name: SMARTHOST_ADDRESS
-          value: smtp.office365.com
+          value: "smtp.office365.com"
         - name: SMARTHOST_PORT
-          value: '587'
+          value: "587"
         - name: SMARTHOST_USER
-          value: '{{ vaulted.data.SMARTHOST_USER }}'
+          value: "{{ vaulted.data.SMARTHOST_USER }}"
         - name: SMARTHOST_PASSWORD
-          value: '{{ vaulted.data.SMARTHOST_PASSWORD }}'
+          value: "{{ vaulted.data.SMARTHOST_PASSWORD }}"
         - name: SMARTHOST_ALIASES
-          value: '*'
+          value: "*"
         resources:
           limits:
             cpu: 100m
             memory: 100Mi
         volumeMounts:
-        - name: certificates
-          mountPath: /etc/ssl/certs
-        - name: rewrite
-          mountPath: /bin/entrypoint.sh
-          subPath: entrypoint
-          readOnly: true
+          - name: certificates
+            mountPath: /etc/ssl/certs
+          - name: rewrite
+            mountPath: "/bin/entrypoint.sh"
+            subPath: entrypoint
+            readOnly: true
         ports:
-        - name: mailrelay
-          containerPort: 2525
-      restartPolicy: Always
+          - name: mailrelay
+            containerPort: 2525
+      restartPolicy: "Always"
       volumes:
       - name: rewrite
         configMap:
