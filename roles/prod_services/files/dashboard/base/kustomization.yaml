@@ -7,7 +7,7 @@ namespace: kubernetes-dashboard
 # list of Resource Config to be Applied
 resources:
 # Get this file by running this command with the correct version of the URL:
-#  wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+# wget https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.1/aio/deploy/recommended.yaml
 - recommended.yaml
 
 generatorOptions:
