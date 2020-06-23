@@ -1,0 +1,167 @@
+- name: git config email
+  git_config:
+    name: user.email
+    scope: global
+    value: 'david@davidsnider.org'
+  become_user: magicmirror
+
+- name: git config name
+  git_config:
+    name: user.name
+    scope: global
+    value: 'David Snider'
+  become_user: magicmirror
+
+- name: Add magicmirror user
+  user:
+    name: magicmirror
+    create_home: yes
+    groups:
+    - video
+    - audio
+    uid: '1008'
+    state: present
+    password: '{{ vaulted.data.LINUX_PASSWORD }}'
+  notify: reboot server
+
+- name: disable overscan
+  lineinfile:
+    path: /boot/config.txt
+    line: disable_overscan=1
+  notify: reboot server
+
+- name: see if screenblanking is disabled
+  command: raspi-config nonint get_blanking
+  register: get_blanking
+  changed_when: false
+
+- name: Disable screen blanking
+  command: raspi-config nonint do_blanking 1
+  when:
+  - "'1' not in get_blanking.stdout"
+  notify: reboot server
+
+- name: see if autologin is enabled
+  command: raspi-config nonint get_autologin
+  register: get_autologin
+  changed_when: false
+
+- name: Set autologin
+  shell: SUDO_USER=magicmirror raspi-config nonint do_boot_behaviour B4
+  when:
+  - "'0' not in get_autologin.stdout"
+  notify: reboot server
+
+- name: Ensure dependencies are present.
+  apt:
+    name:
+    - apt-transport-https
+    - gnupg2
+    state: present
+
+- name: Add Nodesource apt key.
+  apt_key:
+    url: https://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x1655A0AB68576280
+    id: "68576280"
+    state: present
+
+- name: Add NodeSource repositories for Node.js.
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - "deb https://deb.nodesource.com/node_10.x {{ ansible_distribution_release }} main"
+    - "deb-src https://deb.nodesource.com/node_10.x {{ ansible_distribution_release }} main"
+  register: node_repo
+
+- name: Update apt cache if repo was added.
+  apt: update_cache=yes
+  when: node_repo.changed
+  tags: ['skip_ansible_lint']
+
+- name: Ensure Node.js and dependencies are installed.
+  apt:
+    name: 
+    - nodejs
+    - jq
+    state: present
+  
+- name: Git Stash before cloning
+  command: git stash
+  args:
+    chdir: /home/magicmirror/MagicMirror
+  become_user: magicmirror
+  changed_when: false
+  register: git_stash
+  failed_when: false
+
+- name: Clone MagicMirror
+  git:
+    repo: https://github.com/MichMich/MagicMirror
+    dest: /home/magicmirror/MagicMirror
+    version: master
+    accept_hostkey: yes
+  become_user: magicmirror
+  register: clone_magicmirror
+
+- name: Install MagicMirror dependencies
+  command: npm install
+  args:
+    chdir: /home/magicmirror/MagicMirror
+  become_user: magicmirror
+  when: clone_magicmirror.changed
+
+- name: Git Stash after cloning
+  command: git stash apply
+  args:
+    chdir: /home/magicmirror/MagicMirror
+  become_user: magicmirror
+  when: git_stash.changed
+
+- name: Install pm2
+  npm:
+    name: pm2
+    global: yes
+  register: pm2
+
+- name: Start pm2 at boot
+  command: env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u magicmirror --hp /home/magicmirror
+  when: pm2.changed
+
+- name: Copy config.js
+  template:
+    src: config.js
+    dest: /home/magicmirror/MagicMirror/config/config.js
+    owner: magicmirror
+    group: magicmirror
+    mode: '0644'
+  notify: restart magicmirror
+
+- name: Copy mm.sh
+  copy:
+    src: mm.sh
+    dest: /home/magicmirror/mm.sh
+    owner: magicmirror
+    group: magicmirror
+    mode: '0755'
+  register: mm_ssh
+
+- name: Check startup scripts
+  shell: pm2 jlist|jq ".[0].pm2_env.pm_exec_path"
+  register: pm2_status
+  become_user: magicmirror
+  changed_when: false
+
+- name: Setup startup scripts
+  command: pm2 start mm.sh
+  args:
+      chdir: /home/magicmirror
+  become_user: magicmirror
+  when: "'/home/magicmirror/mm.sh' not in pm2_status.stdout"
+
+- name: Save pm2 status
+  command: pm2 save
+  args:
+    chdir: /home/magicmirror
+  become_user: magicmirror
+  when: "'/home/magicmirror/mm.sh' not in pm2_status.stdout"

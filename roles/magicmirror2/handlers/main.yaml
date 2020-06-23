@@ -1,0 +1,7 @@
+- name: reboot server
+  reboot:
+    reboot_timeout: 300
+
+- name: restart magicmirror
+  command: pm2 restart mm
+  become_user: magicmirror

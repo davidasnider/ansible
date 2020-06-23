@@ -93,3 +93,16 @@
     tags: grigio
   - role: vault
     tags: vault
+
+- hosts: giro
+  become: true
+  vars_files:
+  - site-variables.yaml
+  environment:
+    VAULT_TOKEN: '{{ vault_ansible_token }}'
+    VAULT_ADDR: https://vault.thesniderpad.com
+  vars:
+    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+  roles:
+  - role: magicmirror2
+    tags: magicmirror2
