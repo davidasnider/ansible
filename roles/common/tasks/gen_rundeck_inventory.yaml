@@ -49,7 +49,7 @@
 
 # Commit
 - name: Add files
-  command: git commit -m "Auto add files"
+  shell: SKIP=prettier git commit -m "Auto add files"
   become: no
   args:
     chdir: /tmp/rundeck
