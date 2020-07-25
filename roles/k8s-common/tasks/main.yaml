@@ -40,6 +40,13 @@
     filename: docker
   tags: docker
 
+- name: Remove Hold docker version
+  when: ansible_os_family == "Debian"
+  dpkg_selections:
+    name: docker-ce
+    selection: install
+  tags: docker
+
 - name: Install docker engine (Debian/Ubuntu)
   when: ansible_os_family == "Debian"
   apt:

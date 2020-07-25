@@ -129,7 +129,7 @@ all:
         metallb_version: v0.9.3
         flannel_version: master
         dashboard_ip: 10.9.9.200
-        power_url: http://blanc:8000/devices/K8s%20Cluster%20-%20Power%20Switch%201
+        power_url: http://blanc:8000/devices/012%20-%20K8S1
         cluster_name: k8s1
         prod_cluster: true
     k8s2:
@@ -214,7 +214,7 @@ all:
         metallb_version: v0.9.3
         flannel_version: master
         dashboard_ip: 10.9.9.201
-        power_url: http://blanc:8000/devices/K8s%20Cluster%20-%20Power%20Switch%202
+        power_url: http://blanc:8000/devices/020%20-%20K8S2
         cluster_name: k8s2
         extent_filename: rpimaster
         prod_cluster: false
