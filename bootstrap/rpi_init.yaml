@@ -1,9 +1,9 @@
 - name: Initiating Raspberry Pi Bootstrap
   hosts: '{{ cluster }}'
-  vars_files:
-  - ../site-variables.yaml
+  # vars_files:
+  # - ../site-variables.yaml
   environment:
-    VAULT_TOKEN: '{{ vault_ansible_token }}'
+    # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
     PASSWORD: '{{ vaulted.data.LINUX_CLEAR_PASSWORD }}'
   vars:

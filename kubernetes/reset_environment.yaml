@@ -1,8 +1,8 @@
 - hosts: 127.0.0.1
-  vars_files:
-  - ../site-variables.yaml
+  # vars_files:
+  # - ../site-variables.yaml
   environment:
-    VAULT_TOKEN: '{{ vault_ansible_token }}'
+    # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
     PASSWORD: '{{ vaulted.data.LINUX_CLEAR_PASSWORD }}'
     USERNAME: '{{ vaulted.data.SHIRAZ_ADMIN_USER }}'
@@ -65,6 +65,15 @@
       state: restarted
 
 - hosts: shiraz
+  # vars_files:
+  # - ../site-variables.yaml
+  environment:
+    # VAULT_TOKEN: '{{ vault_ansible_token }}'
+    VAULT_ADDR: https://vault.thesniderpad.com
+    PASSWORD: '{{ vaulted.data.LINUX_CLEAR_PASSWORD }}'
+    USERNAME: '{{ vaulted.data.SHIRAZ_ADMIN_USER }}'
+  vars:
+    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
   tasks:
 
   - name: delete the zfs boot disks
@@ -108,12 +117,13 @@
     tags: iamaster
 
 - hosts: 127.0.0.1
-  vars_files:
-  - ../site-variables.yaml
+  # vars_files:
+  # - ../site-variables.yaml
   environment:
-    VAULT_TOKEN: '{{ vault_ansible_token }}'
+    # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
     PASSWORD: '{{ vaulted.data.LINUX_CLEAR_PASSWORD }}'
+    USERNAME: '{{ vaulted.data.SHIRAZ_ADMIN_USER }}'
   vars:
     vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
   tasks:

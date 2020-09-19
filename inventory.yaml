@@ -208,8 +208,8 @@ all:
         - ia01
         token: udy29x.ugyyk3tumg27atmr
         podnet: 10.244.0.0/16
-        kubernetes_package_version: 1.18.6-00
-        kubernetes_version: v1.18.6
+        kubernetes_package_version: 1.18.2-00
+        kubernetes_version: v1.18.2
         docker_ce_version: "5:19.03"
         metallb_version: v0.9.3
         flannel_version: master

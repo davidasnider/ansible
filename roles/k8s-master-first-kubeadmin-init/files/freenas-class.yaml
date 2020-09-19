@@ -21,7 +21,7 @@ parameters:
   # be created, it *must* exist before provisioner will work
   # example: tank/k8s/mycluster
   # default: tank
-  datasetParentName: SEAGATE_4TB_SLOT5/k8s
+  datasetParentName: "SEAGATE_4TB_SLOT5/k8s"
 
   # whether to enforce quotas for each dataset
   # if enabled each newly provisioned dataset will set the appropriate quota

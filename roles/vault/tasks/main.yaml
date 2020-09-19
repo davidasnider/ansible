@@ -3,13 +3,18 @@
     name: [certbot, python3-certbot-dns-route53]
     state: present
 
-- name: Add AWS Creds to environment
-  blockinfile:
-    path: /root/.bashrc
-    state: present
-    block: |
-      export AWS_ACCESS_KEY_ID={{ certbot_aws_access_key_id }}
-      export AWS_SECRET_ACCESS_KEY={{ certbot_aws_secret_access_key }}
+- name: Create AWS directory
+  file:
+    path: /root/.aws
+    state: directory
+
+- name: Add AWS Creds
+  template:
+    src: aws_credentials
+    dest: /root/.aws/credentials
+    owner: root
+    group: root
+    mode: '0600'
 
 - name: Create certificate for vault.thesniderpad.com
   shell: . ~/.bashrc && certbot certonly --dns-route53 -d vault.thesniderpad.com -m david@davidsniderorg --agree-tos -n --eff-email

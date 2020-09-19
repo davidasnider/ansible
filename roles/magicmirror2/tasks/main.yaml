@@ -79,11 +79,16 @@
   when: node_repo.changed
   tags: ['skip_ansible_lint']
 
-- name: Ensure Node.js and dependencies are installed.
+- name: Ensure Node.js and MagicMirror dependencies are installed.
   apt:
     name: 
     - nodejs
     - jq
+    - devilspie2 
+    - wmctrl 
+    - ffmpeg
+    - omxplayer
+    - vlc
     state: present
   
 - name: Git Stash before cloning
@@ -165,3 +170,100 @@
     chdir: /home/magicmirror
   become_user: magicmirror
   when: "'/home/magicmirror/mm.sh' not in pm2_status.stdout"
+
+# - name: Install on this day
+#   git:
+#     repo: https://github.com/elliefairholm/on-this-day.git
+#     dest: /home/magicmirror/MagicMirror/modules/on-this-day
+#     version: master
+#     accept_hostkey: yes
+#   become_user: magicmirror
+#   register: clone_on_this_day
+
+# - name: Install on this day dependencies
+#   command: npm install
+#   args:
+#     chdir: /home/magicmirror/MagicMirror/modules/on-this-day
+#   become_user: magicmirror
+#   when: clone_on_this_day.changed
+
+- name: Install wallpaper
+  git:
+    repo: https://github.com/kolbyjack/MMM-Wallpaper.git
+    dest: /home/magicmirror/MagicMirror/modules/MMM-Wallpaper
+    version: master
+    accept_hostkey: yes
+  become_user: magicmirror
+  register: clone_wallpaper
+
+- name: Install wallpaper dependencies
+  command: npm install
+  args:
+    chdir: /home/magicmirror/MagicMirror/modules/MMM-Wallpaper
+  become_user: magicmirror
+  when: clone_wallpaper.changed
+
+- name: Install monthly calendar
+  git:
+    repo: https://github.com/KirAsh4/calendar_monthly
+    dest: /home/magicmirror/MagicMirror/modules/calendar_monthly
+    version: master
+    accept_hostkey: yes
+  become_user: magicmirror
+  register: clone_calendar
+
+- name: Install monthly calendar dependencies
+  command: npm install
+  args:
+    chdir: /home/magicmirror/MagicMirror/modules/calendar_monthly
+  become_user: magicmirror
+  when: clone_calendar.changed
+
+# - name: Git Stash before cloning
+#   command: git stash
+#   args:
+#     chdir: /home/magicmirror/MagicMirror/modules/MMM-RTSPStream
+#   become_user: magicmirror
+#   changed_when: false
+#   register: git_stash_RTSP
+#   failed_when: false
+
+# - name: Install RTSP Stream
+#   git:
+#     repo: https://github.com/shbatm/MMM-RTSPStream.git
+#     dest: /home/magicmirror/MagicMirror/modules/MMM-RTSPStream
+#     version: master
+#     accept_hostkey: yes
+#   become_user: magicmirror
+#   register: clone_rtsp
+
+# - name: Git Stash after cloning
+#   command: git stash apply
+#   args:
+#     chdir: /home/magicmirror/MagicMirror/modules/MMM-RTSPStream
+#   become_user: magicmirror
+#   when: git_stash_RTSP.changed
+
+
+# - name: Install RTSP Stream dependencies
+#   command: npm install
+#   args:
+#     chdir: /home/magicmirror/MagicMirror/modules/MMM-RTSPStream
+#   become_user: magicmirror
+#   when: clone_rtsp.changed
+
+- name: Install Ring
+  git:
+    repo: https://github.com/DustinBryant/MMM-Ring.git
+    dest: /home/magicmirror/MagicMirror/modules/MMM-Ring
+    version: master
+    accept_hostkey: yes
+  become_user: magicmirror
+  register: clone_ring
+
+- name: Install Ring
+  command: npm install
+  args:
+    chdir: /home/magicmirror/MagicMirror/modules/MMM-Ring
+  become_user: magicmirror
+  when: clone_ring.changed

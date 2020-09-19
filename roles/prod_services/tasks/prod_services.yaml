@@ -80,6 +80,8 @@
     key_file: /home/ansible/.ssh/id_rsa
     depth: '1'
     accept_hostkey: yes
+  tags: rundeck
+
 
 # Create the pods and services
 - name: Apply Rundeck Prod Kustomize script
@@ -87,6 +89,7 @@
   args:
     chdir: /usr/local/src/rundeck
   changed_when: false
+  tags: rundeck
 
 #### Create the tesla namespace and secrets
 - name: Get the tesla-collector repo
