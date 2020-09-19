@@ -24,5 +24,4 @@ jobs:
 
       # Gitleaks check for secrets
       - name: Gitleaks
-        uses: zricethezav/gitleaks-action@v1.1.4. 
         uses: zricethezav/gitleaks-action@v1.1.4
