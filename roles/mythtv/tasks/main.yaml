@@ -40,12 +40,16 @@
     key: '{{ vaulted.data.id_rsa_pub }}'
 
 - name: Check if the timezone tables are populated
-  shell: mysql -u root -e "SELECT COUNT(*) FROM mysql.time_zone_name;" -sN
+  command: mysql -u root -e "SELECT COUNT(*) FROM mysql.time_zone_name;" -sN
   register: tz_tables
   changed_when: false
 
 - name: Populate timezone tables when necessary
-  shell: mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -uroot mysql
+  shell: |
+    set -o pipefail && \
+    mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -uroot mysql
+  args:
+    executable: /bin/bash
   when: tz_tables.stdout == "0"
   notify: Restart Mysql
 
@@ -55,6 +59,7 @@
     section: mysqld
     option: bind-address
     value: 0.0.0.0
+    mode: '0644'
   notify:
   - Restart Mysql
 
@@ -71,13 +76,9 @@
   mysql_db:
     name: mythconverg
     state: present
-  register: db_created
-  notify: Restart Mythtv
-
-- name: Restore Database when DB is created
-  shell: /usr/share/mythtv/mythconverg_restore.pl --filename="{{ latest_file.path }}"
-  when: db_created.changed
-  notify: Restart Mythtv
+  notify:
+    - Restore Database when DB is created
+    - Restart Mythtv
 
 - name: Create mythtv@localhost with password and all database privileges and 'WITH GRANT OPTION'
   mysql_user:
@@ -110,6 +111,7 @@
   copy:
     dest: /lib/systemd/system/mythtv-backend.service
     src: mythtv-backend.service
+    mode: '0644'
 
 - name: Create log path
   file:
@@ -117,6 +119,7 @@
     state: directory
     owner: mythtv
     group: mythtv
+    mode: '0755'
 
 - name: Ensure mythtv service is started
   service:

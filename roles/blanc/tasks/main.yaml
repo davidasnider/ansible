@@ -12,8 +12,9 @@
     src: '{{ item.item }}'
     group: staff
     owner: admin
+    mode: '0644'
   delegate_to: blanc
   become: false
   changed_when: false
   tags: kubeconfig
-  with_items: '{{dir_out.results }}'
+  with_items: '{{ dir_out.results }}'

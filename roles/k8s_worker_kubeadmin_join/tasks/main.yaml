@@ -1,25 +1,26 @@
-- name: check node cluster status
-  shell: kubectl get nodes
+- name: Check node cluster status
+  command: kubectl get nodes
   register: node_cluster_status
   delegate_to: '{{ masters[0] }}'
   changed_when: false
   tags: workers_join
 
 - name: Generate master join token
-  shell: kubeadm token create --print-join-command
+  command: kubeadm token create --print-join-command
   register: kubeadm_join_cmd
   delegate_to: '{{ masters[0] }}'
   # run_once: true
   when: ansible_hostname not in node_cluster_status.stdout
   tags: workers_join
 
-- set_fact:
+- name: Get kubeadmin join command
+  set_fact:
     kubeadm_join: '{{ kubeadm_join_cmd.stdout }}'
   when: ansible_hostname not in node_cluster_status.stdout
   tags: workers_join
 
 - name: Join workers to cluster
-  shell: '{{ kubeadm_join }}'
+  command: '{{ kubeadm_join }}'
   args:
     creates: /etc/kubernetes/bootstrap-kubelet.conf
   when: ansible_hostname not in node_cluster_status.stdout

@@ -21,13 +21,14 @@
     - audio
     uid: '1008'
     state: present
-    password: '{{ vaulted.data.LINUX_PASSWORD }}'
+    password: '{{ vaulted.data.LINUX_PASSWORD }}' # pragma: allowlist secret
   notify: reboot server
 
 - name: disable overscan
   lineinfile:
     path: /boot/config.txt
     line: disable_overscan=1
+    mode: '0755'
   notify: reboot server
 
 - name: see if screenblanking is disabled
@@ -46,7 +47,7 @@
   register: get_autologin
   changed_when: false
 
-- name: Set autologin
+- name: Set autologin # noqa 305 command does not support variable setting
   shell: SUDO_USER=magicmirror raspi-config nonint do_boot_behaviour B4
   when:
   - "'0' not in get_autologin.stdout"
@@ -81,24 +82,24 @@
 
 - name: Ensure Node.js and MagicMirror dependencies are installed.
   apt:
-    name: 
+    name:
     - nodejs
     - jq
-    - devilspie2 
-    - wmctrl 
+    - devilspie2
+    - wmctrl
     - ffmpeg
     - omxplayer
     - vlc
     state: present
-  
-- name: Git Stash before cloning
+
+- name: Git Stash before cloning # noqa 303
   command: git stash
   args:
     chdir: /home/magicmirror/MagicMirror
   become_user: magicmirror
   changed_when: false
-  register: git_stash
   failed_when: false
+  notify: Git Stash after cloning
 
 - name: Clone MagicMirror
   git:
@@ -107,31 +108,14 @@
     version: master
     accept_hostkey: yes
   become_user: magicmirror
-  register: clone_magicmirror
+  notify: Install MagicMirror dependencies
 
-- name: Install MagicMirror dependencies
-  command: npm install
-  args:
-    chdir: /home/magicmirror/MagicMirror
-  become_user: magicmirror
-  when: clone_magicmirror.changed
-
-- name: Git Stash after cloning
-  command: git stash apply
-  args:
-    chdir: /home/magicmirror/MagicMirror
-  become_user: magicmirror
-  when: git_stash.changed
 
 - name: Install pm2
   npm:
     name: pm2
     global: yes
-  register: pm2
-
-- name: Start pm2 at boot
-  command: env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u magicmirror --hp /home/magicmirror
-  when: pm2.changed
+  notify: Start pm2 at boot
 
 - name: Copy config.js
   template:
@@ -152,7 +136,11 @@
   register: mm_ssh
 
 - name: Check startup scripts
-  shell: pm2 jlist|jq ".[0].pm2_env.pm_exec_path"
+  shell: |
+    set -o pipefail
+    pm2 jlist|jq ".[0].pm2_env.pm_exec_path"
+  args:
+    executable: /bin/bash
   register: pm2_status
   become_user: magicmirror
   changed_when: false
@@ -171,22 +159,6 @@
   become_user: magicmirror
   when: "'/home/magicmirror/mm.sh' not in pm2_status.stdout"
 
-# - name: Install on this day
-#   git:
-#     repo: https://github.com/elliefairholm/on-this-day.git
-#     dest: /home/magicmirror/MagicMirror/modules/on-this-day
-#     version: master
-#     accept_hostkey: yes
-#   become_user: magicmirror
-#   register: clone_on_this_day
-
-# - name: Install on this day dependencies
-#   command: npm install
-#   args:
-#     chdir: /home/magicmirror/MagicMirror/modules/on-this-day
-#   become_user: magicmirror
-#   when: clone_on_this_day.changed
-
 - name: Install wallpaper
   git:
     repo: https://github.com/kolbyjack/MMM-Wallpaper.git
@@ -194,14 +166,7 @@
     version: master
     accept_hostkey: yes
   become_user: magicmirror
-  register: clone_wallpaper
-
-- name: Install wallpaper dependencies
-  command: npm install
-  args:
-    chdir: /home/magicmirror/MagicMirror/modules/MMM-Wallpaper
-  become_user: magicmirror
-  when: clone_wallpaper.changed
+  notify: Install wallpaper dependencies
 
 - name: Install monthly calendar
   git:
@@ -210,47 +175,7 @@
     version: master
     accept_hostkey: yes
   become_user: magicmirror
-  register: clone_calendar
-
-- name: Install monthly calendar dependencies
-  command: npm install
-  args:
-    chdir: /home/magicmirror/MagicMirror/modules/calendar_monthly
-  become_user: magicmirror
-  when: clone_calendar.changed
-
-# - name: Git Stash before cloning
-#   command: git stash
-#   args:
-#     chdir: /home/magicmirror/MagicMirror/modules/MMM-RTSPStream
-#   become_user: magicmirror
-#   changed_when: false
-#   register: git_stash_RTSP
-#   failed_when: false
-
-# - name: Install RTSP Stream
-#   git:
-#     repo: https://github.com/shbatm/MMM-RTSPStream.git
-#     dest: /home/magicmirror/MagicMirror/modules/MMM-RTSPStream
-#     version: master
-#     accept_hostkey: yes
-#   become_user: magicmirror
-#   register: clone_rtsp
-
-# - name: Git Stash after cloning
-#   command: git stash apply
-#   args:
-#     chdir: /home/magicmirror/MagicMirror/modules/MMM-RTSPStream
-#   become_user: magicmirror
-#   when: git_stash_RTSP.changed
-
-
-# - name: Install RTSP Stream dependencies
-#   command: npm install
-#   args:
-#     chdir: /home/magicmirror/MagicMirror/modules/MMM-RTSPStream
-#   become_user: magicmirror
-#   when: clone_rtsp.changed
+  notify: Install monthly calendar dependencies
 
 - name: Install Ring
   git:
@@ -259,11 +184,4 @@
     version: master
     accept_hostkey: yes
   become_user: magicmirror
-  register: clone_ring
-
-- name: Install Ring
-  command: npm install
-  args:
-    chdir: /home/magicmirror/MagicMirror/modules/MMM-Ring
-  become_user: magicmirror
-  when: clone_ring.changed
+  notify: Install Ring

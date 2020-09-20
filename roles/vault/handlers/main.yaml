@@ -1,0 +1,6 @@
+- name: Register service file
+  systemd:
+    name: vault
+    enabled: yes
+    masked: no
+    state: started

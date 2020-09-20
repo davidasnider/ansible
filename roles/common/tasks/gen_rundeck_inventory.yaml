@@ -1,4 +1,5 @@
 # Start from a clean state
+
 - name: Clean git repository if it exists
   file:
     state: absent
@@ -9,7 +10,7 @@
   changed_when: false
 
 # pull the local repo down
-- name: Get the Rundeck Inventory git repository
+- name: Get the Rundeck Inventory git repository # noqa 303
   command: git clone git@bitbucket.org:davidasnider/rundeck.git
   become: no
   args:
@@ -23,11 +24,12 @@
   template:
     src: rundeck_inventory.yaml
     dest: /tmp/rundeck/inventory/{{ inventory_hostname_short }}.yaml
+    mode: '0644'
   delegate_to: localhost
   become: false
 
 # Did anything change?
-- name: Check for updated files
+- name: Check for updated files # noqa 303
   command: git status
   register: git_result
   become: no
@@ -38,7 +40,7 @@
   changed_when: false
 
 # Commit
-- name: Add files
+- name: Add files # noqa 303
   command: git add -A
   become: no
   args:
@@ -48,7 +50,7 @@
   when: '"yaml" in git_result.stdout'
 
 # Commit
-- name: Add files
+- name: Add files # noqa 305
   shell: SKIP=prettier,yamllint git commit -m "Auto add files"
   become: no
   args:
@@ -58,7 +60,7 @@
   when: '"yaml" in git_result.stdout'
 
 # Push
-- name: Add files
+- name: Add files # noqa 303
   command: git push
   become: no
   args:

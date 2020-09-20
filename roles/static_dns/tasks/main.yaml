@@ -2,7 +2,8 @@
   lineinfile:
     path: /etc/hosts
     regexp: ^{{ item.ip }} .*
-    line: '{{ item.ip}} {{ item.name }}.thesniderpad.com'
+    line: '{{ item.ip }} {{ item.name }}.thesniderpad.com'
+    mode: '0644'
   loop: '{{ static_dns_records }}'
   notify:
   - restart dnsmasq

@@ -12,6 +12,7 @@
     group: rundeck
     state: directory
     owner: rundeck
+    mode: '0755'
 
 - name: Copy kubeconfigs to host
   copy:
@@ -19,10 +20,11 @@
     src: '{{ item.item }}'
     group: rundeck
     owner: rundeck
+    mode: '0644'
   become: true
   changed_when: false
   tags: kubeconfig
-  with_items: '{{dir_out.results }}'
+  with_items: '{{ dir_out.results }}'
 
 - name: Add Docker APT GPG key
   when: ansible_os_family == "Debian"

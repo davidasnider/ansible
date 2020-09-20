@@ -19,6 +19,7 @@
     state: present
     regexp: ^%sudo
     line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+    mode: '0640'
 
 - name: Delete the pi user
   user:
@@ -31,6 +32,7 @@
   template:
     src: collectd.conf
     dest: /etc/collectd/collectd.conf
+    mode: '0644'
   notify:
   - restart collectd
   tags:
@@ -55,19 +57,19 @@
   - "'0' not in get_boot_wait.stdout"
 
 - name: Check Default locale
-  shell: cat /etc/default/locale
+  command: cat /etc/default/locale
   register: get_default_locale
   ignore_errors: yes
   changed_when: false
   tags: raspberrypi_commands
 
 - name: Set Default Locale
-  shell: raspi-config nonint do_change_locale en_US.UTF-8
+  command: raspi-config nonint do_change_locale en_US.UTF-8
   when: "'LANG=en_US.UTF-8' not in get_default_locale.stdout"
   tags: raspberrypi_commands
 
 - name: Check Keyboard
-  shell: cat /etc/default/keyboard
+  command: cat /etc/default/keyboard
   register: get_default_keyboard
   ignore_errors: yes
   changed_when: false

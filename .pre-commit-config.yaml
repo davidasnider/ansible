@@ -21,8 +21,8 @@ repos:
   - id: detect-secrets
     args: [--baseline, .secrets.baseline]
     exclude: .*/tests/.*
-# - repo: https://github.com/ansible/ansible-lint.git
-#   rev: v4.1.0
-#   hooks:
-#     - id: ansible-lint
-#       files: \.(yaml|yml)$
+- repo: https://github.com/ansible/ansible-lint.git
+  rev: v4.3.5
+  hooks:
+    - id: ansible-lint
+      files: \.(yaml|yml)$

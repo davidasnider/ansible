@@ -20,6 +20,7 @@
     key_file: /home/ansible/.ssh/id_rsa
     depth: '1'
     accept_hostkey: yes
+    version: 'master'
   when:
   - masters[0] == inventory_hostname
   tags: cert-manager
@@ -68,42 +69,44 @@
   copy:
     src: dashboard
     dest: /etc/kubernetes
+    mode: '0644'
   tags: dashboard-install
   delegate_to: '{{ masters[0] }}'
   when:
   - masters[0] == inventory_hostname
 
 - name: install the Dashboard on nonprod
-  shell: kubectl apply -k /etc/kubernetes/dashboard/nonprod
+  command: kubectl apply -k /etc/kubernetes/dashboard/nonprod
   register: dashboard_install
   tags: dashboard-install
   delegate_to: '{{ masters[0] }}'
   when:
   - masters[0] == inventory_hostname
-  - prod_cluster == false
+  - not prod_cluster # False
   changed_when: "'configured' in dashboard_install.stdout"
 
 - name: install the Dashboard on prod
-  shell: kubectl apply -k /etc/kubernetes/dashboard/prod
+  command: kubectl apply -k /etc/kubernetes/dashboard/prod
   register: dashboard_install
   tags: dashboard-install
   delegate_to: '{{ masters[0] }}'
   when:
   - masters[0] == inventory_hostname
-  - prod_cluster == true
+  - prod_cluster # Is true
   changed_when: "'configured' in dashboard_install.stdout"
 
 - name: download the dashboard users files
   copy:
     src: dashboard-user.yaml
     dest: /etc/kubernetes/dashboard-user.yaml
+    mode: '0644'
   tags: dashboard-install
   delegate_to: '{{ masters[0] }}'
   when:
   - masters[0] == inventory_hostname
 
 - name: install the dashboard user
-  shell: kubectl apply -f /etc/kubernetes/dashboard-user.yaml
+  command: kubectl apply -f /etc/kubernetes/dashboard-user.yaml
   tags: dashboard-install
   register: dashboard_user
   delegate_to: '{{ masters[0] }}'
@@ -112,8 +115,15 @@
   changed_when: "'configured' in dashboard_user.stdout"
 
 ## Generate a kubeconfig file for the person running the ansible playbooks.
+## The | treats the following lines as a shell script
 - name: get cluster admin token
-  shell: kubectl get secret --namespace kube-system $(kubectl get serviceaccount admin-user --namespace kube-system -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode
+  shell: |
+    set -o pipefail
+    kubectl get secret --namespace kube-system $(kubectl get serviceaccount \
+    admin-user --namespace kube-system -o jsonpath="{.secrets[0].name}") -o \
+    jsonpath="{.data.token}" | base64 --decode
+  args:
+    executable: /bin/bash
   register: cluster_token
   changed_when: false
   tags: kubeconfig
@@ -158,12 +168,13 @@
   copy:
     src: local-storage.yaml
     dest: /etc/kubernetes/local-storage.yaml
+    mode: '0644'
   tags: localstorage
   when:
   - masters[0] == inventory_hostname
 
 - name: Setup the local storage class
-  shell: kubectl apply -f /etc/kubernetes/local-storage.yaml
+  command: kubectl apply -f /etc/kubernetes/local-storage.yaml
   when:
   - masters[0] == inventory_hostname
   tags: localstorage
@@ -174,12 +185,13 @@
   copy:
     src: provisioner_generated.yaml
     dest: /etc/kubernetes/provisioner_generated.yaml
+    mode: '0644'
   tags: localstorage
   when:
   - masters[0] == inventory_hostname
 
 - name: Setup the local storage provisioner
-  shell: kubectl apply -f /etc/kubernetes/provisioner_generated.yaml
+  command: kubectl apply -f /etc/kubernetes/provisioner_generated.yaml
   when:
   - masters[0] == inventory_hostname
   tags: localstorage
@@ -191,6 +203,7 @@
   copy:
     src: dns-antiaffinity.yaml
     dest: /etc/kubernetes/dns-antiaffinity.yaml
+    mode: '0644'
   tags: dns-antiaffinity
   when:
   - masters[0] == inventory_hostname

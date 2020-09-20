@@ -62,6 +62,7 @@
     path: /etc/default/smartmontools
     regexp: .*start_smartd.*
     line: start_smartd=yes
+    mode: '0644'
   notify:
   - restart smartmontools
   when:
@@ -103,6 +104,7 @@
     state: present
     regexp: ^%sudo
     line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+    mode: '0640'
   when:
   - ansible_facts['os_family'] == "Debian"
   - hostvars[inventory_hostname].serial is not defined
@@ -161,6 +163,7 @@
     path: /etc/nagios/nrpe.cfg
     regexp: .*allowed_hosts=.*
     line: allowed_hosts=10.244.0.0/16,10.9.9.0/24
+    mode: '0644'
   tags: nrpe
   notify: restart nrpe
 
@@ -169,6 +172,7 @@
     path: /etc/default/nagios-nrpe-server
     regexp: .*NRPE_OPTS=.*
     line: NRPE_OPTS="-n"
+    mode: '0644'
   tags: nrpe
   notify: restart nrpe
 
@@ -186,6 +190,7 @@
   lineinfile:
     path: /etc/sudoers
     line: 'nagios ALL=(ALL) NOPASSWD: ALL'
+    mode: '0640'
   tags: nrpe
 
 - name: start nrpe service
@@ -206,6 +211,7 @@
         vars.nrpe_no_ssl = "true"
         vars.kernel = "Linux"
       }
+    mode: '0644'
   tags: nrpe
   when: test_env is not defined
 
@@ -229,6 +235,7 @@
   copy:
     dest: /etc/{{ item }}
     src: '{{ item }}'
+    mode: '0644'
   loop:
   - auto.shared
   - auto.master
@@ -255,6 +262,7 @@
     dest: /etc/hostname
     content: |
       {{ hostname }}
+    mode: '0644'
   notify:
   - reboot server
 
@@ -297,14 +305,16 @@
 
 # Make sure we're in the docker group
 - name: Check if user exists
-  shell: /usr/bin/getent group | awk -F":" '{print $1}'
+  shell: set -o pipefail && /usr/bin/getent group | awk -F":" '{print $1}'
+  args:
+    executable: /bin/bash
   register: etc_groups
   changed_when: false
 
 - name: Add secondary Groups to user
   user:
-    name: '{{item.0}}'
-    groups: '{{item.1}}'
+    name: '{{ item.0 }}'
+    groups: '{{ item.1 }}'
     append: yes
   when: item.1 in etc_groups.stdout_lines
   with_nested:
@@ -326,6 +336,7 @@
 
       [Install]
       WantedBy=multi-user.target
+    mode: '0644'
 
 - name: start wol service
   service:

@@ -1,0 +1,4 @@
+exclude_paths:
+  - ./roles/arillso.sshd
+  - ./roles/sansible.ssmtp
+  - ./.github

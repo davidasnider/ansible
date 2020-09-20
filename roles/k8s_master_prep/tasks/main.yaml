@@ -15,13 +15,16 @@
     - nginx
   tags:
   - keepalived
-  register: keepalived_installed
+  notify:
+    - Install Health Check Script for Kube-Apiserver
+    - restart nginx
 
 - name: Ensure hostname is in /etc/hosts
   lineinfile:
     dest: /etc/hosts
     regexp: ^{{ ansible_default_ipv4.address }}.+$
     line: '{{ ansible_default_ipv4.address }} {{ ansible_fqdn }} {{ ansible_hostname }} kubernetes.default'
+    mode: '0644'
   register: hostname
   tags: hostname
 
@@ -51,6 +54,7 @@
   template:
     src: nginx.conf
     dest: /etc/nginx/nginx.conf
+    mode: '0644'
   notify:
   - restart nginx
   tags:
@@ -61,6 +65,7 @@
   template:
     src: kubernetes.default.svc.cluster.local
     dest: /etc/nginx/sites-available/kubernetes.default.svc.cluster.local
+    mode: '0644'
   notify:
   - restart nginx
   tags:
@@ -72,25 +77,11 @@
     src: /etc/nginx/sites-available/kubernetes.default.svc.cluster.local
     dest: /etc/nginx/sites-enabled/kubernetes.default.svc.cluster.local
     state: link
+    mode: '0644'
   notify:
   - restart nginx
   tags:
   - keepalived
-
-# health cheek for kubeapiserver
-- name: Install Health Check Script for Kube-Apiserver
-  template:
-    src: check-kube-apiserver.sh
-    dest: /usr/local/bin/check-kube-apiserver.sh
-    owner: root
-    group: root
-    mode: '0755'
-  notify:
-  - restart nginx
-  tags:
-  - keepalived
-  when:
-  - keepalived_installed.changed
 
 # Service nginx started
 - name: Nginx needs to be started
@@ -104,6 +95,7 @@
   file:
     path: /tmp/kubeadm-ha
     state: directory
+    mode: '0644'
   tags:
   - kubeadminit
 
@@ -111,5 +103,6 @@
   template:
     src: kubeadm-config.yaml
     dest: /tmp/kubeadm-ha/kubeadm-config.yaml
+    mode: '0644'
   tags:
   - kubeadminit

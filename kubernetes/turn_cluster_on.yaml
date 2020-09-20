@@ -13,7 +13,7 @@
   tasks:
 
   - name: Send a magic Wake-on-LAN packet to intel atom servers
-    shell: ether-wake -i enp2s0 {{ hostvars[item].hostmac }}
+    command: ether-wake -i enp2s0 {{ hostvars[item].hostmac }}
     loop: '{{ groups[cluster]|flatten(levels=1) }}'
     when: hostvars[item].serial is not defined
     tags: wakeonlan

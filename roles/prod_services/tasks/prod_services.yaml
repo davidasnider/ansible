@@ -19,6 +19,7 @@
     key_file: /home/ansible/.ssh/id_rsa
     depth: '1'
     accept_hostkey: yes
+    version: "master"
 
 - name: Create the registry physical volume
   command: kubectl apply -f /usr/local/src/docker-registry/registry-pv.yaml
@@ -37,6 +38,7 @@
     key_file: /home/ansible/.ssh/id_rsa
     depth: '1'
     accept_hostkey: yes
+    version: "master"
 
 # Create the namespace and secrets
 - name: Run the script to create remote-shell
@@ -80,6 +82,7 @@
     key_file: /home/ansible/.ssh/id_rsa
     depth: '1'
     accept_hostkey: yes
+    version: "master"
   tags: rundeck
 
 
@@ -99,6 +102,7 @@
     key_file: /home/ansible/.ssh/id_rsa
     depth: '1'
     accept_hostkey: yes
+    version: "master"
 
 - name: Run the setup command for tesla collector
   command: kubectl apply -k prod
@@ -114,6 +118,7 @@
     key_file: /home/ansible/.ssh/id_rsa
     depth: '1'
     accept_hostkey: yes
+    version: "master"
 
 # Create the pods and services
 - name: Apply Icinga Primary Kustomize script
@@ -130,6 +135,7 @@
     key_file: /home/ansible/.ssh/id_rsa
     depth: '1'
     accept_hostkey: yes
+    version: "master"
 
 # Create the pods and services
 - name: Apply Metrics Kustomize script

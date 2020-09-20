@@ -45,11 +45,14 @@ ansible-playbook kubernetes/full_rebuild.yaml --extra-vars "cluster=k8s2"
 
 ## Testing new versions of kubernetes
 
-1. Delete the old test environment
+1. It's likely a good idea to update the template node first
+   1. Open Virtual Box, start `server.template`
+   2. Login and run `apt-get update && apt-get upgrade`
+2. Delete the old test environment
    1. `./delete_test_env.sh`
-2. Create the new test environment
+3. Create the new test environment
    1. `./create_test_env.sh`
-3. Bootstrap ansible
+4. Bootstrap ansible
    1. `ansible-playbook bootstrap/test-bootstrap.yaml -i test-inventory.yaml --extra-vars "cluster=k8stest"`
-4. Install the latest playbooks
+5. Install the latest playbooks
    1. `ansible-playbook site.yaml -i test-inventory.yaml`

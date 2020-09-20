@@ -7,7 +7,7 @@
   - name: Install Brew Packages
     become: false
     homebrew:
-      name: [ansible, black, flake8, htop, iperf, kubernetes-cli, kustomize, minikube, nmap, packer, plantuml, pre-commit, qemu, watch, wget, wireshark, zsh-autosuggestions, zsh-history-substring-search, zsh-syntax-highlighting]
+      name: [ansible, ansible-lint, black, flake8, htop, iperf, kubernetes-cli, kustomize, minikube, nmap, packer, plantuml, pre-commit, qemu, watch, wget, wireshark, zsh-autosuggestions, zsh-history-substring-search, zsh-syntax-highlighting]
       state: present
       update_homebrew: yes
       upgrade_all: yes
@@ -18,15 +18,15 @@
       name: [adoptopenjdk, balenaetcher, docker, flowdock, font-menlo-for-powerline, font-meslo-for-powerline, google-chrome, google-cloud-sdk, indigo, istat-menus, iterm2, microsoft-office, onedrive, quicken, virtualbox, virtualbox-extension-pack, wireshark, x2goclient, xquartz]
       state: present
 
-  - name: install pip
-    command: easy_install pip
-    args:
-      creates: /usr/local/bin/pip
+  # - name: install pip
+  #   command: easy_install pip
+  #   args:
+  #     creates: /usr/local/bin/pip
 
-  - name: install pip3
-    command: easy_install-3.7 pip
-    args:
-      creates: /usr/local/bin/pip3
+  # - name: install pip3
+  #   command: easy_install-3.7 pip
+  #   args:
+  #     creates: /usr/local/bin/pip3
 
   - name: install sshpass
     become: false
@@ -34,16 +34,32 @@
     args:
       creates: /usr/local/bin/sshpass
 
-  - name: Install python libraries globally
-    pip:
-      name:
-      - requests
+  # - name: Install python libraries globally
+  #   pip:
+  #     name:
+  #     - requests
 
-  - name: Install python libraries globally
-    pip:
-      name:
-      - requests
-      executable: pip3
+  # - name: Install python libraries globally
+  #   pip:
+  #     name:
+  #     - requests
+  #     executable: pip3
 
 # Todo Copy important files, .vscode directory, .zshrc, iterm profiles, istat menus
 # todo install oh my zsh
+
+  - name: Create Pre-Commit template directory
+    file:
+      path: /Users/david/.git-template
+      owner: david
+      group: staff
+      state: directory
+      mode: '0750'
+
+  - name: Setup Pre-Commit template directory
+    command: git config --global init.templateDir /Users/david/.git-template
+
+  - name: Populate Pre-Commit template directory
+    command: pre-commit init-templatedir /Users/david/.git-template
+    args:
+      creates: /Users/david/.git-template/hooks/pre-commit

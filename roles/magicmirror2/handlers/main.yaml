@@ -5,3 +5,36 @@
 - name: restart magicmirror
   command: pm2 restart mm
   become_user: magicmirror
+
+- name: Install Ring
+  command: npm install
+  args:
+    chdir: /home/magicmirror/MagicMirror/modules/MMM-Ring
+  become_user: magicmirror
+
+- name: Install monthly calendar dependencies
+  command: npm install
+  args:
+    chdir: /home/magicmirror/MagicMirror/modules/calendar_monthly
+  become_user: magicmirror
+
+- name: Install wallpaper dependencies
+  command: npm install
+  args:
+    chdir: /home/magicmirror/MagicMirror/modules/MMM-Wallpaper
+  become_user: magicmirror
+
+- name: Start pm2 at boot
+  command: env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u magicmirror --hp /home/magicmirror
+
+- name: Git Stash after cloning # noqa 303
+  command: git stash apply
+  args:
+    chdir: /home/magicmirror/MagicMirror
+  become_user: magicmirror
+
+- name: Install MagicMirror dependencies
+  command: npm install
+  args:
+    chdir: /home/magicmirror/MagicMirror
+  become_user: magicmirror

@@ -1,5 +1,5 @@
 - name: check node cluster status
-  shell: kubectl get node {{ ansible_hostname }}
+  command: kubectl get node {{ ansible_hostname }}
   register: node_cluster_status
   delegate_to: '{{ masters[0] }}'
   changed_when: false
@@ -24,7 +24,7 @@
   when: node_cluster_status.failed
 
 - name: Generate master join token
-  shell: kubeadm token create --print-join-command
+  command: kubeadm token create --print-join-command
   register: kubeadm_join_cmd
   delegate_to: '{{ masters[0] }}'
   when: node_cluster_status.failed
@@ -36,9 +36,10 @@
 
 - name: Installing Kubernetes Master Admin files from primary master
   copy:
-    dest: /etc/kubernetes/{{item}}
-    src: /tmp/kubeadm-ha/{{item}}
+    dest: /etc/kubernetes/{{ item }}
+    src: /tmp/kubeadm-ha/{{ item }}
     flat: yes
+    mode: '0644'
   with_items:
   - admin.conf
   when: node_cluster_status.failed
@@ -49,6 +50,7 @@
     state: directory
     owner: '{{ item }}'
     group: '{{ item }}'
+    mode: '0755'
   tags: init-first-k8s-master
   loop:
   - ansible
@@ -63,6 +65,7 @@
     owner: '{{ item }}'
     group: '{{ item }}'
     remote_src: yes
+    mode: '0644'
   tags: init-first-k8s-master
   loop:
   - ansible
@@ -71,7 +74,7 @@
   when: node_cluster_status.failed
 
 - name: Join Master replicas to cluster
-  shell: '{{ kubeadm_join }} --control-plane'
+  command: '{{ kubeadm_join }} --control-plane'
   args:
     creates: /etc/kubernetes/bootstrap-kubelet.conf
   when: node_cluster_status.failed

@@ -10,7 +10,7 @@
     name: net.ipv6.conf.all.disable_ipv6
     value: '1'
     state: present
-  when: disable_ipv6.stat.exists == True
+  when: disable_ipv6.stat.exists # True
 
 - name: Add Docker APT GPG key
   when: ansible_os_family == "Debian"
@@ -67,6 +67,7 @@
   copy:
     src: docker-daemon.json
     dest: /etc/docker/daemon.json
+    mode: '0644'
   notify:
   - restart docker
 
@@ -74,6 +75,7 @@
   file:
     path: /etc/systemd/system/docker.service.d
     state: directory
+    mode: '0755'
   notify:
   - restart docker
 
@@ -121,7 +123,7 @@
 - name: Install apt-transport-https
   apt:
     name: apt-transport-https
-    state: latest
+    state: present
 
 - name: Add Google Cloud Repo Key
   when: ansible_os_family == "Debian"
@@ -167,7 +169,7 @@
   filesystem:
     fstype: ext4
     dev: '{{ item.value.disk }}'
-  loop: '{{k8s_disks|default({})|dict2items}}'
+  loop: '{{ k8s_disks|default({})|dict2items }}'
   when: item.key is defined
   tags: testing
 
@@ -177,7 +179,7 @@
     src: '{{ item.value.disk }}'
     state: mounted
     fstype: ext4
-  loop: '{{k8s_disks|default({})|dict2items}}'
+  loop: '{{ k8s_disks|default({})|dict2items }}'
   when: item.key is defined
   tags: testing
 
@@ -185,10 +187,11 @@
 # created inside the mount, we'll use this to create "extra" physical volumes later
 - name: create directories for sharing the filesystems
   file:
-    path: '{{ item.0.value.path }}/{{ item.1}}'
+    path: '{{ item.0.value.path }}/{{ item.1 }}'
     state: directory
+    mode: '0755'
   with_nested:
-  - '{{k8s_disks|default({})|dict2items}}'
+  - '{{ k8s_disks|default({})|dict2items }}'
   - ['1', '2', '3', '4']
   when: item.0.key is defined
   tags: testing
@@ -201,7 +204,7 @@
     fstype: none
     opts: bind
   with_nested:
-  - '{{k8s_disks|default({})|dict2items}}'
+  - '{{ k8s_disks|default({})|dict2items }}'
   - ['1', '2', '3', '4']
   when: item.0.key is defined
   tags: testing

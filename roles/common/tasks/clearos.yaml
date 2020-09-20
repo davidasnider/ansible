@@ -1,7 +1,7 @@
 - name: install the latest version of collectd
   yum:
     name: collectd
-    state: latest
+    state: present
 
 - name: copy collectd config
   template:

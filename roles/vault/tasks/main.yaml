@@ -7,6 +7,7 @@
   file:
     path: /root/.aws
     state: directory
+    mode: '0700'
 
 - name: Add AWS Creds
   template:
@@ -25,41 +26,45 @@
   file:
     path: /usr/local/vault
     state: directory
+    mode: '0755'
 
 - name: Create Vault/config directory
   file:
     path: /usr/local/vault/config
     state: directory
+    mode: '0755'
 
 - name: Create Vault/logs directory
   file:
     path: /usr/local/vault/logs
     state: directory
+    mode: '0644'
 
 - name: Create Vault/policies directory
   file:
     path: /usr/local/vault/policies
     state: directory
+    mode: '0644'
 
 - name: Copy docker-compose.yaml
   copy:
     dest: /usr/local/vault/docker-compose.yaml
     src: docker-compose.yaml
+    mode: '0644'
 
 - name: Copy config.hcl
   template:
     dest: /usr/local/vault/config/config.hcl
     src: config.hcl
+    mode: '0644'
 
 - name: Copy service file
   copy:
     dest: /etc/systemd/system/vault.service
     src: vault.service
+    mode: '0644'
   register: servicefile
-
-- name: Register service file
-  command: systemctl enable vault
-  when: servicefile.changed
+  notify: Register service file
 
 - name: Start vault service
   service:
@@ -71,3 +76,4 @@
   template:
     dest: /shared/docker/icinga_master/conf.d/auto/vault.conf
     src: icinga_definition.conf
+    mode: '0644'

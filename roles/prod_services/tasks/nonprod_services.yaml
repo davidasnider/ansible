@@ -38,6 +38,7 @@
     key_file: /home/ansible/.ssh/id_rsa
     depth: '1'
     accept_hostkey: yes
+    version: "master"
 
 # Create the pods and services
 - name: Apply Icinga Secondary Kustomize script

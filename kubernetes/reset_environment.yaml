@@ -84,11 +84,15 @@
     tags: iamaster
 
   - name: get a list of the master iscsi snapshots
-    shell: zfs list -t snapshot -o name | grep iscsi | awk -F @ '{print $1}'|sort -u
+    shell: set -o pipefail && zfs list -t snapshot -o name | grep iscsi | awk -F @ '{print $1}'|sort -u
+    args:
+      executable: /bin/bash
     register: snapshots
 
   - name: reset the master snapshots
     shell: zfs rollback `zfs list -t snapshot -o name -s creation -r {{ item }} | tail -1`
+    args:
+      executable: /bin/bash
     loop: '{{ snapshots.stdout_lines }}'
 
 # run these commands to create the iscsi_luns for Raspberry Pi

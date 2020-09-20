@@ -1,3 +1,6 @@
+- name: Restore Database when DB is created
+  command: /usr/share/mythtv/mythconverg_restore.pl --filename="{{ latest_file.path }}"
+
 - name: Restart Mysql
   service:
     name: mysqld
