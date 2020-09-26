@@ -1,3 +1,5 @@
+![CI](https://github.com/davidasnider/ansible/workflows/CI/badge.svg)
+
 # Ansible scripts for The Snider Pad
 
 ## Installing `hvac` inside brew
