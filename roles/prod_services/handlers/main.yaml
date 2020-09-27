@@ -1,2 +1,9 @@
 - name: Create Tesla Secret
   command: kubectl apply -f /usr/local/src/tesla-secret.yaml
+
+- name: Recreate Tesla Job
+  shell: |
+    kubectl delete -k prod
+    kubectl apply -k prod
+  args:
+    chdir: /usr/local/src/tesla-collector/k8s
