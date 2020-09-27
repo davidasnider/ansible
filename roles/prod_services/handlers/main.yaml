@@ -1,0 +1,2 @@
+- name: Create Tesla Secret
+  command: kubectl apply -f /usr/local/src/tesla-secret.yaml

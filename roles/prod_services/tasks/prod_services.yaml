@@ -97,18 +97,30 @@
 #### Create the tesla namespace and secrets
 - name: Get the tesla-collector repo
   git:
-    repo: git@bitbucket.org:davidasnider/tesla-collector.git
+    repo: git@github.com:davidasnider/tesla-collector.git
     dest: /usr/local/src/tesla-collector
     key_file: /home/ansible/.ssh/id_rsa
     depth: '1'
     accept_hostkey: yes
-    version: "master"
+    version: "main"
+  tags: tesla-collector
+
+- name: Create Secrets file for tesla collector
+  template:
+    src: tesla-secret.yaml
+    dest: /usr/local/src/tesla-secret.yaml
+    owner: root
+    group: root
+    mode: '0600'
+  tags: tesla-collector
+  notify: Create Tesla Secret
 
 - name: Run the setup command for tesla collector
   command: kubectl apply -k prod
   args:
     chdir: /usr/local/src/tesla-collector/k8s
   changed_when: false
+  tags: tesla-collector
 
 # Setup Icinga Prod Services
 - name: Get the Icinga repo
