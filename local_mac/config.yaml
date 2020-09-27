@@ -7,7 +7,7 @@
   - name: Install Brew Packages
     become: false
     homebrew:
-      name: [ansible, ansible-lint, black, flake8, htop, iperf, kubernetes-cli, kustomize, minikube, nmap, packer, plantuml, pre-commit, qemu, watch, wget, wireshark, zsh-autosuggestions, zsh-history-substring-search, zsh-syntax-highlighting]
+      name: [ansible, ansible-lint, black, flake8, git, htop, iperf, kubernetes-cli, kustomize, minikube, nmap, packer, plantuml, pre-commit, qemu, watch, wget, wireshark, zsh-autosuggestions, zsh-history-substring-search, zsh-syntax-highlighting]
       state: present
       update_homebrew: yes
       upgrade_all: yes
