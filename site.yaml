@@ -67,7 +67,6 @@
     vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
   roles:
   - prod_services
-  tags: prod_services
 
 - name: Blanc specific playbooks
   hosts: blanc
