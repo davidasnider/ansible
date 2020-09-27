@@ -27,7 +27,7 @@
     state: directory
     owner: '{{ item }}'
     group: '{{ item }}'
-    mode: '0644'
+    mode: '0755'
   tags: init-first-k8s-master
   loop:
   - ansible
@@ -41,7 +41,7 @@
     owner: '{{ item }}'
     group: '{{ item }}'
     remote_src: yes
-    mode: '0644'
+    mode: '0640'
   tags: init-first-k8s-master
   loop:
   - ansible
