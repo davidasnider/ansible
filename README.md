@@ -1,6 +1,6 @@
-![CI](https://github.com/davidasnider/ansible/workflows/CI/badge.svg)
-
 # Ansible scripts for The Snider Pad
+
+![CI](https://github.com/davidasnider/ansible/workflows/CI/badge.svg)
 
 ## Installing `hvac` inside brew
 
@@ -14,7 +14,7 @@ to install `hvac`:
 
 ## Secrets
 
-Secrets are stored in https://vault.thesniderpad.com. We use the hashi_vault module to access those secrets.
+Secrets are stored in [vault](<https://vault.thesniderpad.com>). We use the hashi\_vault module to access those secrets.
 You must have a valid token stored in the `VAULT_TOKEN` variable, run these commands before running any of
 the below commands:
 
@@ -49,12 +49,12 @@ ansible-playbook kubernetes/full_rebuild.yaml --extra-vars "cluster=k8s2"
 
 1. It's likely a good idea to update the template node first
    1. Open Virtual Box, start `server.template`
-   2. Login and run `apt-get update && apt-get upgrade`
-2. Delete the old test environment
+   1. Login and run `apt-get update && apt-get upgrade`
+1. Delete the old test environment
    1. `./delete_test_env.sh`
-3. Create the new test environment
+1. Create the new test environment
    1. `./create_test_env.sh`
-4. Bootstrap ansible
+1. Bootstrap ansible
    1. `ansible-playbook bootstrap/test-bootstrap.yaml -i test-inventory.yaml --extra-vars "cluster=k8stest"`
-5. Install the latest playbooks
+1. Install the latest playbooks
    1. `ansible-playbook site.yaml -i test-inventory.yaml`

@@ -1,4 +1,3 @@
-
 # This is a pain in the ass.  Just install packages with chocolatey
 
 Run the below code from an adminsitrative powershell window
@@ -16,7 +15,6 @@ vscode
 steam
 git
 ```
-
 
 # Setup the Windows Host
 

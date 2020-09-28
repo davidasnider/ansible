@@ -1,4 +1,5 @@
 run this command
- ```bash
+
+```bash
 ansible-playbook kubernetes/full_rebuild.yaml -C --extra-vars "cluster=k8s2"
- ```
+```

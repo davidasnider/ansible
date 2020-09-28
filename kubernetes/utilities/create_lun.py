@@ -1,7 +1,16 @@
 #!/usr/bin/env python
 
 import sys
-from helper import *
+from helper import (
+    check_dataset_exists,
+    create_dataset,
+    check_iscsi_target_exists,
+    create_iscsi_target,
+    check_iscsi_extent_exists,
+    create_iscsi_extent,
+    check_iscsi_target_to_extent_exists,
+    create_iscsi_target_to_extent,
+)
 
 target_name = sys.argv[1]
 pool = sys.argv[2]
