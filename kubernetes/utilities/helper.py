@@ -3,50 +3,51 @@ import json
 import time
 import os
 
-password = os.environ['PASSWORD']
-server = 'http://shiraz.thesniderpad.com'
-username = os.environ['USERNAME']
+password = os.environ["PASSWORD"]
+server = "http://shiraz.thesniderpad.com"
+username = os.environ["USERNAME"]
+
 
 def freenas_api_get(uri):
-    return_text = requests.get(
-        server + uri, auth=(username, password)
-    ).json()
+    return_text = requests.get(server + uri, auth=(username, password)).json()
 
     return return_text
+
 
 def freenas_api_delete(uri):
-    return_text = requests.delete(
-        server + uri, auth=(username, password))
+    return_text = requests.delete(server + uri, auth=(username, password))
 
     return return_text
+
 
 def freenas_api_put(uri, data):
     requests.put(
         server + uri,
         data,
         auth=(username, password),
-        headers={'Content-Type': 'application/json'},
+        headers={"Content-Type": "application/json"},
         verify=False,
     )
+
 
 def freenas_service_restart(service):
 
     # Disable Service
-    dataset_json = {
-        'srv_enable': False
-    }
+    dataset_json = {"srv_enable": False}
 
-    freenas_api_put("/api/v1.0/services/services/" + service + "/", json.dumps(dataset_json))
+    freenas_api_put(
+        "/api/v1.0/services/services/" + service + "/", json.dumps(dataset_json)
+    )
 
     # Sleep
     time.sleep(5)
 
     # Enable Service
-    dataset_json = {
-        'srv_enable': True
-    }
+    dataset_json = {"srv_enable": True}
 
-    freenas_api_put("/api/v1.0/services/services/" + service + "/", json.dumps(dataset_json))
+    freenas_api_put(
+        "/api/v1.0/services/services/" + service + "/", json.dumps(dataset_json)
+    )
 
 
 def freenas_api_post(uri, data):
@@ -54,11 +55,12 @@ def freenas_api_post(uri, data):
         server + uri,
         data,
         auth=(username, password),
-        headers={'Content-Type': 'application/json'},
+        headers={"Content-Type": "application/json"},
         verify=False,
     )
 
     return return_text
+
 
 def check_dataset_exists(pool, dataset):
     check = False
@@ -66,21 +68,25 @@ def check_dataset_exists(pool, dataset):
 
     i = 0
     while i < len(result):
-        if result[i]['name'] == dataset:
+        if result[i]["name"] == dataset:
             check = True
         i += 1
 
     return check
 
+
 def create_dataset(pool, dataset):
     dataset_json = {
-        'name': dataset,
-        'compression': "off",
+        "name": dataset,
+        "compression": "off",
     }
 
-    result = freenas_api_post("/api/v1.0/storage/volume/" + pool + "/datasets/", json.dumps(dataset_json))
+    result = freenas_api_post(
+        "/api/v1.0/storage/volume/" + pool + "/datasets/", json.dumps(dataset_json)
+    )
     if result.ok:
         print("Dataset Create: " + dataset + " on pool: " + pool)
+
 
 def check_iscsi_target_exists(target_name):
     check = False
@@ -88,36 +94,40 @@ def check_iscsi_target_exists(target_name):
 
     i = 0
     while i < len(result):
-        if result[i]['iscsi_target_name'] == target_name:
+        if result[i]["iscsi_target_name"] == target_name:
             check = True
         i += 1
 
     return check
 
+
 def create_iscsi_target(target_name):
     target = {
-        'iscsi_target_name': target_name,
-        'iscsi_target_alias': target_name,
+        "iscsi_target_name": target_name,
+        "iscsi_target_alias": target_name,
     }
 
     result = freenas_api_post("/api/v1.0/services/iscsi/target/", json.dumps(target))
     if result.ok:
         print("Target Created:" + target_name)
 
-    #Now setup the groups
+    # Now setup the groups
     target_id = get_target_id(target_name)
 
     target_group = {
-        'iscsi_target': target_id,
-        'iscsi_target_authgroup': None,
-        'iscsi_target_authtype': "None",
-        'iscsi_target_initialdigest': "Auto",
-        'iscsi_target_initiatorgroup': 1,
-        'iscsi_target_portalgroup': 1,
+        "iscsi_target": target_id,
+        "iscsi_target_authgroup": None,
+        "iscsi_target_authtype": "None",
+        "iscsi_target_initialdigest": "Auto",
+        "iscsi_target_initiatorgroup": 1,
+        "iscsi_target_portalgroup": 1,
     }
-    result = freenas_api_post("/api/v1.0/services/iscsi/targetgroup/", json.dumps(target_group))
+    result = freenas_api_post(
+        "/api/v1.0/services/iscsi/targetgroup/", json.dumps(target_group)
+    )
     if result.ok:
         print("Target groups created: " + target_name)
+
 
 def check_iscsi_extent_exists(target_name):
     check = False
@@ -125,60 +135,76 @@ def check_iscsi_extent_exists(target_name):
 
     i = 0
     while i < len(result):
-        if result[i]['iscsi_target_extent_name'] == target_name:
+        if result[i]["iscsi_target_extent_name"] == target_name:
             check = True
         i += 1
 
     return check
 
+
 def create_iscsi_extent(target_name, pool, dataset, filename):
 
     extent = {
-        'iscsi_target_extent_type': "File",
-        'iscsi_target_extent_name': target_name,
-        'iscsi_target_extent_filesize': "0",
-        'iscsi_target_extent_path': "/mnt/" + pool + "/" + dataset + "/" + filename
+        "iscsi_target_extent_type": "File",
+        "iscsi_target_extent_name": target_name,
+        "iscsi_target_extent_filesize": "0",
+        "iscsi_target_extent_path": "/mnt/" + pool + "/" + dataset + "/" + filename,
     }
 
     result = freenas_api_post("/api/v1.0/services/iscsi/extent/", json.dumps(extent))
     if result.ok:
         print("Extent Created: " + target_name)
 
+
 def delete_target(target_name):
     # VERY DANGEROUS!!!
 
-    #Get the target id
-    targets = freenas_api_get('/api/v1.0/services/iscsi/target/')
+    # Get the target id
+    targets = freenas_api_get("/api/v1.0/services/iscsi/target/")
 
     # Find the target id for the target name
     i = 0
     while i < len(targets):
-        if targets[i]['iscsi_target_name'] == target_name:
-            target_id = targets[i]['id']
-            result = freenas_api_delete('/api/v1.0/services/iscsi/target/' + str(target_id))
+        if targets[i]["iscsi_target_name"] == target_name:
+            target_id = targets[i]["id"]
+            result = freenas_api_delete(
+                "/api/v1.0/services/iscsi/target/" + str(target_id)
+            )
             if result.ok:
-                print("target " + target_name + " with id " + str(target_id) + " deleted")
+                print(
+                    "target " + target_name + " with id " + str(target_id) + " deleted"
+                )
             else:
-                print("target " + target_name + " with id " + str(target_id) + " failed")
-        i+=1
+                print(
+                    "target " + target_name + " with id " + str(target_id) + " failed"
+                )
+        i += 1
+
 
 def delete_extent(target_name):
     # VERY DANGEROUS!!!
 
-    #Get the extent id
-    extents = freenas_api_get('/api/v1.0/services/iscsi/extent/')
+    # Get the extent id
+    extents = freenas_api_get("/api/v1.0/services/iscsi/extent/")
 
     # Find the extent id for the target name
     i = 0
     while i < len(extents):
-        if extents[i]['iscsi_target_extent_name'] == target_name:
-            extent_id = extents[i]['id']
-            result = freenas_api_delete('/api/v1.0/services/iscsi/extent/' + str(extent_id))
+        if extents[i]["iscsi_target_extent_name"] == target_name:
+            extent_id = extents[i]["id"]
+            result = freenas_api_delete(
+                "/api/v1.0/services/iscsi/extent/" + str(extent_id)
+            )
             if result.ok:
-                print("extent " + target_name + " with id " + str(extent_id) + " deleted")
+                print(
+                    "extent " + target_name + " with id " + str(extent_id) + " deleted"
+                )
             else:
-                print("extent " + target_name + " with id " + str(extent_id) + " failed")
-        i+=1
+                print(
+                    "extent " + target_name + " with id " + str(extent_id) + " failed"
+                )
+        i += 1
+
 
 def get_target_id(target_name):
     target_id = None
@@ -186,11 +212,12 @@ def get_target_id(target_name):
 
     i = 0
     while i < len(result):
-        if result[i]['iscsi_target_name'] == target_name:
-            target_id = result[i]['id']
+        if result[i]["iscsi_target_name"] == target_name:
+            target_id = result[i]["id"]
         i += 1
 
     return target_id
+
 
 def get_extent_id(target_name):
     extent_id = None
@@ -198,11 +225,12 @@ def get_extent_id(target_name):
 
     i = 0
     while i < len(result):
-        if result[i]['iscsi_target_extent_name'] == target_name:
-            extent_id = result[i]['id']
+        if result[i]["iscsi_target_extent_name"] == target_name:
+            extent_id = result[i]["id"]
         i += 1
 
     return extent_id
+
 
 def check_iscsi_target_to_extent_exists(target_name):
     check = False
@@ -218,11 +246,15 @@ def check_iscsi_target_to_extent_exists(target_name):
 
     i = 0
     while i < len(result):
-        if result[i]['iscsi_extent'] == extent_id and result[i]['iscsi_target'] == target_id:
+        if (
+            result[i]["iscsi_extent"] == extent_id
+            and result[i]["iscsi_target"] == target_id
+        ):
             check = True
         i += 1
 
     return check
+
 
 def create_iscsi_target_to_extent(target_name):
 
@@ -235,14 +267,17 @@ def create_iscsi_target_to_extent(target_name):
         return None
 
     target_to_extent = {
-        'iscsi_target': target_id,
-        'iscsi_extent': extent_id,
-        'iscsi_lunid': 0,
+        "iscsi_target": target_id,
+        "iscsi_extent": extent_id,
+        "iscsi_lunid": 0,
     }
 
-    result = freenas_api_post("/api/v1.0/services/iscsi/targettoextent/", json.dumps(target_to_extent))
+    result = freenas_api_post(
+        "/api/v1.0/services/iscsi/targettoextent/", json.dumps(target_to_extent)
+    )
     if result.ok:
         print("Target to Extent Created: " + target_name)
+
 
 def delete_target_to_extent(target_name):
     # VERY DANGEROUS!!!
@@ -261,11 +296,28 @@ def delete_target_to_extent(target_name):
     # Find the target to extent mapping
     i = 0
     while i < len(result):
-        if result[i]['iscsi_extent'] == extent_id and result[i]['iscsi_target'] == target_id:
-            target_to_extent_id = result[i]['id']
-            delete_result = freenas_api_delete('/api/v1.0/services/iscsi/targettoextent/' + str(target_to_extent_id))
+        if (
+            result[i]["iscsi_extent"] == extent_id
+            and result[i]["iscsi_target"] == target_id
+        ):
+            target_to_extent_id = result[i]["id"]
+            delete_result = freenas_api_delete(
+                "/api/v1.0/services/iscsi/targettoextent/" + str(target_to_extent_id)
+            )
             if delete_result.ok:
-                print("target to extent " + target_name + " with id " + str(target_to_extent_id) + " deleted")
+                print(
+                    "target to extent "
+                    + target_name
+                    + " with id "
+                    + str(target_to_extent_id)
+                    + " deleted"
+                )
             else:
-                print("target to extent " + target_name + " with id " + str(target_to_extent_id) + " failed")
+                print(
+                    "target to extent "
+                    + target_name
+                    + " with id "
+                    + str(target_to_extent_id)
+                    + " failed"
+                )
         i += 1
