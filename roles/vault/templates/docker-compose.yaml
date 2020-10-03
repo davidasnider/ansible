@@ -3,7 +3,7 @@ version: '3.3'
 services:
 
   vault:
-    image: vault:latest
+    image: vault:{{ vault_version }}
     ports:
     - 443:8200
     volumes:
