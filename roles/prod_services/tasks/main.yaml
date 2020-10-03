@@ -12,15 +12,36 @@
   until: cmd_res.stdout.find("successfully rolled out") != -1
   changed_when: false
 
-# Install Cert Manager
-- name: Get the Cert Manager repo
-  git:
-    repo: git@bitbucket.org:davidasnider/cert-manager.git
-    dest: /usr/local/src/cert-manager
-    key_file: /home/ansible/.ssh/id_rsa
-    depth: '1'
-    accept_hostkey: yes
-    version: 'master'
+# Create cert-manager namespace and secrets
+- name: Create directory for cert-manager
+  file:
+    path: /usr/local/src/cert-manager
+    state: directory
+    owner: root
+    group: root
+    mode: '0750'
+  when:
+  - masters[0] == inventory_hostname
+  tags: cert-manager
+
+- name: Copy Cert Manager Issuer file
+  template:
+    src: cert-manager-issuer.yaml
+    dest: /usr/local/src/cert-manager/cert-manager-issuer.yaml
+    owner: root
+    group: root
+    mode: '0640'
+  when:
+  - masters[0] == inventory_hostname
+  tags: cert-manager
+
+- name: Copy Cert Manager Deployment
+  get_url:
+    url: https://github.com/jetstack/cert-manager/releases/download/v{{ cert_manager_version }}/cert-manager.yaml
+    dest: /usr/local/src/cert-manager/cert-manager.yaml
+    owner: root
+    group: root
+    mode: '0640'
   when:
   - masters[0] == inventory_hostname
   tags: cert-manager
@@ -47,7 +68,7 @@
 
 # Create a cluster issuer
 - name: Apply Cert Manager ClusterIssuer Manifest
-  command: kubectl apply -k prod
+  command: kubectl apply -f cert-manager-issuer.yaml
   args:
     chdir: /usr/local/src/cert-manager
   when:
