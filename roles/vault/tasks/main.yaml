@@ -47,10 +47,11 @@
     mode: '0644'
 
 - name: Copy docker-compose.yaml
-  copy:
+  template:
     dest: /usr/local/vault/docker-compose.yaml
     src: docker-compose.yaml
     mode: '0644'
+  notify: Restart vault service
 
 - name: Copy config.hcl
   template:
