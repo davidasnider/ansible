@@ -4,3 +4,9 @@
     enabled: yes
     masked: no
     state: started
+
+- name: Restart vault service
+  service:
+    name: vault
+    enabled: yes
+    state: restarted
