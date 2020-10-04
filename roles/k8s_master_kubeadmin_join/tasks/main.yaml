@@ -36,12 +36,9 @@
 
 - name: Installing Kubernetes Master Admin files from primary master
   copy:
-    dest: /etc/kubernetes/{{ item }}
-    src: /tmp/kubeadm-ha/{{ item }}
-    flat: yes
+    dest: /etc/kubernetes/admin.conf
+    src: /tmp/kubeadm-ha/admin.conf
     mode: '0644'
-  with_items:
-  - admin.conf
   when: node_cluster_status.failed
 
 - name: Create .kube folder
