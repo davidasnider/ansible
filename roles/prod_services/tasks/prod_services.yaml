@@ -20,14 +20,16 @@
     depth: '1'
     accept_hostkey: yes
     version: "master"
+  tags: docker-registry
 
-- name: Create the registry physical volume
-  command: kubectl apply -f /usr/local/src/docker-registry/registry-pv.yaml
-  changed_when: false
+# - name: Create the registry physical volume
+#   command: kubectl apply -f /usr/local/src/docker-registry/registry-pv.yaml
+#   changed_when: false
 
 - name: Create the docker registry services and pods
   command: kubectl apply -f /usr/local/src/docker-registry/registry-manifest.yaml
   changed_when: false
+  tags: docker-registry
 
 #### Setup the Remote-ssh service
 # Get the code
