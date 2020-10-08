@@ -144,6 +144,7 @@
     depth: '1'
     accept_hostkey: yes
     version: "master"
+  tags: metrics
 
 # Create the pods and services
 - name: Apply Metrics Kustomize script
@@ -151,3 +152,4 @@
   args:
     chdir: /usr/local/src/metrics_k8s
   changed_when: false
+  tags: metrics
