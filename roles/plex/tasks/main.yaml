@@ -7,5 +7,5 @@
     fstype: nfs
     boot: yes
   loop:
-  - {path: /plex/mythtv_media, src: shiraz:/mnt/HITACHI_2TB_SLOT1/mythtv_media}
-  - {path: /plex/mythtv_media1, src: shiraz:/mnt/SEAGATE_3TB_SLOT2/mythtv_media}
+  - {path: /plex/mythtv_media, src: 'shiraz:/mnt/HITACHI_2TB_SLOT1/mythtv_media'}
+  - {path: /plex/mythtv_media1, src: 'shiraz:/mnt/SEAGATE_3TB_SLOT2/mythtv_media'}
