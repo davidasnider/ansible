@@ -45,7 +45,14 @@
   when:
   - masters[0] == inventory_hostname
   tags: cert-manager
-  notify: Apply Cert Manager manifest
+
+- name: Apply Cert Manager manifest
+  command: kubectl apply -f cert-manager.yaml
+  args:
+    chdir: /usr/local/src/cert-manager
+  when:
+  - masters[0] == inventory_hostname
+  tags: cert-manager
 
 - name: Wait for cert-manager-webhook Deployment to be ready
   command: kubectl -n cert-manager rollout status deployment cert-manager-webhook
