@@ -7,8 +7,3 @@
     kubectl apply -k prod
   args:
     chdir: /usr/local/src/tesla-collector/k8s
-
-- name: Apply Cert Manager manifest
-  command: kubectl apply -f cert-manager.yaml
-  args:
-    chdir: /usr/local/src/cert-manager

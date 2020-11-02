@@ -12,41 +12,6 @@
   until: cmd_res.stdout.find("successfully rolled out") != -1
   changed_when: false
 
-# Create cert-manager namespace and secrets
-- name: Create directory for cert-manager
-  file:
-    path: /usr/local/src/cert-manager
-    state: directory
-    owner: root
-    group: root
-    mode: '0750'
-  when:
-  - masters[0] == inventory_hostname
-  tags: cert-manager
-
-- name: Copy Cert Manager Issuer file
-  template:
-    src: cert-manager-issuer.yaml
-    dest: /usr/local/src/cert-manager/cert-manager-issuer.yaml
-    owner: root
-    group: root
-    mode: '0640'
-  when:
-  - masters[0] == inventory_hostname
-  tags: cert-manager
-
-- name: Copy Cert Manager Deployment
-  get_url:
-    url: https://github.com/jetstack/cert-manager/releases/download/v{{ cert_manager_version }}/cert-manager.yaml
-    dest: /usr/local/src/cert-manager/cert-manager.yaml
-    owner: root
-    group: root
-    mode: '0640'
-  when:
-  - masters[0] == inventory_hostname
-  tags: cert-manager
-  notify: Apply Cert Manager manifest
-
 - name: Wait for cert-manager-webhook Deployment to be ready
   command: kubectl -n cert-manager rollout status deployment cert-manager-webhook
   register: cmd_webhook_res
