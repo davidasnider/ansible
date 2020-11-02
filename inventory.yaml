@@ -108,7 +108,7 @@ all:
                   path: /mnt/disk1
       vars:
         vrrp: 92
-        zfs_snapshot: 20200425
+        zfs_snapshot: 20201101
         vip: 10.9.9.101
         lb_range: 10.9.10.1-10.9.10.254
         masters:
@@ -123,10 +123,10 @@ all:
         - ia03
         token: udy29x.ugyyk3tumg27atmr
         podnet: 10.244.0.0/16
-        kubernetes_package_version: 1.19.2-00
-        kubernetes_version: v1.19.2
+        kubernetes_package_version: 1.18.10-00
+        kubernetes_version: v1.18.10
         docker_ce_version: "5:19.03"
-        metallb_version: v0.9.3
+        metallb_version: v0.9.4
         flannel_version: master
         dashboard_ip: 10.9.9.200
         power_url: http://blanc:8000/devices/012%20-%20K8S1
@@ -194,7 +194,7 @@ all:
                   path: /mnt/disk1
       vars:
         vrrp: 93
-        zfs_snapshot: 20200425
+        zfs_snapshot: 20201101
         vip: 10.9.9.102
         lb_range: 10.9.11.1-10.9.11.254
         masters:
@@ -208,10 +208,10 @@ all:
         - ia01
         token: udy29x.ugyyk3tumg27atmr
         podnet: 10.244.0.0/16
-        kubernetes_package_version: 1.19.2-00
-        kubernetes_version: v1.19.2
+        kubernetes_package_version: 1.18.10-00
+        kubernetes_version: v1.18.10
         docker_ce_version: "5:19.03"
-        metallb_version: v0.9.3
+        metallb_version: v0.9.4
         flannel_version: master
         dashboard_ip: 10.9.9.201
         power_url: http://blanc:8000/devices/020%20-%20K8S2
