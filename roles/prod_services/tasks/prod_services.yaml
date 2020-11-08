@@ -121,12 +121,11 @@
 # Setup Icinga Prod Services
 - name: Get the Icinga repo
   git:
-    repo: git@bitbucket.org:davidasnider/icinga_k8s.git
+    repo: https://github.com/davidasnider/icinga_k8s.git
     dest: /usr/local/src/icinga
-    key_file: /home/ansible/.ssh/id_rsa
     depth: '1'
     accept_hostkey: yes
-    version: "master"
+    version: "main"
     force: yes
   tags: icinga
   changed_when: false
@@ -153,6 +152,8 @@
     - { path: 'bases/ifttt-webhook-service-notification.sh', regexp1: 'thisisnottherealsecret', replace: "{{ vaulted.data.ifttt_webhook_key }}" }
   tags: icinga
   changed_when: false
+  no_log: true
+
 
 # Create the pods and services
 - name: Apply Icinga Primary Kustomize script
