@@ -127,6 +127,32 @@
     depth: '1'
     accept_hostkey: yes
     version: "master"
+    force: yes
+  tags: icinga
+  changed_when: false
+
+  # Replace all secrets with valid replacements
+- name: Add the real secrets to Icinga repositories
+  replace:
+    path: "/usr/local/src/icinga/{{ item.path }}"
+    regexp: "{{ item.regexp1 }}"
+    replace: "{{ item.replace }}"
+  with_items:
+    - { path: 'bases/api-users.conf', regexp1: 'thisisnottherealpassword', replace: "{{ vaulted.data.icinga_api_users }}" }
+    - { path: 'bases/ido-pgsql.conf', regexp1: 'thisisnottherealpassword', replace: "{{ vaulted.data.icinga_ido }}" }
+    - { path: 'bases/resources.ini', regexp1: 'thisisnottherealpassword', replace: "{{ vaulted.data.icinga_resources_ini }}" }
+    - { path: 'bases/commandtransports.ini', regexp1: 'thisisnottherealpassword', replace: "{{ vaulted.data.icinga_api_users }}" }
+    - { path: 'bases/icinga_check_netatmo.py', regexp1: 'thisisnottherealclientid', replace: "{{ vaulted.data.netatmo_client_id }}" }
+    - { path: 'bases/icinga_check_netatmo.py', regexp1: 'thisisnottherealclientsecret', replace: "{{ vaulted.data.netatmo_client_secret }}" }
+    - { path: 'bases/icinga_check_netatmo.py', regexp1: 'thisisnottherealusername', replace: "{{ vaulted.data.netatmo_username }}" }
+    - { path: 'bases/icinga_check_netatmo.py', regexp1: 'thisisnottherealpassword', replace: "{{ vaulted.data.netatmo_password }}" }
+    - { path: 'primary/kustomization.yaml', regexp1: 'thisisnottherealpassword', replace: "{{ vaulted.data.icinga_api_users }}" }
+    - { path: 'secondary/kustomization.yaml', regexp1: 'thisisnottherealpassword', replace: "{{ vaulted.data.icinga_api_users }}" }
+    - { path: 'bases/password', regexp1: 'thisisnottherealsecret\n', replace: "{{ vaulted.data.icinga_resources_ini }}" }
+    - { path: 'bases/ifttt-webhook-host-notification.sh', regexp1: 'thisisnottherealsecret', replace: "{{ vaulted.data.ifttt_webhook_key }}" }
+    - { path: 'bases/ifttt-webhook-service-notification.sh', regexp1: 'thisisnottherealsecret', replace: "{{ vaulted.data.ifttt_webhook_key }}" }
+  tags: icinga
+  changed_when: false
 
 # Create the pods and services
 - name: Apply Icinga Primary Kustomize script
@@ -134,6 +160,7 @@
   args:
     chdir: /usr/local/src/icinga
   changed_when: false
+  tags: icinga
 
 # Setup Metrics Services
 - name: Get the Metrics repo
