@@ -154,7 +154,6 @@
   changed_when: false
   no_log: true
 
-
 # Create the pods and services
 - name: Apply Icinga Primary Kustomize script
   command: kubectl apply -k primary
