@@ -85,6 +85,7 @@
     version: "main"
     force: yes
   tags: cava
+  notify: Apply Cava Kustomize script
 
 # Generate secrets file
 - name: Create secrets file
@@ -95,11 +96,4 @@
       group: root
       mode: '0600'
   tags: cava
-
-# Create the pods and services
-- name: Apply Cava Kustomize script
-  command: kubectl apply -k prod
-  args:
-    chdir: /usr/local/src/cava/k8s
-  changed_when: false
-  tags: cava
+  notify: Apply Cava Kustomize script
