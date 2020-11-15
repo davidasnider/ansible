@@ -83,6 +83,20 @@
   when:
   - masters[0] == inventory_hostname
 
+- name: unzip kustomize zip
+  unarchive:
+    src: 'https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v{{ kustomize_version }}/kustomize_v{{ kustomize_version }}_linux_arm.tar.gz'
+    dest: /usr/local/bin
+    remote_src: yes
+    creates: /usr/local/bin/kustomize
+    group: staff
+    owner: root
+    mode: '0755'
+  delegate_to: '{{ masters[0] }}'
+  when:
+  - masters[0] == inventory_hostname
+  tags: kustomize
+
 - name: install the dashboard user
   command: kubectl apply -f /etc/kubernetes/dashboard-user.yaml
   tags: dashboard-install
