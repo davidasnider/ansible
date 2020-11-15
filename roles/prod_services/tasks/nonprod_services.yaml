@@ -74,3 +74,32 @@
     chdir: /usr/local/src/icinga
   changed_when: false
   tags: icinga
+
+# Setup Cava automation
+- name: Get the cava repo
+  git:
+    repo: https://github.com/davidasnider/cava.git
+    dest: /usr/local/src/cava
+    depth: '1'
+    accept_hostkey: yes
+    version: "main"
+    force: yes
+  tags: cava
+
+# Generate secrets file
+- name: Create secrets file
+  template:
+      dest: /usr/local/src/cava/k8s/bases/secrets.yaml
+      src: secrets.yaml
+      owner: root
+      group: root
+      mode: '0600'
+  tags: cava
+
+# Create the pods and services
+- name: Apply Cava Kustomize script
+  command: kubectl apply -k prod
+  args:
+    chdir: /usr/local/src/cava/k8s
+  changed_when: false
+  tags: cava
