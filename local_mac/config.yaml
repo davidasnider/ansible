@@ -1,65 +1,138 @@
 - hosts: localhost
   connection: local
-  become: true
+  become: false
 
   tasks:
+    - name: Install Brew Packages
+      homebrew:
+        name:
+          [
+            ansible,
+            ansible-lint,
+            black,
+            flake8,
+            git,
+            htop,
+            iperf,
+            kubernetes-cli,
+            kustomize,
+            minikube,
+            nmap,
+            packer,
+            plantuml,
+            pre-commit,
+            qemu,
+            vault,
+            watch,
+            wget,
+            wireshark,
+          ]
+        state: present
+        update_homebrew: yes
+      tags: brew_packages
 
-  - name: Install Brew Packages
-    become: false
-    homebrew:
-      name: [ansible, ansible-lint, black, flake8, git, htop, iperf, kubernetes-cli, kustomize, minikube, nmap, packer, plantuml, pre-commit, qemu, watch, wget, wireshark, zsh-autosuggestions, zsh-history-substring-search, zsh-syntax-highlighting]
-      state: present
-      update_homebrew: yes
-      upgrade_all: yes
+    - name: Tap homebrew fonts
+      command: brew tap homebrew/cask-fonts
 
-  - name: Install Brew Casks
-    become: false
-    homebrew_cask:
-      name: [adoptopenjdk, balenaetcher, docker, flowdock, font-menlo-for-powerline, font-meslo-for-powerline, google-chrome, google-cloud-sdk, indigo, istat-menus, iterm2, microsoft-office, onedrive, quicken, virtualbox, virtualbox-extension-pack, wireshark, x2goclient, xquartz]
-      state: present
+    - name: Install Brew Casks
+      homebrew_cask:
+        name:
+          [
+            1password,
+            adoptopenjdk,
+            balenaetcher,
+            docker,
+            flowdock,
+            indigo,
+            iterm2,
+            quicken,
+            virtualbox,
+            wireshark,
+            xquartz,
+            x2goclient,
+          ]
+        state: present
+        update_homebrew: yes
+        accept_external_apps: yes
+      tags: casks
 
-  # - name: install pip
-  #   command: easy_install pip
-  #   args:
-  #     creates: /usr/local/bin/pip
+    - name: Install brew packages that don't auto install
+      command: brew cask install google-chrome istat-menus microsoft-office virtualbox-extension-pack font-menlo-for-powerline font-meslo-for-powerline
 
-  # - name: install pip3
-  #   command: easy_install-3.7 pip
-  #   args:
-  #     creates: /usr/local/bin/pip3
+    - name: install sshpass
+      command: brew install esolitos/ipa/sshpass
+      args:
+        creates: /usr/local/bin/sshpass
 
-  - name: install sshpass
-    become: false
-    command: brew install http://git.io/sshpass.rb
-    args:
-      creates: /usr/local/bin/sshpass
+    # Todo Copy important files, .zshrc, iterm profiles, istat menus
+    # todo install oh my zsh
 
-  # - name: Install python libraries globally
-  #   pip:
-  #     name:
-  #     - requests
+    - name: Create Pre-Commit template directory
+      file:
+        path: /Users/david/.git-template
+        owner: david
+        group: staff
+        state: directory
+        mode: "0750"
 
-  # - name: Install python libraries globally
-  #   pip:
-  #     name:
-  #     - requests
-  #     executable: pip3
+    - name: Setup Pre-Commit template directory
+      command: git config --global init.templateDir /Users/david/.git-template
 
-# Todo Copy important files, .vscode directory, .zshrc, iterm profiles, istat menus
-# todo install oh my zsh
+    - name: Populate Pre-Commit template directory
+      command: pre-commit init-templatedir /Users/david/.git-template
+      args:
+        creates: /Users/david/.git-template/hooks/pre-commit
 
-  - name: Create Pre-Commit template directory
-    file:
-      path: /Users/david/.git-template
-      owner: david
-      group: staff
-      state: directory
-      mode: '0750'
+    - name: Check if .oh-my-zsh exists
+      stat:
+        path: ~/.oh-my-zsh
+      register: stat_oh_my_zsh_result
+      tags: oh-my-zsh
 
-  - name: Setup Pre-Commit template directory
-    command: git config --global init.templateDir /Users/david/.git-template
+    - name: Cloning  oh-my-zsh
+      git: repo=https://github.com/robbyrussell/oh-my-zsh
+        dest=~/.oh-my-zsh
+      when: not stat_oh_my_zsh_result.stat.exists
+      tags: oh-my-zsh
 
-  - name: Populate Pre-Commit template directory
-    command: pre-commit init-templatedir /Users/david/.git-template
-    args:
-      creates: /Users/david/.git-template/hooks/pre-commit
+    - name: Check if zsh-syntax-highlighting
+      stat:
+        path: ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+      register: zsh_syntax_highlighting_result
+      tags: oh-my-zsh
+
+    - name: Cloning zsh-syntax-highlighting
+      git: repo=https://github.com/zsh-users/zsh-syntax-highlighting.git
+        dest=~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+      when: not zsh_syntax_highlighting_result.stat.exists
+      tags: oh-my-zsh
+
+    - name: Check if zsh-autosuggestions
+      stat:
+        path: ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+      register: zsh_autosuggestions_result
+      tags: oh-my-zsh
+
+    - name: Cloning zsh-autosuggestions
+      git: repo=https://github.com/zsh-users/zsh-autosuggestions
+        dest=~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+      when: not zsh_autosuggestions_result.stat.exists
+      tags: oh-my-zsh
+
+    - name: Check if zsh-history-substring-search
+      stat:
+        path: ~/.oh-my-zsh/custom/plugins/zsh-history-substring-search
+      register: zsh_history_substring_search_result
+      tags: oh-my-zsh
+
+    - name: Cloning zsh-history-substring-search
+      git: repo=https://github.com/zsh-users/zsh-history-substring-search
+        dest=~/.oh-my-zsh/custom/plugins/zsh-history-substring-search
+      when: not zsh_history_substring_search_result.stat.exists
+      tags: oh-my-zsh
+
+    - name: Install bullet-train
+      get_url: 
+        url: https://raw.githubusercontent.com/caiogondim/bullet-train-oh-my-zsh-theme/master/bullet-train.zsh-theme
+        dest: ~/.oh-my-zsh/themes/bullet-train.zsh-theme
+      tags: oh-my-zsh
