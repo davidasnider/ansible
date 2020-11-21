@@ -5,7 +5,7 @@
   environment:
     # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
-    PASSWORD: '{{ vaulted.data.LINUX_CLEAR_PASSWORD }}'
+    PASSWORD: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
   vars:
     vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
     ansible_user: pi
@@ -40,7 +40,7 @@
     authorized_key:
       user: ansible
       state: present
-      key: '{{ vaulted.data.id_rsa_pub }}'
+      key: '{{ vaulted.id_rsa_pub }}'
     when:
     - ansible_facts['os_family'] == "Debian"
     - ansible_facts['lsb']['id'] == "Raspbian"

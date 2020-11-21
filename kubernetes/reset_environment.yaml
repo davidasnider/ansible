@@ -4,8 +4,8 @@
   environment:
     # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
-    PASSWORD: '{{ vaulted.data.LINUX_CLEAR_PASSWORD }}'
-    USERNAME: '{{ vaulted.data.SHIRAZ_ADMIN_USER }}'
+    PASSWORD: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
+    USERNAME: '{{ vaulted.SHIRAZ_ADMIN_USER }}'
   vars:
     vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
   tasks:
@@ -70,8 +70,8 @@
   environment:
     # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
-    PASSWORD: '{{ vaulted.data.LINUX_CLEAR_PASSWORD }}'
-    USERNAME: '{{ vaulted.data.SHIRAZ_ADMIN_USER }}'
+    PASSWORD: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
+    USERNAME: '{{ vaulted.SHIRAZ_ADMIN_USER }}'
   vars:
     vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
   tasks:
@@ -126,8 +126,8 @@
   environment:
     # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
-    PASSWORD: '{{ vaulted.data.LINUX_CLEAR_PASSWORD }}'
-    USERNAME: '{{ vaulted.data.SHIRAZ_ADMIN_USER }}'
+    PASSWORD: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
+    USERNAME: '{{ vaulted.SHIRAZ_ADMIN_USER }}'
   vars:
     vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
   tasks:

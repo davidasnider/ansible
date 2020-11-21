@@ -142,9 +142,9 @@ spec:
         - name: SMARTHOST_PORT
           value: "587"
         - name: SMARTHOST_USER
-          value: "{{ vaulted.data.SMARTHOST_USER }}"
+          value: "{{ vaulted.SMARTHOST_USER }}"
         - name: SMARTHOST_PASSWORD
-          value: "{{ vaulted.data.SMARTHOST_PASSWORD }}"
+          value: "{{ vaulted.SMARTHOST_PASSWORD }}"
         - name: SMARTHOST_ALIASES
           value: "*"
         resources:

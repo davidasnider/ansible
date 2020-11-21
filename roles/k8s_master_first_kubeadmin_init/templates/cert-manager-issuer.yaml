@@ -6,7 +6,7 @@ metadata:
   name: stage-route53-credentials-secret
   namespace: cert-manager
 data:
-  secret-access-key: {{ vaulted.data.certbot_aws_secret_access_key | b64encode }}
+  secret-access-key: {{ vaulted.certbot_aws_secret_access_key | b64encode }}
 type: Opaque
 
 ---
@@ -29,7 +29,7 @@ spec:
       dns01:
         route53:
           region: us-west-2
-          accessKeyID: {{ vaulted.data.certbot_aws_access_key_id }}
+          accessKeyID: {{ vaulted.certbot_aws_access_key_id }}
           secretAccessKeySecretRef:
             name: stage-route53-credentials-secret
             key: secret-access-key

@@ -1,4 +1,5 @@
 # Start from a clean state
+---
 
 - name: Clean git repository if it exists
   file:
@@ -50,8 +51,8 @@
   when: '"yaml" in git_result.stdout'
 
 # Commit
-- name: Add files # noqa 305
-  shell: SKIP=prettier,yamllint git commit -m "Auto add files"
+- name: Add files # noqa 303
+  command: git commit -m "Auto add files" --no-verify
   become: no
   args:
     chdir: /tmp/rundeck

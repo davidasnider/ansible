@@ -21,7 +21,7 @@
     - audio
     uid: '1008'
     state: present
-    password: '{{ vaulted.data.LINUX_PASSWORD }}' # pragma: allowlist secret
+    password: '{{ vaulted.LINUX_PASSWORD }}' # pragma: allowlist secret
   notify: reboot server
 
 - name: disable overscan
