@@ -36,7 +36,7 @@
       home: /home/ansible
       createhome: yes
       uid: 3000
-      password: '{{ vaulted.data.LINUX_PASSWORD }}'
+      password: '{{ vaulted.LINUX_PASSWORD }}'
     when: ansible_facts['os_family'] == "Debian"
 
   - name: Add Ansible user to admin group
@@ -50,7 +50,7 @@
     authorized_key:
       user: ansible
       state: present
-      key: '{{ vaulted.data.id_rsa_pub }}'
+      key: '{{ vaulted.id_rsa_pub }}'
     when: ansible_facts['os_family'] == "Debian"
 
   - name: Ensure admin group can sudo

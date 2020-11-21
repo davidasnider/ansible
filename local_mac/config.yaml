@@ -14,6 +14,7 @@
             git,
             htop,
             iperf,
+            jq,
             kubernetes-cli,
             kustomize,
             minikube,
@@ -132,7 +133,7 @@
       tags: oh-my-zsh
 
     - name: Install bullet-train
-      get_url: 
+      get_url:
         url: https://raw.githubusercontent.com/caiogondim/bullet-train-oh-my-zsh-theme/master/bullet-train.zsh-theme
         dest: ~/.oh-my-zsh/themes/bullet-train.zsh-theme
       tags: oh-my-zsh

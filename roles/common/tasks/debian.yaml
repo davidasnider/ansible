@@ -76,7 +76,7 @@
     home: /home/rundeck
     createhome: yes
     uid: '2000'
-    password: '{{ vaulted.data.LINUX_PASSWORD }}'
+    password: '{{ vaulted.LINUX_PASSWORD }}'
 
 - name: Create David
   user:
@@ -86,7 +86,7 @@
     home: /home/david
     createhome: yes
     uid: '1001'
-    password: '{{ vaulted.data.LINUX_PASSWORD }}'
+    password: '{{ vaulted.LINUX_PASSWORD }}'
 
 - name: Create Ansible user
   user:
@@ -96,7 +96,7 @@
     home: /home/ansible
     createhome: yes
     uid: '3000'
-    password: '{{ vaulted.data.LINUX_PASSWORD }}'
+    password: '{{ vaulted.LINUX_PASSWORD }}'
 
 - name: Ensure admin group can sudo
   lineinfile:
@@ -113,7 +113,7 @@
   authorized_key:
     user: '{{ item }}'
     state: present
-    key: '{{ vaulted.data.id_rsa_pub }}'
+    key: '{{ vaulted.id_rsa_pub }}'
   loop:
   - ansible
   - rundeck
@@ -123,12 +123,12 @@
   authorized_key:
     user: rundeck
     state: present
-    key: '{{ vaulted.data.RUNDECK_AUTHORIZED_KEY }}'
+    key: '{{ vaulted.RUNDECK_AUTHORIZED_KEY }}'
 
 - name: Add ssh public key to ansible
   copy:
     dest: /home/ansible/.ssh/id_rsa.pub
-    content: '{{ vaulted.data.id_rsa_pub }}'
+    content: '{{ vaulted.id_rsa_pub }}'
     mode: '0600'
     owner: ansible
     group: ansible
@@ -136,7 +136,7 @@
 - name: Add ssh privagte key to ansible
   copy:
     dest: /home/ansible/.ssh/id_rsa
-    content: '{{ vaulted.data.id_rsa }}'
+    content: '{{ vaulted.id_rsa }}'
     mode: '0600'
     owner: ansible
     group: ansible

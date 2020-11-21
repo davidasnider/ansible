@@ -79,7 +79,7 @@
     mode: '0600'
     owner: rundeck
     group: rundeck
-    content: '{{ vaulted.data.id_rsa }}'
+    content: '{{ vaulted.id_rsa }}'
 
 - name: Add ssh public key to rundeck
   copy:
@@ -87,7 +87,7 @@
     mode: '0600'
     owner: rundeck
     group: rundeck
-    content: '{{ vaulted.data.id_rsa_pub }}'
+    content: '{{ vaulted.id_rsa_pub }}'
 
 - name: Add rundeck to docker group
   user:

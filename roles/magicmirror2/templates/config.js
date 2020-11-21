@@ -57,7 +57,7 @@ var config = {
 			config: {
 				location: "Sandy, UT",
 				locationID: "5781061",
-				appid: "{{ vaulted.data.OPENWEATHER_APIKEY }}"
+				appid: "{{ vaulted.OPENWEATHER_APIKEY }}"
 			}
 		},
 		{
@@ -67,7 +67,7 @@ var config = {
 			config: {
 				location: "Sandy, UT",
 				locationID: "5781061",
-				appid: "{{ vaulted.data.OPENWEATHER_APIKEY }}"
+				appid: "{{ vaulted.OPENWEATHER_APIKEY }}"
 			}
 		},
 		{
@@ -92,7 +92,7 @@ var config = {
 			header: "Weight Tracker",
 			position: "top_right",
 			config: {
-				url: "{{vaulted.data.WEIGHT_TRACKER_URL}}",
+				url: "{{vaulted.WEIGHT_TRACKER_URL}}",
 				sheet: "Summary",
 				range: "A1:E4",
 				customStyles: ["background-color: transparent"]
@@ -114,7 +114,7 @@ var config = {
 			module: "MMM-Ring",
 			position: "middle_center",
 			config: {
-				ring2faRefreshToken: "{{vaulted.data.ring2faRefreshToken}}"
+				ring2faRefreshToken: "{{vaulted.ring2faRefreshToken}}"
 			}
 		},
 	]

@@ -31,13 +31,13 @@
     uid: '1007'
     group: mythtv
     state: present
-    password: '{{ vaulted.data.LINUX_PASSWORD }}'
+    password: '{{ vaulted.LINUX_PASSWORD }}'
 
 - name: Add authorized lkey for mythtv user
   authorized_key:
     user: mythtv
     state: present
-    key: '{{ vaulted.data.id_rsa_pub }}'
+    key: '{{ vaulted.id_rsa_pub }}'
 
 - name: Check if the timezone tables are populated
   command: mysql -u root -e "SELECT COUNT(*) FROM mysql.time_zone_name;" -sN
@@ -83,7 +83,7 @@
 - name: Create mythtv@localhost with password and all database privileges and 'WITH GRANT OPTION'
   mysql_user:
     name: mythtv
-    password: '{{ vaulted.data.MYTHTV_DB_PASSWORD }}'
+    password: '{{ vaulted.MYTHTV_DB_PASSWORD }}'
     priv: '*.*:ALL,GRANT'
     state: present
 
@@ -91,7 +91,7 @@
   mysql_user:
     name: mythtv
     host: '%'
-    password: '{{ vaulted.data.MYTHTV_DB_PASSWORD }}'
+    password: '{{ vaulted.MYTHTV_DB_PASSWORD }}'
     priv: '*.*:ALL,GRANT'
     state: present
 
