@@ -9,6 +9,7 @@
   register: namespaces
   changed_when: false
   ignore_errors: true
+  tags: cava
 
 #### Delete Docker Registry namespace
 - name: Delete the docker registry services and pods
@@ -97,3 +98,12 @@
       mode: '0600'
   tags: cava
   notify: Apply Cava Kustomize script
+
+# If cava namespace doesn't exist, trigger application
+- name: Run kustomize script when cava namespace does not exist
+  shell: set -o pipefail && kustomize build prod | kubectl apply -f -
+  args:
+    executable: /bin/bash
+    chdir: /usr/local/src/cava/k8s
+  when: "'cava' not in namespaces.stdout"
+  tags: cava
