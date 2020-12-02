@@ -85,8 +85,6 @@
   vars:
     vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
   roles:
-  - role: mythtv
-    tags: mythtv
   - role: grigio
     tags: grigio
   - role: vault
