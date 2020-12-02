@@ -16,3 +16,7 @@
     chdir: /usr/local/src/cava/k8s
   changed_when: false
   tags: cava
+
+- name: apply channels manifest
+  command: kubectl apply -f /etc/kubernetes/channels.yaml
+  tags: channels

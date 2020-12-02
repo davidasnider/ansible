@@ -9,7 +9,9 @@
   register: namespaces
   changed_when: false
   ignore_errors: true
-  tags: cava
+  tags:
+  - cava
+  - channels
 
 #### Delete Docker Registry namespace
 - name: Delete the docker registry services and pods
@@ -107,3 +109,20 @@
     chdir: /usr/local/src/cava/k8s
   when: "'cava' not in namespaces.stdout"
   tags: cava
+
+# Install channels DVR
+
+- name: Install channels kubernetes manifest
+  copy:
+    src: channels.yaml
+    dest: /etc/kubernetes/channels.yaml
+    owner: root
+    group: root
+    mode: '0600'
+  tags: channels
+  notify: apply channels manifest
+
+- name: Run kubectl apply when namespace does not exist
+  command: kubectl apply -f /etc/kubernetes/channels.yaml
+  when: "'channels' not in namespaces.stdout"
+  tags: channels
