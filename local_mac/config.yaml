@@ -19,6 +19,7 @@
             kustomize,
             minikube,
             nmap,
+            opa,
             packer,
             plantuml,
             pre-commit,
@@ -40,7 +41,6 @@
         name:
           [
             1password,
-            1password-cli,
             adoptopenjdk,
             balenaetcher,
             docker,
@@ -59,7 +59,7 @@
       tags: casks
 
     - name: Install brew packages that don't auto install
-      command: brew cask install google-chrome istat-menus microsoft-office virtualbox-extension-pack font-menlo-for-powerline font-meslo-for-powerline
+      command: brew cask install 1password-cli google-chrome istat-menus microsoft-office virtualbox-extension-pack font-menlo-for-powerline font-meslo-for-powerline
 
     - name: install sshpass
       command: brew install esolitos/ipa/sshpass
