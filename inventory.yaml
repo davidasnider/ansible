@@ -126,7 +126,7 @@ all:
         kubernetes_package_version: 1.18.10-00
         kubernetes_version: v1.18.10
         docker_ce_version: "5:19.03"
-        metallb_version: v0.9.4
+        metallb_version: v0.9.5
         flannel_version: master
         dashboard_ip: 10.9.9.200
         power_url: http://blanc:8000/devices/012%20-%20K8S1
@@ -211,7 +211,7 @@ all:
         kubernetes_package_version: 1.18.10-00
         kubernetes_version: v1.18.10
         docker_ce_version: "5:19.03"
-        metallb_version: v0.9.4
+        metallb_version: v0.9.5
         flannel_version: master
         dashboard_ip: 10.9.9.201
         power_url: http://blanc:8000/devices/020%20-%20K8S2
