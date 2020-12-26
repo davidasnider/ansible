@@ -1,10 +1,10 @@
 # Ansible Role: sshd
 
-[![Build Status](https://img.shields.io/travis/arillso/ansible.sshd.svg?branch=master&style=popout-square)](<https://travis-ci.org/arillso/ansible.sshd>) [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=popout-square)](<https://sbaerlo.ch/licence>) [![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-sshd-blue.svg?style=popout-square)](<https://galaxy.ansible.com/arillso/sshd>) [![Ansible Role](https://img.shields.io/ansible/role/d/21612.svg?style=popout-square)](<https://galaxy.ansible.com/arillso/sshd>)
+[![Build Status](https://img.shields.io/travis/arillso/ansible.sshd.svg?branch=master&style=popout-square)](https://travis-ci.org/arillso/ansible.sshd) [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=popout-square)](https://sbaerlo.ch/licence) [![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-sshd-blue.svg?style=popout-square)](https://galaxy.ansible.com/arillso/sshd) [![Ansible Role](https://img.shields.io/ansible/role/d/21612.svg?style=popout-square)](https://galaxy.ansible.com/arillso/sshd)
 
 ## Description
 
-This role provides secure ssh-client and ssh-server configurations. It is intended to be compliant with the [DevSec SSH Baseline](<https://github.com/dev-sec/ssh-baseline>).
+This role provides secure ssh-client and ssh-server configurations. It is intended to be compliant with the [DevSec SSH Baseline](https://github.com/dev-sec/ssh-baseline).
 
 ## Installation
 
@@ -609,11 +609,11 @@ None
 
 ## Author
 
-- [Simon Bärlocher](<https://sbaerlocher.ch>)
+- [Simon Bärlocher](https://sbaerlocher.ch)
 
 ## License
 
-This project is under the MIT License. See the [LICENSE](<https://sbaerlo.ch/licence>) file for the full license text.
+This project is under the MIT License. See the [LICENSE](https://sbaerlo.ch/licence) file for the full license text.
 
 ## Copyright
 

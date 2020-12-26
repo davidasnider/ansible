@@ -14,7 +14,7 @@ to install `hvac`:
 
 ## Secrets
 
-Secrets are stored in [vault](<https://vault.thesniderpad.com>). We use the hashi\_vault module to access those secrets.
+Secrets are stored in [vault](https://vault.thesniderpad.com). We use the hashi\_vault module to access those secrets.
 You must have a valid token stored in the `VAULT_TOKEN` variable, run these commands before running any of
 the below commands:
 
