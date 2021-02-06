@@ -1,13 +1,136 @@
-- hosts: windows
-  # connection: local
+- hosts: localhost
+  connection: local
   become: true
 
   tasks:
 
-  - name: Install multiple packages
-    win_chocolatey:
-      name:
-      - steam
-      - vscode
-      - git
-      state: present
+    - name: Upgrade Ubuntu Packages
+      apt:
+        autoremove: yes
+        autoclean: yes
+        update_cache: yes
+        cache_valid_time: 86400 # Once per day 24x60x60
+        upgrade: dist
+
+    - name: Install new packages
+      apt:
+        pkg:
+        - htop
+        - ansible
+        - iperf
+        - jq
+        - vault
+        autoremove: yes
+        autoclean: yes
+        update_cache: yes
+        cache_valid_time: 86400 # Once per day 24x60x60
+
+    - name: Add Google Cloud Repo Key
+      when: ansible_os_family == "Debian"
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+    - name: Add Kubernetes to Available apt Sources
+      when:
+      - ansible_os_family == "Debian"
+      apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes
+
+    - name: Install kubectl
+      apt:
+        update_cache: yes
+        name: kubectl
+        state: present
+
+    - name: Get kustomize install script
+      get_url:
+        url: https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh
+        dest: /usr/local/src/install_kustomize.sh
+        mode: '0755'
+      register: download_kustomize_install
+    
+    - name: Install kustomize
+      command: /usr/local/src/install_kustomize.sh
+      args:
+        chdir: /usr/local/bin
+      when: download_kustomize_install.changed
+
+    #         kustomize,
+    #         pre-commit,
+    #         vault,
+    #       ]
+    #     state: present
+    #     update_homebrew: yes
+    #   tags: brew_packages
+
+    # - name: Create Pre-Commit template directory
+    #   file:
+    #     path: /home/david/.git-template
+    #     owner: david
+    #     group: staff
+    #     state: directory
+    #     mode: "0750"
+
+    # - name: Setup Pre-Commit template directory
+    #   command: git config --global init.templateDir /home/david/.git-template
+
+    # - name: Populate Pre-Commit template directory
+    #   command: pre-commit init-templatedir /home/david/.git-template
+    #   args:
+    #     creates: /home/david/.git-template/hooks/pre-commit
+
+    # - name: Check if .oh-my-zsh exists
+    #   stat:
+    #     path: ~/.oh-my-zsh
+    #   register: stat_oh_my_zsh_result
+    #   tags: oh-my-zsh
+
+    # - name: Cloning  oh-my-zsh
+    #   git: repo=https://github.com/robbyrussell/oh-my-zsh
+    #     dest=~/.oh-my-zsh
+    #   when: not stat_oh_my_zsh_result.stat.exists
+    #   tags: oh-my-zsh
+
+    # - name: Check if zsh-syntax-highlighting
+    #   stat:
+    #     path: ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+    #   register: zsh_syntax_highlighting_result
+    #   tags: oh-my-zsh
+
+    # - name: Cloning zsh-syntax-highlighting
+    #   git: repo=https://github.com/zsh-users/zsh-syntax-highlighting.git
+    #     dest=~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+    #   when: not zsh_syntax_highlighting_result.stat.exists
+    #   tags: oh-my-zsh
+
+    # - name: Check if zsh-autosuggestions
+    #   stat:
+    #     path: ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+    #   register: zsh_autosuggestions_result
+    #   tags: oh-my-zsh
+
+    # - name: Cloning zsh-autosuggestions
+    #   git: repo=https://github.com/zsh-users/zsh-autosuggestions
+    #     dest=~/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+    #   when: not zsh_autosuggestions_result.stat.exists
+    #   tags: oh-my-zsh
+
+    # - name: Check if zsh-history-substring-search
+    #   stat:
+    #     path: ~/.oh-my-zsh/custom/plugins/zsh-history-substring-search
+    #   register: zsh_history_substring_search_result
+    #   tags: oh-my-zsh
+
+    # - name: Cloning zsh-history-substring-search
+    #   git: repo=https://github.com/zsh-users/zsh-history-substring-search
+    #     dest=~/.oh-my-zsh/custom/plugins/zsh-history-substring-search
+    #   when: not zsh_history_substring_search_result.stat.exists
+    #   tags: oh-my-zsh
+
+    # - name: Install bullet-train
+    #   get_url:
+    #     url: https://raw.githubusercontent.com/caiogondim/bullet-train-oh-my-zsh-theme/master/bullet-train.zsh-theme
+    #     dest: ~/.oh-my-zsh/themes/bullet-train.zsh-theme
+    #   tags: oh-my-zsh
