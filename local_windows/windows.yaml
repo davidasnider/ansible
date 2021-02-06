@@ -1,13 +1,58 @@
-- hosts: windows
-  # connection: local
+- hosts: localhost
+  connection: local
   become: true
 
   tasks:
 
-  - name: Install multiple packages
-    win_chocolatey:
-      name:
-      - steam
-      - vscode
-      - git
-      state: present
+    - name: Upgrade Ubuntu Packages
+      apt:
+        autoremove: yes
+        autoclean: yes
+        update_cache: yes
+        cache_valid_time: 86400 # Once per day 24x60x60
+        upgrade: dist
+
+    - name: Install new packages
+      apt:
+        pkg:
+        - htop
+        - ansible
+        - iperf
+        - jq
+        - vault
+        autoremove: yes
+        autoclean: yes
+        update_cache: yes
+        cache_valid_time: 86400 # Once per day 24x60x60
+
+    - name: Add Google Cloud Repo Key
+      when: ansible_os_family == "Debian"
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+
+    - name: Add Kubernetes to Available apt Sources
+      when:
+      - ansible_os_family == "Debian"
+      apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes
+
+    - name: Install kubectl
+      apt:
+        update_cache: yes
+        name: kubectl
+        state: present
+
+    - name: Get kustomize install script
+      get_url:
+        url: https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh
+        dest: /usr/local/src/install_kustomize.sh
+        mode: '0755'
+      register: download_kustomize_install
+
+    - name: Install kustomize
+      command: /usr/local/src/install_kustomize.sh
+      args:
+        chdir: /usr/local/bin
+      when: download_kustomize_install.changed

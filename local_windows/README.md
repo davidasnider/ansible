@@ -1,38 +1,9 @@
-# This is a pain in the ass.  Just install packages with chocolatey
+# This is not really for Windows, it's for WSL
 
-Run the below code from an adminsitrative powershell window
+## Install ansible on WSL
 
-## Install Chocolatey
+apt upgrade && apt install ansible
 
-```
-Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-```
+## Run playbook
 
-## Packages to install
-
-```
-vscode
-steam
-git
-```
-
-# Setup the Windows Host
-
-Run the below code from an administrative powershell window
-
-```
-$url = "https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1"
-$file = "$env:temp\ConfigureRemotingForAnsible.ps1"
-
-(New-Object -TypeName System.Net.WebClient).DownloadFile($url, $file)
-
-powershell.exe -ExecutionPolicy ByPass -File $file
-```
-
-Validate the winrm service is setup
-
-```
-winrm enumerate winrm/config/Listener
-```
-
-ansible-playbook config.yaml -K
+`ansible-playbook -K windows.yaml`
