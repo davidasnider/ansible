@@ -106,6 +106,62 @@ all:
                 disk1:
                   disk: /dev/disk/by-path/pci-0000:00:1f.2-ata-1
                   path: /mnt/disk1
+            r401:
+              hostname: r401
+              hostmac: dc:a6:32:26:8c:d7
+              ip: 10.9.9.16
+              serial: 87cfb469
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r402:
+              hostname: r402
+              hostmac: dc:a6:32:45:d5:71
+              ip: 10.9.9.17
+              serial: 0726a7aa
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r403:
+              hostname: r403
+              hostmac: dc:a6:32:40:b3:7b
+              ip: 10.9.9.18
+              serial: 4b13f41b
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r404:
+              hostname: r404
+              hostmac: dc:a6:32:46:1c:18
+              ip: 10.9.9.19
+              serial: 2f0b6991
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r405:
+              hostname: r405
+              hostmac: dc:a6:32:45:6c:08
+              ip: 10.9.9.20
+              serial: db460bd5
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r406:
+              hostname: r406
+              hostmac: dc:a6:32:45:fc:83
+              ip: 10.9.9.21
+              serial: 8883c656
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r407:
+              hostname: r407
+              hostmac: dc:a6:32:28:d4:fa
+              ip: 10.9.9.22
+              serial: 5d9d5cd5
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r408:
+              hostname: r408
+              hostmac: dc:a6:32:61:11:1b
+              ip: 10.9.9.23
+              serial: 529babfe
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
       vars:
         vrrp: 92
         zfs_snapshot: 20201101
@@ -217,6 +273,94 @@ all:
         power_url: http://blanc:8000/devices/020%20-%20K8S2
         cluster_name: k8s2
         extent_filename: rpimaster
+        prod_cluster: false
+    k8s3:
+      children:
+        k8s3masters:
+          hosts:
+            r401:
+              hostname: r401
+              hostmac: dc:a6:32:26:8c:d7
+              ip: 10.9.9.16
+              serial: 87cfb469
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r402:
+              hostname: r402
+              hostmac: dc:a6:32:45:d5:71
+              ip: 10.9.9.17
+              serial: 0726a7aa
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r403:
+              hostname: r403
+              hostmac: dc:a6:32:40:b3:7b
+              ip: 10.9.9.18
+              serial: 4b13f41b
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+        k8s3workers:
+          hosts:
+            r404:
+              hostname: r404
+              hostmac: dc:a6:32:46:1c:18
+              ip: 10.9.9.19
+              serial: 2f0b6991
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r405:
+              hostname: r405
+              hostmac: dc:a6:32:45:6c:08
+              ip: 10.9.9.20
+              serial: db460bd5
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r406:
+              hostname: r406
+              hostmac: dc:a6:32:45:fc:83
+              ip: 10.9.9.21
+              serial: 8883c656
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r407:
+              hostname: r407
+              hostmac: dc:a6:32:28:d4:fa
+              ip: 10.9.9.22
+              serial: 5d9d5cd5
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+            r408:
+              hostname: r408
+              hostmac: dc:a6:32:61:11:1b
+              ip: 10.9.9.23
+              serial: 529babfe
+              pool: SAMSUNG_1TB_NVME
+              boot_from_san: true
+      vars:
+        vrrp: 94
+        zfs_snapshot: 20201101
+        vip: 10.9.9.103
+        lb_range: 10.9.12.1-10.9.12.254
+        masters:
+        - r401
+        - r402
+        - r403
+        workers:
+        - r404
+        - r405
+        - r406
+        - r407
+        - r408
+        token: udy29x.ugyyk3tumg27atmr
+        podnet: 10.244.0.0/16
+        kubernetes_package_version: 1.18.10-00
+        kubernetes_version: v1.18.10
+        docker_ce_version: "5:19.03"
+        metallb_version: v0.9.5
+        flannel_version: master
+        dashboard_ip: 10.9.9.200
+        power_url: http://blanc:8000/devices/012%20-%20K8S1
+        cluster_name: k8s3
         prod_cluster: false
   vars:
     ansible_user: ansible
