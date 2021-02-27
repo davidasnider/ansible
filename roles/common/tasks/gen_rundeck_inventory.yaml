@@ -23,7 +23,7 @@
 # Create inventory files
 - name: Write inventory into yaml files
   template:
-    src: rundeck_inventory.yaml
+    src: rundeck_inventory.yaml.jn2
     dest: /tmp/rundeck/inventory/{{ inventory_hostname_short }}.yaml
     mode: '0644'
   delegate_to: localhost

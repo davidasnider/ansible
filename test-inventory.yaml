@@ -33,12 +33,12 @@ all:
         vip: 10.9.8.101
         lb_range: 10.9.8.100-10.9.8.254
         masters:
-        - testserver1
-        - testserver2
-        - testserver3
+          - testserver1
+          - testserver2
+          - testserver3
         workers:
-        - testserver4
-        - testserver5
+          - testserver4
+          - testserver5
         token: udy29x.ugyyk3tumg27atmr
         podnet: 10.244.0.0/16
         kubernetes_package_version: 1.19.3-00
