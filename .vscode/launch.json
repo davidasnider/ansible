@@ -9,7 +9,11 @@
       "console": "integratedTerminal",
       "envFile": "${workspaceFolder}/.env",
       "args": [
-        "r404"
+        "r404",
+        "SAMSUNG_1TB_NVME",
+        "20210227",
+        "rpi4master_iscsi_luns",
+        "rpi4master"
       ]
     }
   ]

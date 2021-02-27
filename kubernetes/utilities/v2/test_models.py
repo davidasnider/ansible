@@ -3,17 +3,11 @@ from v2 import models
 import os
 
 
-def test_instantiate_iscsi_lun(test_lun, parent, my_api):
-    mylun = models.iscsi_lun(name=test_lun, parent=parent, api_connection=my_api)
-    assert mylun.name == test_lun
+def test_target_crud(test_lun):
+    # target created using fixture
 
-
-def test_target_crud(test_lun, parent, my_api):
-    mylun = models.iscsi_lun(name=test_lun, parent=parent, api_connection=my_api)
-    assert mylun.create_target(test_lun)
-    assert mylun.target_exits()
-    assert int(mylun.get_target_details())
-    assert mylun.delete_target()
+    assert test_lun.target_exists()
+    assert int(test_lun.get_target_details())
 
 
 def test_freenas_api(my_api):
@@ -22,18 +16,18 @@ def test_freenas_api(my_api):
     assert response.text == '"pong"'
 
 
-def test_zfs_crud(test_lun, parent, base_zfs_dataset, my_api):
+def test_zfs_crud(test_lun):
     # Dataset to clone comes from a fixture
-
-    mylun = models.iscsi_lun(
-        name=test_lun,
-        parent=parent,
-        clone_from_snapshot="deleteme",
-        api_connection=my_api,
-    )
-    assert mylun.clone_dataset()
-    assert mylun.delete_dataset()
+    assert test_lun.dataset_exists()
 
 
-def test_link_zfs_to_target():
-    pass
+def test_lun_extent_exists(test_lun):
+    # Extent is created from fixture test_lun
+    assert test_lun.extent_exists()
+    assert int(test_lun.extent_id)
+
+
+def test_link_target_to_extent(test_lun):
+    # Extent target is created from fixture test_lun
+    assert test_lun.target_extent_exists()
+    assert int(test_lun.extent_target_id)
