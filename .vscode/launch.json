@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "envFile": "${workspaceFolder}/.env",
+      "args": [
+        "r404",
+        "SAMSUNG_1TB_NVME",
+        "20210227",
+        "rpi4master_iscsi_luns",
+        "rpi4master"
+      ]
+    }
+  ]
+}

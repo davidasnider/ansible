@@ -1,3 +1,15 @@
+- name: Add magicmirror user
+  user:
+    name: magicmirror
+    create_home: yes
+    groups:
+    - video
+    - audio
+    uid: '1008'
+    state: present
+    password: '{{ vaulted.LINUX_PASSWORD }}' # pragma: allowlist secret
+  notify: reboot server
+
 - name: git config email
   git_config:
     name: user.email
@@ -11,18 +23,6 @@
     scope: global
     value: 'David Snider'
   become_user: magicmirror
-
-- name: Add magicmirror user
-  user:
-    name: magicmirror
-    create_home: yes
-    groups:
-    - video
-    - audio
-    uid: '1008'
-    state: present
-    password: '{{ vaulted.LINUX_PASSWORD }}' # pragma: allowlist secret
-  notify: reboot server
 
 - name: disable overscan
   lineinfile:

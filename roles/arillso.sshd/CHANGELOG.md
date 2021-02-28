@@ -19,13 +19,13 @@ and [human-readable changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- add ssh\_ciphers
+- add ssh_ciphers
 
 ### 1.4.0
 
 ### Added
 
-- update loop\_vars
+- update loop_vars
 
 ### 1.3.0
 
@@ -47,7 +47,7 @@ and [human-readable changelog](https://keepachangelog.com/en/1.0.0/).
 
 - add option when no password set by login
 - add restart sshd by port change
-- default value when ansible\_ssh\_port not set
+- default value when ansible_ssh_port not set
 
 ### 1.0
 

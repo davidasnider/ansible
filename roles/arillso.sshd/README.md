@@ -18,7 +18,7 @@ None
 
 ## Role Variables
 
-### ssh\_ipv6\_enable
+### ssh_ipv6_enable
 
 true if IPv6 is needed
 
@@ -26,7 +26,7 @@ true if IPv6 is needed
 ssh_ipv6_enable: '{{ network_ipv6_enable | default(false) }}' # sshd + ssh
 ```
 
-### ssh\_server\_enabled
+### ssh_server_enabled
 
 true if sshd should be started and enabled
 
@@ -34,7 +34,7 @@ true if sshd should be started and enabled
 ssh_server_enabled: true # sshd
 ```
 
-### ssh\_use\_dns
+### ssh_use_dns
 
 true if DNS resolutions are needed, look up the remote host name, defaults to false from 6.8, see: http://www.openssh.com/txt/release-6.8
 
@@ -42,7 +42,7 @@ true if DNS resolutions are needed, look up the remote host name, defaults to fa
 ssh_use_dns: false # sshd
 ```
 
-### ssh\_compression
+### ssh_compression
 
 true or value if compression is needed
 
@@ -50,7 +50,7 @@ true or value if compression is needed
 ssh_compression: false # sshd
 ```
 
-### ssh\_hardening
+### ssh_hardening
 
 For which components (client and server) to generate the configuration for. Can be useful when running against a client without an SSH server.
 
@@ -59,7 +59,7 @@ ssh_client_hardening: true # ssh
 ssh_server_hardening: true # sshd
 ```
 
-### ssh\_client\_password\_login
+### ssh_client_password_login
 
 If true, password login is allowed
 
@@ -68,7 +68,7 @@ ssh_client_password_login: false # ssh
 ssh_server_password_login: false # sshd
 ```
 
-### ssh\_server\_ports
+### ssh_server_ports
 
 ports on which ssh-server should listen
 
@@ -76,7 +76,7 @@ ports on which ssh-server should listen
 ssh_server_ports: ['22'] # sshd
 ```
 
-### ssh\_client\_port
+### ssh_client_port
 
 port to which ssh-client should connect
 
@@ -84,7 +84,7 @@ port to which ssh-client should connect
 ssh_client_port: '22' # ssh
 ```
 
-### ssh\_listen\_to
+### ssh_listen_to
 
 one or more ip addresses, to which ssh-server should listen to. Default is empty, but should be configured for security reasons!
 
@@ -92,7 +92,7 @@ one or more ip addresses, to which ssh-server should listen to. Default is empty
 ssh_listen_to: ['0.0.0.0'] # sshd
 ```
 
-### ssh\_host\_key\_files
+### ssh_host_key_files
 
 Host keys to look for when starting sshd.
 
@@ -100,7 +100,7 @@ Host keys to look for when starting sshd.
 ssh_host_key_files: [] # sshd
 ```
 
-### ssh\_max\_auth\_retries
+### ssh_max_auth_retries
 
 Specifies the maximum number of authentication attempts permitted per connection. Once the number of failures reaches half this value, additional failures are logged.
 
@@ -108,19 +108,19 @@ Specifies the maximum number of authentication attempts permitted per connection
 ssh_max_auth_retries: 2
 ```
 
-### ssh\_client\_alive\_interval
+### ssh_client_alive_interval
 
 ```yml
 ssh_client_alive_interval: 300 # sshd
 ```
 
-### ssh\_client\_alive\_count
+### ssh_client_alive_count
 
 ```yml
 ssh_client_alive_count: 3 # sshd
 ```
 
-### ssh\_permit\_tunnel
+### ssh_permit_tunnel
 
 Allow SSH Tunnels
 
@@ -128,15 +128,15 @@ Allow SSH Tunnels
 ssh_permit_tunnel: false
 ```
 
-### ssh\_remote\_hosts
+### ssh_remote_hosts
 
-Hosts with custom options. \# ssh
+Hosts with custom options. # ssh
 
 ```yml
 ssh_remote_hosts: []
 ```
 
-#### \# Example
+#### # Example
 
 ```yml
 ssh_remote_hosts:
@@ -146,7 +146,7 @@ ssh_remote_hosts:
     options: ['StrictHostKeyChecking no']
 ```
 
-### ssh\_allow\_root\_with\_key
+### ssh_allow_root_with_key
 
 Set this to "without-password" or "yes" to allow root to login
 
@@ -154,7 +154,7 @@ Set this to "without-password" or "yes" to allow root to login
 ssh_allow_root_with_key: 'no' # sshd
 ```
 
-### ssh\_allow\_tcp\_forwarding
+### ssh_allow_tcp_forwarding
 
 false to disable TCP Forwarding. Set to true to allow TCP Forwarding.
 
@@ -162,7 +162,7 @@ false to disable TCP Forwarding. Set to true to allow TCP Forwarding.
 ssh_allow_tcp_forwarding: false # sshd
 ```
 
-### ssh\_gateway\_ports
+### ssh_gateway_ports
 
 false to disable binding forwarded ports to non-loopback addresses. Set to true to force binding on wildcard address.
 
@@ -172,7 +172,7 @@ Set to 'clientspecified' to allow the client to specify which address to bind to
 ssh_gateway_ports: false # sshd
 ```
 
-### ssh\_allow\_agent\_forwarding
+### ssh_allow_agent_forwarding
 
 false to disable Agent Forwarding. Set to true to allow Agent Forwarding.
 
@@ -180,7 +180,7 @@ false to disable Agent Forwarding. Set to true to allow Agent Forwarding.
 ssh_allow_agent_forwarding: false # sshd
 ```
 
-### ssh\_pam\_support
+### ssh_pam_support
 
 true if SSH has PAM support
 
@@ -188,7 +188,7 @@ true if SSH has PAM support
 ssh_pam_support: true
 ```
 
-### ssh\_use\_pam
+### ssh_use_pam
 
 false to disable pam authentication.
 
@@ -196,7 +196,7 @@ false to disable pam authentication.
 ssh_use_pam: false # sshd
 ```
 
-### ssh\_google\_auth
+### ssh_google_auth
 
 false to disable google 2fa authentication
 
@@ -204,7 +204,7 @@ false to disable google 2fa authentication
 ssh_google_auth: false # sshd
 ```
 
-### ssh\_pam\_device
+### ssh_pam_device
 
 false to disable pam device 2FA input
 
@@ -212,7 +212,7 @@ false to disable pam device 2FA input
 ssh_pam_device: false # sshd
 ```
 
-### ssh\_gssapi\_support
+### ssh_gssapi_support
 
 true if SSH support GSSAPI
 
@@ -220,7 +220,7 @@ true if SSH support GSSAPI
 ssh_gssapi_support: false
 ```
 
-### ssh\_kerberos\_support
+### ssh_kerberos_support
 
 true if SSH support Kerberos
 
@@ -228,7 +228,7 @@ true if SSH support Kerberos
 ssh_kerberos_support: true
 ```
 
-### ssh\_deny\_users
+### ssh_deny_users
 
 if specified, login is disallowed for user names that match one of the patterns.
 
@@ -236,7 +236,7 @@ if specified, login is disallowed for user names that match one of the patterns.
 ssh_deny_users: '' # sshd
 ```
 
-### ssh\_allow\_users
+### ssh_allow_users
 
 if specified, login is allowed only for user names that match one of the patterns.
 
@@ -244,7 +244,7 @@ if specified, login is allowed only for user names that match one of the pattern
 ssh_allow_users: '' # sshd
 ```
 
-### ssh\_deny\_groups
+### ssh_deny_groups
 
 if specified, login is disallowed for users whose primary group or supplementary group list matches one of the patterns.
 
@@ -252,7 +252,7 @@ if specified, login is disallowed for users whose primary group or supplementary
 ssh_deny_groups: '' # sshd
 ```
 
-### ssh\_allow\_groups
+### ssh_allow_groups
 
 if specified, login is allowed only for users whose primary group or supplementary group list matches one of the patterns.
 
@@ -260,7 +260,7 @@ if specified, login is allowed only for users whose primary group or supplementa
 ssh_allow_groups: '' # sshd
 ```
 
-### ssh\_authorized\_keys\_file
+### ssh_authorized_keys_file
 
 change default file that contains the public keys that can be used for user authentication.
 
@@ -268,7 +268,7 @@ change default file that contains the public keys that can be used for user auth
 ssh_authorized_keys_file: '' # sshd
 ```
 
-### ssh\_trusted\_user\_ca\_keys\_file
+### ssh_trusted_user_ca_keys_file
 
 specifies the file containing trusted certificate authorities public keys used to sign user certificates.
 
@@ -276,7 +276,7 @@ specifies the file containing trusted certificate authorities public keys used t
 ssh_trusted_user_ca_keys_file: '' # sshd
 ```
 
-### ssh\_trusted\_user\_ca\_keys
+### ssh_trusted_user_ca_keys
 
 set the trusted certificate authorities public keys used to sign user certificates.
 
@@ -292,9 +292,9 @@ ssh_trusted_user_ca_keys:
   - 'ssh-rsa ... comment2'
 ```
 
-### ssh\_authorized\_principals\_file
+### ssh_authorized_principals_file
 
-specifies the file containing principals that are allowed. Only used if ssh\_trusted\_user\_ca\_keys\_file is set.
+specifies the file containing principals that are allowed. Only used if ssh_trusted_user_ca_keys_file is set.
 
 ```yml
 ssh_authorized_principals_file: '' # sshd
@@ -310,9 +310,9 @@ ssh_authorized_principals_file: '/etc/ssh/auth_principals/%u'
 replaced by the username of that user. After expansion, the path is taken to be
 an absolute path or one relative to the user's home directory.
 
-### ssh\_authorized\_principals
+### ssh_authorized_principals
 
-list of hashes containing file paths and authorized principals. Only used if ssh\_authorized\_principals\_file is set.
+list of hashes containing file paths and authorized principals. Only used if ssh_authorized_principals_file is set.
 
 ```yml
 ssh_authorized_principals: [] # sshd
@@ -336,7 +336,7 @@ ssh_authorized_principals:
     }
 ```
 
-### ssh\_print\_motd
+### ssh_print_motd
 
 false to disable printing of the MOTD
 
@@ -344,7 +344,7 @@ false to disable printing of the MOTD
 ssh_print_motd: false # sshd
 ```
 
-### ssh\_print\_last\_log
+### ssh_print_last_log
 
 false to disable display of last login information
 
@@ -352,7 +352,7 @@ false to disable display of last login information
 ssh_print_last_log: false # sshd
 ```
 
-### ssh\_banner
+### ssh_banner
 
 false to disable serving /etc/ssh/banner.txt before authentication is allowed
 
@@ -360,7 +360,7 @@ false to disable serving /etc/ssh/banner.txt before authentication is allowed
 ssh_banner: false # sshd
 ```
 
-### ssh\_print\_debian\_banner
+### ssh_print_debian_banner
 
 false to disable distribution version leakage during initial protocol handshake
 
@@ -368,7 +368,7 @@ false to disable distribution version leakage during initial protocol handshake
 ssh_print_debian_banner: false # sshd (Debian OS family only)
 ```
 
-### ssh\_sftp\_enabled
+### ssh_sftp_enabled
 
 true to enable sftp configuration
 
@@ -376,7 +376,7 @@ true to enable sftp configuration
 ssh_sftp_enabled: '{{ sftp_enabled | default(false) }}'
 ```
 
-### ssh\_sftp\_chroot
+### ssh_sftp_chroot
 
 false to disable sftp chroot
 
@@ -384,7 +384,7 @@ false to disable sftp chroot
 ssh_sftp_chroot: '{{ sftp_chroot | default(true) }}'
 ```
 
-### ssh\_sftp\_chroot\_dir
+### ssh_sftp_chroot_dir
 
 change default sftp chroot location
 
@@ -392,7 +392,7 @@ change default sftp chroot location
 ssh_sftp_chroot_dir: "{{ sftp_chroot_dir | default('/home/%u') }}"
 ```
 
-### ssh\_client\_roaming
+### ssh_client_roaming
 
 enable experimental client roaming
 
@@ -400,7 +400,7 @@ enable experimental client roaming
 ssh_client_roaming: false
 ```
 
-### ssh\_server\_match\_user
+### ssh_server_match_user
 
 list of hashes (containing user and rules) to generate Match User blocks for.
 
@@ -408,7 +408,7 @@ list of hashes (containing user and rules) to generate Match User blocks for.
 ssh_server_match_user: false # sshd
 ```
 
-### ssh\_server\_match\_group
+### ssh_server_match_group
 
 list of hashes (containing group and rules) to generate Match Group blocks for.
 
@@ -416,7 +416,7 @@ list of hashes (containing group and rules) to generate Match Group blocks for.
 ssh_server_match_group: false # sshd
 ```
 
-### ssh\_server\_match\_address
+### ssh_server_match_address
 
 list of hashes (containing addresses/subnets and rules) to generate Match Address blocks for.
 
@@ -424,13 +424,13 @@ list of hashes (containing addresses/subnets and rules) to generate Match Addres
 ssh_server_match_address: false # sshd
 ```
 
-### ssh\_server\_permit\_environment\_vars
+### ssh_server_permit_environment_vars
 
 ```yml
 ssh_server_permit_environment_vars: false
 ```
 
-### ssh\_max\_startups
+### ssh_max_startups
 
 maximum number of concurrent unauthenticated connections to the SSH daemon
 
@@ -438,37 +438,37 @@ maximum number of concurrent unauthenticated connections to the SSH daemon
 ssh_max_startups: '10:30:100' # sshd
 ```
 
-### ssh\_ps53
+### ssh_ps53
 
 ```yml
 ssh_ps53: 'yes'
 ```
 
-### ssh\_ps59
+### ssh_ps59
 
 ```yml
 ssh_ps59: 'sandbox'
 ```
 
-### ssh\_macs
+### ssh_macs
 
 ```yml
 ssh_macs: []
 ```
 
-### ssh\_ciphers
+### ssh_ciphers
 
 ```yml
 ssh_ciphers: []
 ```
 
-### ssh\_kex
+### ssh_kex
 
 ```yml
 ssh_kex: []
 ```
 
-### ssh\_macs\_53\_default
+### ssh_macs_53_default
 
 ```yml
 ssh_macs_53_default:
@@ -476,7 +476,7 @@ ssh_macs_53_default:
   - hmac-sha1
 ```
 
-### ssh\_macs\_59\_default
+### ssh_macs_59_default
 
 ```yml
 ssh_macs_59_default:
@@ -485,7 +485,7 @@ ssh_macs_59_default:
   - hmac-ripemd160
 ```
 
-### ssh\_macs\_66\_default
+### ssh_macs_66_default
 
 ```yml
 ssh_macs_66_default:
@@ -496,7 +496,7 @@ ssh_macs_66_default:
   - hmac-sha2-256
 ```
 
-### ssh\_macs\_76\_default
+### ssh_macs_76_default
 
 ```yml
 ssh_macs_76_default:
@@ -507,7 +507,7 @@ ssh_macs_76_default:
   - hmac-sha2-256
 ```
 
-### ssh\_ciphers\_53\_default
+### ssh_ciphers_53_default
 
 ```yml
 ssh_ciphers_53_default:
@@ -516,7 +516,7 @@ ssh_ciphers_53_default:
   - aes128-ctr
 ```
 
-### ssh\_ciphers\_66\_default
+### ssh_ciphers_66_default
 
 ```yml
 ssh_ciphers_66_default:
@@ -528,14 +528,14 @@ ssh_ciphers_66_default:
   - aes128-ctr
 ```
 
-### ssh\_kex\_59\_default
+### ssh_kex_59_default
 
 ```yml
 ssh_kex_59_default:
   - diffie-hellman-group-exchange-sha256
 ```
 
-### ssh\_kex\_66\_default
+### ssh_kex_66_default
 
 ```yml
 ssh_kex_66_default:
@@ -543,9 +543,9 @@ ssh_kex_66_default:
   - diffie-hellman-group-exchange-sha256
 ```
 
-### ssh\_custom\_selinux\_dir
+### ssh_custom_selinux_dir
 
-directory where to store ssh\_password policy
+directory where to store ssh_password policy
 
 ```yml
 ssh_custom_selinux_dir: '/etc/selinux/local-policies'
@@ -554,7 +554,7 @@ sshd_moduli_file: '/etc/ssh/moduli'
 sshd_moduli_minimum: 2048
 ```
 
-### ssh\_challengeresponseauthentication
+### ssh_challengeresponseauthentication
 
 disable ChallengeResponseAuthentication
 
@@ -562,7 +562,7 @@ disable ChallengeResponseAuthentication
 ssh_challengeresponseauthentication: false
 ```
 
-### ssh\_server\_revoked\_keys
+### ssh_server_revoked_keys
 
 a list of public keys that are never accepted by the ssh server
 
@@ -570,7 +570,7 @@ a list of public keys that are never accepted by the ssh server
 ssh_server_revoked_keys: []
 ```
 
-### ssh\_hardening\_enabled
+### ssh_hardening_enabled
 
 Set to false to turn the role into a no-op. Useful when using
 the Ansible role dependency mechanism.
@@ -579,7 +579,7 @@ the Ansible role dependency mechanism.
 ssh_hardening_enabled: true
 ```
 
-### ssh\_custom\_options
+### ssh_custom_options
 
 Custom options for SSH client configuration file
 
@@ -587,7 +587,7 @@ Custom options for SSH client configuration file
 ssh_custom_options: []
 ```
 
-### sshd\_custom\_options
+### sshd_custom_options
 
 Custom options for SSH daemon configuration file
 
