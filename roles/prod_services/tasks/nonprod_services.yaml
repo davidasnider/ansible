@@ -103,7 +103,7 @@
 
 # If cava namespace doesn't exist, trigger application
 - name: Run kustomize script when cava namespace does not exist
-  shell: set -o pipefail && kustomize build prod | kubectl apply -f -
+  shell: kustomize build prod > /var/lib/rancher/k3s/server/manifests/cava.yaml
   args:
     executable: /bin/bash
     chdir: /usr/local/src/cava/k8s
@@ -120,4 +120,3 @@
     group: root
     mode: '0600'
   tags: channels
-  notify: apply channels manifest

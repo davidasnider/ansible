@@ -4,10 +4,10 @@ import models
 import sys
 
 # Get command line arguments
-target_name = sys.argv[1]
-pool = sys.argv[2]
-snapshot = sys.argv[3]
-dataset = sys.argv[4]
+target_name = sys.argv[1]  # Hostname in ansible
+pool = sys.argv[2]  # pool in ansible
+snapshot = sys.argv[3]  # zfs_snapshot in ansible
+dataset = sys.argv[4]  # dataset_snapshot in ansible
 
 # Instantiate the connection to freenas
 my_api = models.freenas_api()

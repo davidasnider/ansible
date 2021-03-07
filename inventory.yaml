@@ -134,34 +134,6 @@ all:
               serial: 2f0b6991
               pool: SAMSUNG_1TB_NVME
               boot_from_san: true
-            r405:
-              hostname: r405
-              hostmac: dc:a6:32:45:6c:08
-              ip: 10.9.9.20
-              serial: db460bd5
-              pool: SAMSUNG_1TB_NVME
-              boot_from_san: true
-            r406:
-              hostname: r406
-              hostmac: dc:a6:32:45:fc:83
-              ip: 10.9.9.21
-              serial: 8883c656
-              pool: SAMSUNG_1TB_NVME
-              boot_from_san: true
-            r407:
-              hostname: r407
-              hostmac: dc:a6:32:28:d4:fa
-              ip: 10.9.9.22
-              serial: 5d9d5cd5
-              pool: SAMSUNG_1TB_NVME
-              boot_from_san: true
-            r408:
-              hostname: r408
-              hostmac: dc:a6:32:61:11:1b
-              ip: 10.9.9.23
-              serial: 529babfe
-              pool: SAMSUNG_1TB_NVME
-              boot_from_san: true
       vars:
         vrrp: 92
         zfs_snapshot: 20201101
@@ -192,49 +164,35 @@ all:
       children:
         k8s2masters:
           hosts:
-            r307:
-              hostname: r307
-              hostmac: b8:27:eb:95:81:bc
-              ip: 10.9.9.7
-              serial: 219581bc
+            r405:
+              hostname: r405
+              hostmac: dc:a6:32:45:6c:08
+              ip: 10.9.9.20
+              serial: db460bd5
               pool: SAMSUNG_1TB_NVME
               boot_from_san: true
-            r309:
-              hostname: r309
-              hostmac: b8:27:eb:0b:e4:83
-              ip: 10.9.9.9
-              serial: 550be483
+            r406:
+              hostname: r406
+              hostmac: dc:a6:32:45:fc:83
+              ip: 10.9.9.21
+              serial: 8883c656
               pool: SAMSUNG_1TB_NVME
               boot_from_san: true
-            r310:
-              hostname: r310
-              hostmac: b8:27:eb:38:8a:39
-              ip: 10.9.9.10
-              serial: ed388a39
+            r407:
+              hostname: r407
+              hostmac: dc:a6:32:28:d4:fa
+              ip: 10.9.9.22
+              serial: 5d9d5cd5
               pool: SAMSUNG_1TB_NVME
               boot_from_san: true
         k8s2workers:
           hosts:
-            r308:
-              hostname: r308
-              hostmac: b8:27:eb:cd:2c:bd
-              ip: 10.9.9.8
-              serial: 1ccd2cbd
+            r408:
+              hostname: r408
+              hostmac: dc:a6:32:61:11:1b
+              ip: 10.9.9.23
+              serial: 529babfe
               pool: SAMSUNG_1TB_NVME
-              boot_from_san: true
-            r311:
-              hostname: r311
-              hostmac: b8:27:eb:2d:54:9b
-              ip: 10.9.9.11
-              serial: a62d549b
-              pool: SAMSUNG_1TB_NVME
-              boot_from_san: true
-            r312:
-              hostname: r312
-              hostmac: b8:27:eb:9e:63:e5
-              ip: 10.9.9.12
-              pool: SAMSUNG_1TB_NVME
-              serial: ba9e63e5
               boot_from_san: true
             ia01:
               hostname: ia01
@@ -243,36 +201,33 @@ all:
               pool: SAMSUNG_1TB_NVME
               boot_from_san: true
               extent_filename: iamaster
-              # zfs_snapshot: 20200425 # Comment this if it's the same for rpi's as well
+              dataset: iamaster_iscsi_luns
+              blocksize: 512
+              zfs_snapshot: 20201101 # Comment this if it's the same for rpi's as well
               k8s_disks: #these will be added to a /mnt folder for local pvcs
                 disk1:
                   disk: /dev/disk/by-path/pci-0000:00:1f.2-ata-1
                   path: /mnt/disk1
       vars:
-        vrrp: 93
-        zfs_snapshot: 20201101
+        zfs_snapshot: 20210307
+        dataset: rpi4master_iscsi_luns
+        blocksize: 4096
         vip: 10.9.9.102
         lb_range: 10.9.11.1-10.9.11.254
         masters:
-        - r307
-        - r309
-        - r310
+        - r405
+        - r406
+        - r407
         workers:
-        - r308
-        - r311
-        - r312
+        - r408
         - ia01
         token: udy29x.ugyyk3tumg27atmr
-        podnet: 10.244.0.0/16
-        kubernetes_package_version: 1.18.10-00
-        kubernetes_version: v1.18.10
-        docker_ce_version: "5:19.03"
+        k3s_version: 'v1.20.4%2Bk3s1'
         metallb_version: v0.9.5
-        flannel_version: master
         dashboard_ip: 10.9.9.201
         power_url: http://blanc:8000/devices/020%20-%20K8S2
         cluster_name: k8s2
-        extent_filename: rpimaster
+        extent_filename: rpi4master
         prod_cluster: false
     k8s3:
       children:
@@ -308,34 +263,6 @@ all:
               serial: 2f0b6991
               pool: SAMSUNG_1TB_NVME
               boot_from_san: true
-            r405:
-              hostname: r405
-              hostmac: dc:a6:32:45:6c:08
-              ip: 10.9.9.20
-              serial: db460bd5
-              pool: SAMSUNG_1TB_NVME
-              boot_from_san: true
-            r406:
-              hostname: r406
-              hostmac: dc:a6:32:45:fc:83
-              ip: 10.9.9.21
-              serial: 8883c656
-              pool: SAMSUNG_1TB_NVME
-              boot_from_san: true
-            r407:
-              hostname: r407
-              hostmac: dc:a6:32:28:d4:fa
-              ip: 10.9.9.22
-              serial: 5d9d5cd5
-              pool: SAMSUNG_1TB_NVME
-              boot_from_san: true
-            r408:
-              hostname: r408
-              hostmac: dc:a6:32:61:11:1b
-              ip: 10.9.9.23
-              serial: 529babfe
-              pool: SAMSUNG_1TB_NVME
-              boot_from_san: true
       vars:
         vrrp: 94
         zfs_snapshot: 20201101
@@ -347,10 +274,6 @@ all:
         - r403
         workers:
         - r404
-        - r405
-        - r406
-        - r407
-        - r408
         token: udy29x.ugyyk3tumg27atmr
         podnet: 10.244.0.0/16
         kubernetes_package_version: 1.18.10-00

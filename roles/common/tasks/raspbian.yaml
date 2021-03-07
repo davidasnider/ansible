@@ -79,3 +79,10 @@
   command: raspi-config nonint do_configure_keyboard us
   when: "'XKBLAYOUT=\"us\"' not in get_default_keyboard.stdout"
   tags: raspberrypi_commands
+
+#### Do this on raspbian
+- name: Change to old iptables
+  shell: |
+    iptables -F
+    update-alternatives --set iptables /usr/sbin/iptables-legacy
+    update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy

@@ -77,6 +77,7 @@ class iscsi_lun(BaseModel):
     target_id: int = None
     extent_target_id: int = None
     extent_file: str = None
+    blocksize: int = 512
 
     def target_exists(self):
         url = "/api/v2.0/iscsi/target?name=" + self.name
@@ -221,7 +222,7 @@ class iscsi_lun(BaseModel):
             "type": "FILE",
             "path": path,
             "filesize": size,
-            "blocksize": 512,
+            "blocksize": self.blocksize,
             "pblocksize": False,
             "avail_threshold": None,
             "insecure_tpc": True,

@@ -24,6 +24,7 @@
     - ntp
     - mailutils
     - ethtool
+    - git
   tags:
   - autofs
   - collectd

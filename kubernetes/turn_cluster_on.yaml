@@ -1,7 +1,7 @@
 - hosts: 127.0.0.1
   tasks:
 
-  # First, we turn off all of the raspberrry pis:
+  # First, we turn on all of the raspberrry pis:
   - name: Turn On Raspberry Pi Cluster
     uri:
       url: "{{ hostvars[groups[cluster][0]]['power_url'] }}"

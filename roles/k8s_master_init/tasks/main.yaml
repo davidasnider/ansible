@@ -123,9 +123,3 @@
         src: k3s.service.final.j2
         dest: /etc/systemd/system/k3s.service
       notify: restart k3s service
-
-#### Do this on raspbian
-# sudo iptables -F
-# sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
-# sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
-# sudo reboot
