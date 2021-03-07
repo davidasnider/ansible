@@ -7,7 +7,7 @@
     PASSWORD: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
     USERNAME: '{{ vaulted.SHIRAZ_ADMIN_USER }}'
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
   tasks:
 
   # This will run a script that will delete all the luns. It loops through
@@ -73,7 +73,7 @@
     PASSWORD: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
     USERNAME: '{{ vaulted.SHIRAZ_ADMIN_USER }}'
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
   tasks:
 
   - name: delete the zfs boot disks
@@ -129,7 +129,7 @@
     PASSWORD: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
     USERNAME: '{{ vaulted.SHIRAZ_ADMIN_USER }}'
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
   tasks:
 
 # Create the LUNS on shiraz for Raspberry Pi

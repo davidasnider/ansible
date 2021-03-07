@@ -7,7 +7,7 @@
     VAULT_ADDR: https://vault.thesniderpad.com
     PASSWORD: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
     ansible_user: pi
     ansible_ssh_pass: raspberry
   become: yes

@@ -1,0 +1,39 @@
+
+- name: Check node cluster status
+  command: kubectl get nodes {{ ansible_hostname }}
+  register: node_cluster_status
+  delegate_to: '{{ masters[0] }}'
+  changed_when: false
+  ignore_errors: true
+
+- name: Install k3s service definition file
+  template:
+    src: k3s.service.j2
+    dest: /etc/systemd/system/k3s.service
+  when: node_cluster_status.failed
+
+- name: Create k3s config.yaml
+  copy:
+    dest: /etc/rancher/k3s/config.yaml
+    content: |
+      token: {{ token }}
+      server: https://{{ masters[0] }}:6443
+
+- name: start k3s service
+  systemd:
+    state: started
+    enabled: true
+    name: k3s
+    daemon_reload: yes
+    no_block: true
+  when: node_cluster_status.failed
+
+# We need the " Ready" as NotReady is a valid status
+- name: Wait for node to be ready
+  command: kubectl get nodes {{ ansible_hostname }}
+  register: nodes_status_ready
+  retries: 30
+  delay: 5
+  until: '" Ready" in nodes_status_ready.stdout'
+  delegate_to: '{{ masters[0] }}'
+  when: node_cluster_status.failed

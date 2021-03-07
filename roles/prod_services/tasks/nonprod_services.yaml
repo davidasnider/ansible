@@ -115,14 +115,9 @@
 - name: Install channels kubernetes manifest
   copy:
     src: channels.yaml
-    dest: /etc/kubernetes/channels.yaml
+    dest: /var/lib/rancher/k3s/server/manifests/channels.yaml
     owner: root
     group: root
     mode: '0600'
   tags: channels
   notify: apply channels manifest
-
-- name: Run kubectl apply when namespace does not exist
-  command: kubectl apply -f /etc/kubernetes/channels.yaml
-  when: "'channels' not in namespaces.stdout"
-  tags: channels

@@ -12,26 +12,29 @@
   until: cmd_res.stdout.find("successfully rolled out") != -1
   changed_when: false
 
-- name: Wait for cert-manager-webhook Deployment to be ready
-  command: kubectl -n cert-manager rollout status deployment cert-manager-webhook
-  register: cmd_webhook_res
-  retries: 30
-  delay: 10
-  when:
-  - masters[0] == inventory_hostname
-  until: cmd_webhook_res.stdout.find("successfully rolled out") != -1
-  changed_when: false
-  tags: cert-manager
+- name: set fact to amd64 for x86_64 architecture
+  set_fact:
+    hostarch: "amd64"
+  when: ansible_architecture == 'x86_64'
 
-# Create a cluster issuer
-- name: Apply Cert Manager ClusterIssuer Manifest
-  command: kubectl apply -f cert-manager-issuer.yaml
-  args:
-    chdir: /usr/local/src/cert-manager
+- name: set fact to arm for arfmv7l architecture
+  set_fact:
+    hostarch: "arm"
+  when: ansible_architecture == 'armv7l'
+
+- name: unzip kustomize zip
+  unarchive:
+    src: 'https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v{{ kustomize_version }}/kustomize_v{{ kustomize_version }}_linux_{{ hostarch }}.tar.gz'
+    dest: /usr/local/bin
+    remote_src: yes
+    creates: /usr/local/bin/kustomize
+    group: staff
+    owner: root
+    mode: '0755'
+  delegate_to: '{{ masters[0] }}'
   when:
   - masters[0] == inventory_hostname
-  changed_when: false
-  tags: cert-manager
+  tags: kustomize
 
 - import_tasks: nonprod_services.yaml
   when:
@@ -76,119 +79,59 @@
 - name: download the dashboard users files
   copy:
     src: dashboard-user.yaml
-    dest: /etc/kubernetes/dashboard-user.yaml
+    dest: /var/lib/rancher/k3s/server/manifests/dashboard-user.yaml
     mode: '0644'
   tags: dashboard-install
   delegate_to: '{{ masters[0] }}'
   when:
   - masters[0] == inventory_hostname
 
-- name: unzip kustomize zip
-  unarchive:
-    src: 'https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize/v{{ kustomize_version }}/kustomize_v{{ kustomize_version }}_linux_arm.tar.gz'
-    dest: /usr/local/bin
-    remote_src: yes
-    creates: /usr/local/bin/kustomize
-    group: staff
-    owner: root
-    mode: '0755'
-  delegate_to: '{{ masters[0] }}'
-  when:
-  - masters[0] == inventory_hostname
-  tags: kustomize
-
-- name: install the dashboard user
-  command: kubectl apply -f /etc/kubernetes/dashboard-user.yaml
-  tags: dashboard-install
-  register: dashboard_user
-  delegate_to: '{{ masters[0] }}'
-  when:
-  - masters[0] == inventory_hostname
-  changed_when: "'configured' in dashboard_user.stdout"
-
-## Generate a kubeconfig file for the person running the ansible playbooks.
-## The | treats the following lines as a shell script
-- name: get cluster admin token
-  shell: |
-    set -o pipefail
-    kubectl get secret --namespace kube-system $(kubectl get serviceaccount \
-    admin-user --namespace kube-system -o jsonpath="{.secrets[0].name}") -o \
-    jsonpath="{.data.token}" | base64 --decode
-  args:
-    executable: /bin/bash
-  register: cluster_token
+- name: Copy kubeconfig to local machine
+  ansible.builtin.fetch:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: ~/.kube/{{ cluster_name }}.kubeconfig
+    flat: yes
   changed_when: false
   tags: kubeconfig
   when:
   - masters[0] == inventory_hostname
 
-- name: get cluster ca cert
-  shell: kubectl config view --raw --minify --flatten -o jsonpath='{.clusters[0].cluster.certificate-authority-data}'
-  register: cluster_ca_cert
-  changed_when: false
-  tags: kubeconfig
-  when:
-  - masters[0] == inventory_hostname
-
-- name: generate the kubeconfig file
-  shell: |
-    kubeconfig_file="$HOME/.kube/{{ cluster_name }}.kubeconfig"
-    kubectl config --kubeconfig=$kubeconfig_file \
-      set-cluster {{ cluster_name }} \
-      --server=https://{{ vip }}:6443
-    kubectl config --kubeconfig=$kubeconfig_file \
-      set clusters.{{ cluster_name }}.certificate-authority-data {{ cluster_ca_cert.stdout }}
-    kubectl config --kubeconfig=$kubeconfig_file \
-      set-credentials {{ cluster_name }}-admin \
-      --token {{ cluster_token.stdout }}
-    kubectl config --kubeconfig=$kubeconfig_file \
-     set-context {{ cluster_name }} \
-     --cluster={{ cluster_name }} \
-     --user={{ cluster_name }}-admin
-    kubectl config --kubeconfig=$kubeconfig_file \
-     use-context {{ cluster_name }}
+- name: Replace 127.0.0.1 with cluster vip
+  ansible.builtin.replace:
+    path: ~/.kube/{{ cluster_name }}.kubeconfig
+    regexp: '127.0.0.1'
+    replace: '{{ vip }}'
   delegate_to: localhost
   become: false
-  changed_when: false
-  tags: kubeconfig
-  when:
-  - masters[0] == inventory_hostname
-  # forks: 1  # Wait for this feature to come available
+  run_once: true
+
+- name: Replace default with cluster name
+  ansible.builtin.replace:
+    path: ~/.kube/{{ cluster_name }}.kubeconfig
+    regexp: ': default$'
+    replace: ': {{ cluster_name }}'
+  delegate_to: localhost
+  become: false
+  run_once: true
 
 # Setup local storage volumes on servers who have fast disks
 - name: download the local storage class file
   copy:
     src: local-storage.yaml
-    dest: /etc/kubernetes/local-storage.yaml
+    dest: /var/lib/rancher/k3s/server/manifests/local-storage.yaml
     mode: '0644'
   tags: localstorage
   when:
   - masters[0] == inventory_hostname
-
-- name: Setup the local storage class
-  command: kubectl apply -f /etc/kubernetes/local-storage.yaml
-  when:
-  - masters[0] == inventory_hostname
-  tags: localstorage
-  register: localstorageclass
-  changed_when: "'configured' in localstorageclass.stdout"
 
 - name: Copy the provisioner manifest
   copy:
     src: provisioner_generated.yaml
-    dest: /etc/kubernetes/provisioner_generated.yaml
+    dest: /var/lib/rancher/k3s/server/manifests/provisioner_generated.yaml
     mode: '0644'
   tags: localstorage
   when:
   - masters[0] == inventory_hostname
-
-- name: Setup the local storage provisioner
-  command: kubectl apply -f /etc/kubernetes/provisioner_generated.yaml
-  when:
-  - masters[0] == inventory_hostname
-  tags: localstorage
-  register: storageprovisioner
-  changed_when: "'configured' in storageprovisioner.stdout"
 
 # Ensure CoreDNS has anti affinity rules
 - name: Copy the coredns patch file

@@ -1,9 +1,0 @@
-server {
-  listen      80;
-  server_name kubernetes.local;
-
-  location /healthz {
-     proxy_pass                    https://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:6443/healthz;
-     proxy_ssl_trusted_certificate /var/lib/kubernetes/ca.pem;
-  }
-}

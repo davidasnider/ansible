@@ -12,74 +12,6 @@
     state: present
   when: disable_ipv6.stat.exists # True
 
-- name: Add Docker APT GPG key
-  when: ansible_os_family == "Debian"
-  apt_key:
-    url: https://download.docker.com/linux/ubuntu/gpg
-  tags: docker
-
-- name: Add Docker APT repository for Raspbian
-  when:
-  - ansible_os_family == "Debian"
-  - ansible_lsb['codename'] == "stretch"
-  - ansible_lsb['id'] == "Raspbian"
-  apt_repository:
-    repo: deb https://download.docker.com/linux/raspbian stretch stable
-    state: present
-    filename: docker
-  tags: docker
-
-- name: Add Docker APT repository for Ubuntu Bionic
-  when:
-  - ansible_os_family == "Debian"
-  - ansible_lsb['codename'] == "bionic"
-  - ansible_lsb['id'] == "Ubuntu"
-  apt_repository:
-    repo: deb https://download.docker.com/linux/ubuntu bionic stable
-    state: present
-    filename: docker
-  tags: docker
-
-- name: Remove Hold docker version
-  when: ansible_os_family == "Debian"
-  dpkg_selections:
-    name: docker-ce
-    selection: install
-  tags: docker
-
-- name: Install docker engine (Debian/Ubuntu)
-  when: ansible_os_family == "Debian"
-  apt:
-    update_cache: yes
-    name: docker-ce={{ docker_ce_version }}*
-    state: present
-    dpkg_options: force-downgrade
-  tags: docker
-
-- name: Hold docker version
-  when: ansible_os_family == "Debian"
-  dpkg_selections:
-    name: docker-ce
-    selection: hold
-  tags: docker
-
-- name: Make docker use systemd instead of cgroupfs
-  copy:
-    src: docker-daemon.json
-    dest: /etc/docker/daemon.json
-    mode: '0644'
-  notify:
-  - restart docker
-
-- name: Make docker systemd directory
-  file:
-    path: /etc/systemd/system/docker.service.d
-    state: directory
-    mode: '0755'
-  notify:
-  - restart docker
-
-# Make sure we get docker installed
 - name: Disable Swap on raspbian
   shell: dphys-swapfile swapoff && dphys-swapfile uninstall && update-rc.d dphys-swapfile remove
   ignore_errors: true
@@ -111,59 +43,6 @@
     path: /swapfile
     state: absent
   tags: swap
-
-
-- name: Pass bridged IPv4 traffic to iptables' chains
-  sysctl:
-    name: net.bridge.bridge-nf-call-iptables
-    value: '1'
-    state: present
-
-# https://kubernetes.io/docs/setup/independent/install-kubeadm/
-- name: Install apt-transport-https
-  apt:
-    name: apt-transport-https
-    state: present
-
-- name: Add Google Cloud Repo Key
-  when: ansible_os_family == "Debian"
-  apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-
-- name: Add Kubernetes to Available apt Sources
-  when:
-  - ansible_os_family == "Debian"
-  apt_repository:
-    repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
-    state: present
-    filename: kubernetes
-
-- name: apt-get update
-  apt:
-    update_cache: yes
-    autoclean: yes
-    autoremove: yes
-  changed_when: false
-
-- name: Install k8s {{ kubernetes_package_version }}
-  apt:
-    name: '{{ item }}={{ kubernetes_package_version }}'
-    state: present
-    force: yes
-  loop:
-  - kubectl
-  - kubelet
-  - kubeadm
-
-- name: Hold k8s version
-  when: ansible_os_family == "Debian"
-  dpkg_selections:
-    name: '{{ item }}'
-    selection: hold
-  loop:
-  - kubectl
-  - kubelet
-  - kubeadm
 
 - name: Create filesystems on extra disks
   filesystem:
@@ -208,3 +87,36 @@
   - ['1', '2', '3', '4']
   when: item.0.key is defined
   tags: testing
+
+# Install k3s
+- name: install k3s binary
+  get_url:
+    url: https://github.com/k3s-io/k3s/releases/download/{{ k3s_version }}/k3s
+    dest: /usr/local/bin/k3s
+    mode: 'u=rx,g=rx,o=rx'
+    group: root
+    owner: root
+
+- name: create k3s tool symlinks
+  file:
+    src: /usr/local/bin/k3s
+    state: link
+    dest: '/usr/local/bin/{{ item }}'
+  loop:
+    - kubectl
+    - crictl
+    - ctr
+
+- name: Ensure hostname is in /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: ^{{ ansible_default_ipv4.address }}.+$
+    line: '{{ ansible_default_ipv4.address }} {{ ansible_fqdn }} {{ ansible_hostname }} kubernetes.default'
+    mode: '0644'
+  register: hostname
+  tags: hostname
+
+- name: Create /etc/rancher/k3s directory
+  file:
+    dest: /etc/rancher/k3s
+    state: directory

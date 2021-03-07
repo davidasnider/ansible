@@ -12,7 +12,7 @@
     # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
   roles:
     - common
   tags: common
@@ -34,24 +34,18 @@
     # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
   roles:
-    - k8s_master_prep
-    - {
-        role: k8s_master_first_kubeadmin_init,
-        when: "masters[0] == inventory_hostname",
-      }
-    - {
-        role: k8s_master_kubeadmin_join,
-        when: "masters[0] != inventory_hostname",
-      }
+    - { role: k8s_master_init, when: "masters[0] == inventory_hostname" }
+    - { role: k8s_master_join, when: "masters[0] != inventory_hostname" }
   tags: k8s_masters
 
 - name: Add k8s workers to clusters
   hosts: k8s1workers,k8s2workers,k8stestworkers
   become: true
   roles:
-    - k8s_worker_kubeadmin_join
+    - k8s_worker_join
+  tags: k8s_workers
 
 # Setup static DNS entries from the inventory.yaml file
 - name: Setup static DNS entries for k8s services
@@ -64,15 +58,13 @@
 - name: Install Production Services on K8s Clusters
   hosts: k8s1,k8s2,k8stest
   become: true
-  # vars_files:
-  # - site-variables.yaml
   environment:
-    # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
   roles:
     - prod_services
+  tags: prod_services
 
 - name: Blanc specific playbooks
   hosts: blanc
@@ -89,7 +81,7 @@
   environment:
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
   roles:
     - role: grigio
       tags: grigio
@@ -102,7 +94,7 @@
     # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
   roles:
     - role: magicmirror2
       tags: magicmirror2

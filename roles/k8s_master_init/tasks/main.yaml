@@ -1,0 +1,131 @@
+- name: set k8s setup fact to false
+  set_fact:
+    k8s_setup: false
+
+# If the k3s service file does not have cluster-init, we've already done this
+# Step and should skip
+- name: See if node exists
+  command: kubectl get nodes {{ ansible_hostname }}
+  register: node_status
+  ignore_errors: yes
+  changed_when: false
+
+# We need the space because "NotReady" is also a valid status
+- name: set k8s setup fact to true when node is live
+  set_fact:
+    k8s_setup: true
+  when: '" Ready" in node_status.stdout'
+
+# Install Kubernetes and dependent services
+- name: Install k3s and all dependent services
+  when: not k8s_setup
+  tags: init-first-k8s-master
+  block:
+
+    - name: Install k3s service definition file
+      template:
+        src: k3s.service.j2
+        dest: /etc/systemd/system/k3s.service
+
+    - name: Create k3s config.yaml
+      copy:
+        dest: /etc/rancher/k3s/config.yaml
+        content: |
+          write-kubeconfig-mode: "0644"
+          tls-san:
+            - {{ vip }}
+          disable:
+            - servicelb
+            - traefik
+            - local-storage
+          token: {{ token }}
+
+    - name: start k3s service
+      systemd:
+        state: started
+        enabled: true
+        name: k3s
+        daemon_reload: yes
+        no_block: true
+
+    # We need the space because "NotReady" is also a valid status
+    - name: Wait for node to be ready
+      command: kubectl get nodes {{ ansible_hostname }}
+      register: nodes_status_ready
+      retries: 30
+      delay: 5
+      until: '" Ready" in nodes_status_ready.stdout'
+
+    - name: Install metallb namespace  # noqa 503
+      command: kubectl apply -f https://raw.githubusercontent.com/google/metallb/{{ metallb_version }}/manifests/namespace.yaml
+
+    - name: Install metallb  # noqa 503
+      command: kubectl apply -f https://raw.githubusercontent.com/google/metallb/{{ metallb_version }}/manifests/metallb.yaml
+
+    - name: Install metallb secret  # noqa 503
+      shell: kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
+
+    - name: Copy configuration file for metallb  # noqa 503
+      template:
+        src: metallb-config.yaml
+        dest: /var/lib/rancher/k3s/server/manifests/metallb-config.yaml
+        mode: '0644'
+
+    - name: Copy Cert Manager Issuer file
+      template:
+        src: cert-manager-issuer.yaml
+        dest: /var/lib/rancher/k3s/server/manifests/cert-manager-issuer.yaml
+        owner: root
+        group: root
+        mode: '0640'
+      when:
+      - masters[0] == inventory_hostname
+      tags: cert-manager
+
+    - name: Copy Cert Manager Deployment
+      get_url:
+        url: https://github.com/jetstack/cert-manager/releases/download/v{{ cert_manager_version }}/cert-manager.yaml
+        dest: /var/lib/rancher/k3s/server/manifests/cert-manager.yaml
+        owner: root
+        group: root
+        mode: '0640'
+      when:
+      - masters[0] == inventory_hostname
+      tags: cert-manager
+
+    # - name: Get kube-vip rbac manifest
+    #   get_url:
+    #     url: https://kube-vip.io/manifests/rbac.yaml
+    #     dest: /var/lib/rancher/k3s/server/manifests/kube-vip-rbac.yaml
+    #     owner: root
+    #     group: root
+    #     mode: '0640'
+
+    # Uncomment this when the above url is fixed.
+    - name: Get kube-vip rbac manifest
+      ansible.builtin.copy:
+        src: kube-vip-rbac.yaml
+        dest: /var/lib/rancher/k3s/server/manifests/kube-vip-rbac.yaml
+        owner: root
+        group: root
+        mode: '0640'
+
+    - name: Copy kube-vip daemonset manifest
+      template:
+        src: kube-vip.yaml.j2
+        dest: /var/lib/rancher/k3s/server/manifests/kube-vip-daemonset.yaml
+        owner: root
+        group: root
+        mode: '0640'
+
+    - name: Install k3s final service definition file
+      template:
+        src: k3s.service.final.j2
+        dest: /etc/systemd/system/k3s.service
+      notify: restart k3s service
+
+#### Do this on raspbian
+# sudo iptables -F
+# sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
+# sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+# sudo reboot
