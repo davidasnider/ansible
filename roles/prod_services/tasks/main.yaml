@@ -49,7 +49,7 @@
 - name: download the dashboard kustomize files
   copy:
     src: dashboard
-    dest: /etc/kubernetes
+    dest: /usr/local
     mode: '0644'
   tags: dashboard-install
   delegate_to: '{{ masters[0] }}'
@@ -57,7 +57,7 @@
   - masters[0] == inventory_hostname
 
 - name: install the Dashboard on nonprod
-  command: kubectl apply -k /etc/kubernetes/dashboard/nonprod
+  command: kubectl apply -k /usr/local/dashboard/nonprod
   register: dashboard_install
   tags: dashboard-install
   delegate_to: '{{ masters[0] }}'
@@ -67,7 +67,7 @@
   changed_when: "'configured' in dashboard_install.stdout"
 
 - name: install the Dashboard on prod
-  command: kubectl apply -k /etc/kubernetes/dashboard/prod
+  command: kubectl apply -k /usr/local/dashboard/prod
   register: dashboard_install
   tags: dashboard-install
   delegate_to: '{{ masters[0] }}'
@@ -86,11 +86,16 @@
   when:
   - masters[0] == inventory_hostname
 
-- name: Copy kubeconfig to local machine
-  ansible.builtin.fetch:
-    src: /etc/rancher/k3s/k3s.yaml
-    dest: ~/.kube/{{ cluster_name }}.kubeconfig
-    flat: yes
+- name: Copy kubeconfig to /tmp
+  command: cp /etc/rancher/k3s/k3s.yaml /tmp/k3s.yaml
+  changed_when: false
+  tags: kubeconfig
+  when:
+  - masters[0] == inventory_hostname
+
+- name: Get default user token
+  shell: kubectl -n kube-system describe secret admin-user-token | awk '$1=="token:"{print $2}'
+  register: token
   changed_when: false
   tags: kubeconfig
   when:
@@ -98,36 +103,59 @@
 
 - name: Replace 127.0.0.1 with cluster vip
   ansible.builtin.replace:
-    path: ~/.kube/{{ cluster_name }}.kubeconfig
+    path: /tmp/k3s.yaml
     regexp: '127.0.0.1'
     replace: '{{ vip }}'
-  delegate_to: localhost
-  become: false
-  run_once: true
+  tags: kubeconfig
+  when:
+  - masters[0] == inventory_hostname
 
 - name: Replace default with cluster name
   ansible.builtin.replace:
-    path: ~/.kube/{{ cluster_name }}.kubeconfig
+    path: /tmp/k3s.yaml
     regexp: ': default$'
     replace: ': {{ cluster_name }}'
-  delegate_to: localhost
-  become: false
-  run_once: true
+  tags: kubeconfig
+  when:
+  - masters[0] == inventory_hostname
+
+- name: Add token for logins via dashboard
+  shell: kubectl config set-credentials {{ cluster_name }} --token={{ token.stdout }} --kubeconfig /tmp/k3s.yaml
+  tags: kubeconfig
+  when:
+  - masters[0] == inventory_hostname
+
+- name: Copy kubeconfig to local machine
+  ansible.builtin.fetch:
+    src: /tmp/k3s.yaml
+    dest: ~/.kube/{{ cluster_name }}.kubeconfig
+    flat: yes
+  changed_when: false
+  tags: kubeconfig
+  when:
+  - masters[0] == inventory_hostname
+
 
 # Setup local storage volumes on servers who have fast disks
 - name: download the local storage class file
   copy:
     src: local-storage.yaml
-    dest: /var/lib/rancher/k3s/server/manifests/local-storage.yaml
+    dest: /usr/local/src/local-storage.yaml
     mode: '0644'
   tags: localstorage
   when:
   - masters[0] == inventory_hostname
 
+- name: apply local-storage as it's not working in manifests
+  command: kubectl apply -f /usr/local/src/local-storage.yaml
+  tags: logalstorage
+  when:
+  - masters[0] == inventory_hostname
+
 - name: Copy the provisioner manifest
   copy:
-    src: provisioner_generated.yaml
-    dest: /var/lib/rancher/k3s/server/manifests/provisioner_generated.yaml
+    src: provisioner-generated.yaml
+    dest: /var/lib/rancher/k3s/server/manifests/provisioner-generated.yaml
     mode: '0644'
   tags: localstorage
   when:
@@ -137,14 +165,14 @@
 - name: Copy the coredns patch file
   copy:
     src: dns-antiaffinity.yaml
-    dest: /etc/kubernetes/dns-antiaffinity.yaml
+    dest: /usr/local/src/dns-antiaffinity.yaml
     mode: '0644'
   tags: dns-antiaffinity
   when:
   - masters[0] == inventory_hostname
 
 - name: Apply coredns anti affinity rules
-  shell: kubectl patch deployment coredns -n kube-system --type merge --patch "$(cat /etc/kubernetes/dns-antiaffinity.yaml)"
+  shell: kubectl patch deployment coredns -n kube-system --type merge --patch "$(cat /usr/local/src/dns-antiaffinity.yaml)"
   when:
   - masters[0] == inventory_hostname
   tags: dns-antiaffinity
