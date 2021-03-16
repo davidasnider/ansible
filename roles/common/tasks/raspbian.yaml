@@ -79,3 +79,24 @@
   command: raspi-config nonint do_configure_keyboard us
   when: "'XKBLAYOUT=\"us\"' not in get_default_keyboard.stdout"
   tags: raspberrypi_commands
+
+- name: Setup initrd build
+  copy:
+    dest: /etc/default/raspberrypi-kernel
+    content: |
+      INITRD=Yes
+      RPI_INITRD=Yes
+
+- name: Ensure updates to kernel allows for reboots to still work
+  blockinfile:
+    path: /etc/kernel/postinst.d/initramfs-tools
+    block: |
+      # Only process 7l+ kernels
+      (echo ${version} | grep '7l+') && \
+      # delete initramfs entries in /boot/config.txt && \
+      /bin/sed -i '/^initramfs /d' /boot/config.txt && \
+      # insert initramfs entry in /boot/config.txt && \
+      INITRD_ENTRY="initramfs initrd.img-${version} followkernel" && \
+      echo >&2 $(basename "$0"): insert \'"$INITRD_ENTRY"\' into /boot/config.txt && \
+      /bin/sed -i "1i $INITRD_ENTRY" /boot/config.txt
+      exit 0 # Always return true

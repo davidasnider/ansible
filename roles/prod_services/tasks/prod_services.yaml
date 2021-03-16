@@ -22,10 +22,6 @@
     version: "master"
   tags: docker-registry
 
-# - name: Create the registry physical volume
-#   command: kubectl apply -f /usr/local/src/docker-registry/registry-pv.yaml
-#   changed_when: false
-
 - name: Create the docker registry services and pods
   command: kubectl apply -f /usr/local/src/docker-registry/registry-manifest.yaml
   changed_when: false
@@ -64,17 +60,11 @@
 - name: copy the mailrelay manifest
   template:
     src: mailrelay.yaml
-    dest: /etc/kubernetes/mailrelay.yaml
+    dest: /var/lib/rancher/k3s/server/manifests/mailrelay.yaml
     owner: root
     group: root
     mode: '0644'
   register: mailrelay_manifest_changed
-
-- name: Create the mailrelay pods and services
-  command: kubectl apply -f /etc/kubernetes/mailrelay.yaml
-  register: mailrelay
-  changed_when: "'configured' in mailrelay.stdout"
-
 
 # Setup rundeck
 - name: Get the rundeck repo
@@ -86,7 +76,6 @@
     accept_hostkey: yes
     version: "master"
   tags: rundeck
-
 
 # Create the pods and services
 - name: Apply Rundeck Prod Kustomize script

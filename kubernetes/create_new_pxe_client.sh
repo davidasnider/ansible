@@ -20,10 +20,10 @@ fi
 
 mkdir $1
 
-cp -r template/* $1
+cp -r rpi4-boot/* $1
 
 # Fix up the config
-sed -i "s/rpimaster/$2/g" $1/cmdline.txt
+sed -i "s/rpi4master/$2/g" $1/cmdline.txt
 
 UUID=$(uuidgen -r | awk -F - '{print $5}')
 

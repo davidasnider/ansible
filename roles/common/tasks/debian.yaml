@@ -3,6 +3,17 @@
 #     upgrade: dist
 #     update_cache: yes
 
+# Mount boot volume for iscsi mounted servers
+- name: Mount boot volume for iscsi mounted servers
+  mount:
+    path: /boot
+    src: gw.thesniderpad.com:/tftproot/{{ serial }}
+    fstype: nfs
+    state: mounted
+  when:
+  - boot_from_san | bool
+  - serial is defined
+
 - name: Install default packages on all Debian
   apt:
     autoclean: yes
@@ -24,24 +35,13 @@
     - ntp
     - mailutils
     - ethtool
+    - git
   tags:
   - autofs
   - collectd
   - nrpe
   - ntp
   - ssmtp
-
-# Mount boot volume for iscsi mounted servers
-- name: Mount boot volume for iscsi mounted servers
-  mount:
-    path: /boot
-    src: gw.thesniderpad.com:/tftproot/{{ serial }}
-    fstype: nfs
-    state: mounted
-  when:
-  - boot_from_san | bool
-  - serial is defined
-
 
 - name: Install packages for physical servers that aren't raspberry pi
   apt:

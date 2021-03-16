@@ -7,7 +7,7 @@
     # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
   gather_facts: false
   tasks:
 
@@ -60,13 +60,6 @@
       regexp: ^%sudo
       line: '%sudo ALL=(ALL) NOPASSWD: ALL'
     when: ansible_os_family == 'Debian'
-
-  - name: Update all packages to the latest version
-    apt:
-      upgrade: dist
-      update_cache: yes
-    notify:
-    - reboot server
 
   handlers:
   - name: reboot server

@@ -7,7 +7,7 @@
     VAULT_ADDR: https://vault.thesniderpad.com
     PASSWORD: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
     ansible_user: pi
     ansible_ssh_pass: raspberry
   become: yes
@@ -54,3 +54,19 @@
     when:
     - ansible_facts['os_family'] == "Debian"
     - ansible_facts['lsb']['id'] == "Raspbian"
+
+  - name: Setup initrd build
+    copy:
+      dest: /etc/default/raspberrypi-kernel
+      content: |
+        INITRD=Yes
+        RPI_INITRD=Yes
+
+  - name: Change to old iptables
+    shell: |
+      iptables -F
+      update-alternatives --set iptables /usr/sbin/iptables-legacy
+      update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+    when:
+      - ansible_facts['os_family'] == "Debian"
+      - ansible_facts['lsb']['id'] == "Raspbian"
