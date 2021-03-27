@@ -162,7 +162,7 @@
   lineinfile:
     path: /etc/nagios/nrpe.cfg
     regexp: .*allowed_hosts=.*
-    line: allowed_hosts=10.244.0.0/16,10.9.9.0/24
+    line: allowed_hosts=10.42.0.0/16,10.9.9.0/24
     mode: '0644'
   tags: nrpe
   notify: restart nrpe
