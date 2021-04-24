@@ -20,6 +20,8 @@
         - iperf
         - jq
         - vault
+        - python-pip-whl
+        - python3-pip
         autoremove: yes
         autoclean: yes
         update_cache: yes
@@ -50,6 +52,12 @@
         dest: /usr/local/src/install_kustomize.sh
         mode: '0755'
       register: download_kustomize_install
+
+    - name: Remove existing kustomize
+      file:
+        path: /usr/local/bin/kustomize
+        state: absent
+      when: download_kustomize_install.changed
 
     - name: Install kustomize
       command: /usr/local/src/install_kustomize.sh
