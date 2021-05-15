@@ -40,7 +40,7 @@ spec:
           value: "1"
         - name: vip_address
           value: {{ vip }}
-        image: plndr/kube-vip:0.3.1
+        image: plndr/kube-vip:{{ kube_vip_version }}
         imagePullPolicy: Always
         name: kube-vip
         resources: {}
