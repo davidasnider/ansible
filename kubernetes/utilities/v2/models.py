@@ -39,14 +39,18 @@ class freenas_api(BaseSettings):
     def get(self, uri):
 
         get_url = self.url + uri
-        response = requests.request("GET", get_url, auth=self.auth())
+        response = requests.request("GET", get_url, auth=self.auth(), verify=False)
         log.info(f"Freenas Get {get_url}, good response: {response.ok}")
         return response
 
     def post(self, uri, headers={}, data={}):
         post_url = self.url + uri
         response = requests.post(
-            url=post_url, auth=self.auth(), headers=headers, data=json.dumps(data)
+            url=post_url,
+            auth=self.auth(),
+            headers=headers,
+            data=json.dumps(data),
+            verify=False,
         )
         log.info(f"Freenas Post {post_url}, good response: {response.ok}")
         return response
@@ -57,7 +61,12 @@ class freenas_api(BaseSettings):
         }
         post_url = self.url + uri
         response = requests.request(
-            "DELETE", post_url, headers=headers, data=json.dumps(data), auth=self.auth()
+            "DELETE",
+            post_url,
+            headers=headers,
+            data=json.dumps(data),
+            auth=self.auth(),
+            verify=False,
         )
         log.info(f"Freenas Post {post_url}, good response: {response.ok}")
         return response.ok

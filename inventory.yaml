@@ -80,10 +80,10 @@ all:
               dataset: iamaster_iscsi_luns
               blocksize: 512
               zfs_snapshot: 20201101 # Comment this if it's the same for rpi's as well
-              # k8s_disks: #these will be added to a /mnt folder for local pvcs
-              #   disk1:
-              #     disk: /dev/disk/by-path/pci-0000:03:00.0-ata-1
-              #     path: /mnt/disk1
+              k8s_disks: #these will be added to a /mnt folder for local pvcs
+                disk1:
+                  disk: /dev/disk/by-path/pci-0000:03:00.0-ata-1
+                  path: /mnt/disk1
             ia03:
               hostname: ia03
               hostmac: 68:05:ca:28:1c:09
@@ -113,7 +113,7 @@ all:
         - ia02
         - ia03
         token: udy29x.ugyyk3tumg27atmr
-        k3s_version: 'v1.21.0%2Bk3s1'
+        k3s_version: 'v1.21.1%2Bk3s1'
         metallb_version: v0.9.6
         flannel_version: master
         dashboard_ip: 10.9.9.200
@@ -183,7 +183,7 @@ all:
         - r408
         - ia01
         token: udy29x.ugyyk3tumg27atmr
-        k3s_version: 'v1.21.0%2Bk3s1'
+        k3s_version: 'v1.21.1%2Bk3s1'
         metallb_version: v0.9.6
         dashboard_ip: 10.9.9.201
         power_url: http://blanc:8000/devices/020%20-%20K8S2
