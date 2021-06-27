@@ -32,6 +32,11 @@
     become: false
 
 - hosts: 127.0.0.1
+  environment:
+    # VAULT_TOKEN: '{{ vault_ansible_token }}'
+    VAULT_ADDR: https://vault.thesniderpad.com
+  vars:
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma: allowlist secret
   tasks:
 
 # Turn off all of the raspberrry pis:
@@ -41,3 +46,5 @@
       method: PUT
       body: isOn=0
       status_code: 303
+      url_username: '{{ vaulted.INDIGO_USERNAME }}'
+      url_password: '{{ vaulted.INDIGO_PASSWORD }}' # pragma: allowlist secret
