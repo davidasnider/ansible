@@ -85,6 +85,19 @@
   changed_when: false
   tags: rundeck
 
+# Add secrets file
+- name: Create Secrets file for rundeck
+  template:
+    src: rundeck-secrets.yaml
+    dest: /usr/local/src/rundeck-secrets.yaml
+    owner: root
+    group: root
+    mode: '0600'
+  tags:
+    - tesla-collector
+    - rundeck
+  notify: Create Rundeck Secrets
+
 #### Create the tesla namespace and secrets
 - name: Get the tesla-collector repo
   git:
@@ -96,16 +109,6 @@
     version: "main"
   tags: tesla-collector
   notify: Recreate Tesla Job
-
-- name: Create Secrets file for tesla collector
-  template:
-    src: tesla-secret.yaml
-    dest: /usr/local/src/tesla-secret.yaml
-    owner: root
-    group: root
-    mode: '0600'
-  tags: tesla-collector
-  notify: Create Tesla Secret
 
 - name: Check if tesla job exists
   command: kubectl get job -n rundeck tesla-collector
