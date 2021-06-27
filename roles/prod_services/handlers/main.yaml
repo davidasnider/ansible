@@ -1,5 +1,5 @@
-- name: Create Tesla Secret
-  command: kubectl apply -f /usr/local/src/tesla-secret.yaml
+- name: Create Rundeck Secrets
+  command: kubectl apply -f /usr/local/src/rundeck-secrets.yaml
 
 - name: Recreate Tesla Job
   shell: |
