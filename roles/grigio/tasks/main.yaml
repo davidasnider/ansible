@@ -94,3 +94,37 @@
     name: rundeck
     groups: docker
     append: yes
+
+# Install channels DVR
+- name: Create nfs mount for channels
+  ansible.posix.mount:
+    src: shiraz:/mnt/SAMSUNG_1TB_NVME/channels
+    path: /channels
+    state: mounted
+    fstype: nfs
+  tags:
+    - channels
+
+- name: Create Channels directory
+  ansible.builtin.file:
+    path: /usr/local/src/channels
+    state: directory
+    owner: root
+    group: root
+  tags:
+    - channels
+
+- name: Check if channels-dvr is installed
+  stat:
+    path: /usr/local/src/channels/channels-dvr
+  register: channels_installed
+  tags:
+    - channels
+
+- name: Install channels-dvr
+  ansible.builtin.shell:
+    cmd: curl -f -s https://getchannels.com/dvr/setup.sh | sh
+    chdir: /usr/local/src/channels
+  when: not channels_installed.stat.exists
+  tags:
+    - channels
