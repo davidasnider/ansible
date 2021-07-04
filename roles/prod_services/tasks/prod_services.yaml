@@ -117,11 +117,13 @@
   tags: tesla-collector
   changed_when: false
 
-- name: Check if tesla secret exists
+- name: Check if rundeck secrets exist
   command: kubectl get secret -n rundeck credentials
   register: teslacollectorsecret
   ignore_errors: true
-  tags: tesla-collector
+  tags:
+    - tesla-collector
+    - rundeck
   changed_when: false
 
 - name: Recreate Tesla Job
@@ -131,12 +133,14 @@
   when: teslacollectorjob.failed
   tags: tesla-collector
 
-- name: Recreate Tesla Secret
-  command: kubectl apply -f /usr/local/src/tesla-secret.yaml
+- name: Recreate Rundeck Secrets
+  command: kubectl apply -f /usr/local/src/rundeck-secrets.yaml
   args:
     chdir: /usr/local/src/tesla-collector/k8s
   when: teslacollectorsecret.failed
-  tags: tesla-collector
+  tags:
+    - tesla-collector
+    - rundeck
 
 # Setup Icinga Prod Services
 - name: Get the Icinga repo
