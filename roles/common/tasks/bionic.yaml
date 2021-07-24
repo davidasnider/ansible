@@ -1,7 +1,0 @@
-- name: copy collectd.Conf bionic
-  template:
-    src: collectd.conf.bionic
-    dest: /etc/collectd/collectd.conf
-    mode: '0644'
-  notify:
-  - restart collectd
