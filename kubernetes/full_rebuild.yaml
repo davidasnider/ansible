@@ -8,6 +8,6 @@
 
 - import_playbook: ../bootstrap/rpi_init.yaml
 
-- import_playbook: ../bootstrap/ubuntu_init.yaml
+- import_playbook: ../bootstrap/intel_init.yaml
 
 - import_playbook: ../bootstrap/main.yaml
