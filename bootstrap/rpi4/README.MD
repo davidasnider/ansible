@@ -17,3 +17,10 @@ There are two scripts in this directory.
   cd /tftproot
   cp -r rpi4-boot <serial number>
   ```
+
+## Debian on Intel instructions
+
+Using a VirtualBox image, boot a Debian CD, install to iscsi disk.
+Boot using iamaster vbox image.
+Remove all lines from /etc/iscsi/iscsi.initramfs
+Remove ethernet adapter from /etc/network/interfaces

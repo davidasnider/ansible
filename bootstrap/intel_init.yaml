@@ -8,7 +8,7 @@
     # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"  # pragma: allowlist secret
     ansible_user: administrator
     ansible_ssh_pass: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
     ansible_become_pass: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
@@ -37,7 +37,7 @@
     # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"  # pragma: allowlist secret
     ansible_user: administrator
     ansible_ssh_pass: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
     ansible_become_pass: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
@@ -56,7 +56,6 @@
       uid: 3000
     when:
     - ansible_facts['os_family'] == "Debian"
-    - ansible_facts['distribution_release'] == 'bionic'
     - hostvars[inventory_hostname].serial is not defined
 
   - name: Add Ansible user to admin group
@@ -66,7 +65,6 @@
       append: yes
     when:
     - ansible_facts['os_family'] == "Debian"
-    - ansible_facts['distribution_release'] == 'bionic'
     - hostvars[inventory_hostname].serial is not defined
 
   - name: Add authorized key
@@ -76,7 +74,6 @@
       key: '{{ vaulted.id_rsa_pub }}'
     when:
     - ansible_facts['os_family'] == "Debian"
-    - ansible_facts['distribution_release'] == 'bionic'
     - hostvars[inventory_hostname].serial is not defined
 
   - name: Ensure admin group can sudo
@@ -84,10 +81,9 @@
       dest: /etc/sudoers
       state: present
       regexp: ^%sudo
-      line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+      line: '%sudo ALL=(ALL) NOPASSWD: ALL'  # pragma: allowlist secret
     when:
     - ansible_facts['os_family'] == "Debian"
-    - ansible_facts['distribution_release'] == 'bionic'
     - hostvars[inventory_hostname].serial is not defined
 
   - name: Zero out physical disks

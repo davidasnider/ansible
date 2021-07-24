@@ -32,6 +32,7 @@
     - collectd
     - nagios-nrpe-server
     - monitoring-plugins
+    - msmtp-mta
     - ntp
     - mailutils
     - ethtool
@@ -150,6 +151,12 @@
   - ansible
   - rundeck
   - david
+
+- name: Configure MSMTP
+  copy:
+    src: msmtprc
+    dest: /etc/msmtprc
+    mode: '0640'
 
 - name: Start collectd service
   service:
@@ -272,21 +279,6 @@
     hwclock: UTC
   notify:
   - reboot server
-
-- name: Install and configure SSMTP
-  include_role:
-    name: sansible.ssmtp
-  vars:
-    sansible_ssmtp_mailserver_host: mail.thesniderpad.com
-    sansible_ssmtp_mailserver_port: 2525
-    sansible_ssmtp_mailserver_root: root@thesniderpad.com
-    sansible_ssmtp_mailserver_rewritedomain: thesniderpad.com
-    sansible_ssmtp_auth: false
-    sansible_ssmtp_revaliases: true
-    sansible_ssmtp_user: root
-    sansible_ssmtp_restrict: no
-    sansible_ssmtp_mailserver_username: '{{ ansible_hostname }}@thesniderpad.com'
-  tags: ssmtp
 
 - name: Install and configure openssh
   include_role:
