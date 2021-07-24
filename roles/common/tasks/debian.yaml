@@ -42,7 +42,6 @@
   - collectd
   - nrpe
   - ntp
-  - ssmtp
 
 - name: Install packages for physical servers that aren't raspberry pi
   apt:
