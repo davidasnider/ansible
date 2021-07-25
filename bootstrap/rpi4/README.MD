@@ -22,5 +22,7 @@ There are two scripts in this directory.
 
 Using a VirtualBox image, boot a Debian CD, install to iscsi disk.
 Boot using iamaster vbox image.
-Remove all lines from /etc/iscsi/iscsi.initramfs
-Remove ethernet adapter from /etc/network/interfaces
+Remove ethernet adapter from /etc/network/interfaces, leave l0
+remove all lines from /etc/iscsi/initiatorname.iscsi
+echo `ISCSI_AUTO=true` > /etc/iscsi/iscsi.initramfs
+run `update-initramfs -u`
