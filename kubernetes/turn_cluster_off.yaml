@@ -1,50 +1,19 @@
-- name: check reachable hosts
-  hosts: '{{ cluster }}'
+- hosts: "{{ cluster }}"
+  become: false
   gather_facts: no
-  tasks:
-  - name: Ping server, check if it is up
-    command: ping -c1 {{ inventory_hostname }}
-    delegate_to: localhost
-    register: ping_result
-    ignore_errors: yes
-
-  - group_by:
-      key: reachable
-    when: ping_result is success
-
-- hosts: reachable
-  become: true
-  gather_facts: no
-  tasks:
-
-  - name: try to shutdown host
-    command: /sbin/shutdown -h now
-    ignore_errors: yes
-
-  - meta: clear_host_errors
-
-  - name: wait for host to go down
-    wait_for:
-      port: 22
-      state: stopped
-      host: "{{ ansible_ssh_host }}"
-    delegate_to: localhost
-    become: false
-
-- hosts: 127.0.0.1
   environment:
-    # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
     vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma: allowlist secret
   tasks:
 
-# Turn off all of the raspberrry pis:
-  - name: Turn Off Raspberry Pi Cluster
+  - name: turn hosts off
     uri:
-      url: "{{ hostvars[groups[cluster][0]]['power_url'] }}"
+      url: "{{ power_url }}"
       method: PUT
       body: isOn=0
       status_code: 303
       url_username: '{{ vaulted.INDIGO_USERNAME }}'
       url_password: '{{ vaulted.INDIGO_PASSWORD }}' # pragma: allowlist secret
+    when: power_url is defined
+    delegate_to: localhost

@@ -1,26 +1,19 @@
-- hosts: 127.0.0.1
+- hosts: "{{ cluster }}"
+  become: false
+  gather_facts: no
   environment:
-    # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
     vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma: allowlist secret
   tasks:
 
-  # First, we turn on all of the raspberrry pis:
-  - name: Turn On Raspberry Pi Cluster
+  - name: turn hosts on
     uri:
-      url: "{{ hostvars[groups[cluster][0]]['power_url'] }}"
+      url: "{{ power_url }}"
       method: PUT
       body: isOn=1
       status_code: 303
       url_username: '{{ vaulted.INDIGO_USERNAME }}'
       url_password: '{{ vaulted.INDIGO_PASSWORD }}' # pragma: allowlist secret
-
-- hosts: gw
-  tasks:
-
-  - name: Send a magic Wake-on-LAN packet to intel atom servers
-    command: ether-wake -i enp2s0 {{ hostvars[item].hostmac }}
-    loop: '{{ groups[cluster]|flatten(levels=1) }}'
-    when: hostvars[item].serial is not defined
-    tags: wakeonlan
+    when: power_url is defined
+    delegate_to: localhost
