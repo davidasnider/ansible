@@ -134,7 +134,7 @@
     owner: ansible
     group: ansible
 
-- name: Add ssh privagte key to ansible
+- name: Add ssh private key to ansible
   copy:
     dest: /home/ansible/.ssh/id_rsa
     content: '{{ vaulted.id_rsa }}'
