@@ -1,2 +1,1 @@
-cert_manager_version: 1.4.0
-kube_vip_version: v0.3.5
+cert_manager_version: 1.4.1
