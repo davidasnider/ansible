@@ -20,7 +20,7 @@
     removes: /var/swap
   when:
   - ansible_os_family == "Debian"
-  - ansible_lsb['id'] == "Raspbian"
+  - ansible_architecture == "armv7l"
 
 - name: Remove swapfile from /etc/fstab
   mount:
@@ -30,7 +30,7 @@
     state: absent
   when:
   - ansible_os_family == "Debian"
-  - ansible_lsb['id'] == "Ubuntu"
+  - ansible_architecture == "x86_64"
   tags: swap
 
 - name: Disable swap

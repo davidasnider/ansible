@@ -6,7 +6,8 @@
 - import_tasks: raspbian.yaml
   when:
   - ansible_facts['os_family'] == "Debian"
-  - ansible_facts['lsb']['id'] == "Raspbian"
+  - ansible_architecture == "armv7l"
+
   tags: raspbian
 
 - import_tasks: clearos.yaml

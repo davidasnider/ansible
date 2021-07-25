@@ -37,12 +37,12 @@
     - mailutils
     - ethtool
     - git
+    - ca-certificates
   tags:
   - autofs
   - collectd
   - nrpe
   - ntp
-  - ssmtp
 
 - name: Install packages for physical servers that aren't raspberry pi
   apt:
@@ -56,7 +56,7 @@
     - smartmontools
     - libatasmart4
   when:
-  - ansible_facts['lsb']['id'] != "Raspbian"
+  - ansible_architecture != "armv7l"
 
 - name: Update config for /etc/default/smartmontools
   lineinfile:
@@ -67,7 +67,7 @@
   notify:
   - restart smartmontools
   when:
-  - ansible_facts['lsb']['id'] != "Raspbian"
+  - ansible_architecture != "armv7l"
 
 - name: Create Rundeck user
   user:
@@ -134,7 +134,7 @@
     owner: ansible
     group: ansible
 
-- name: Add ssh privagte key to ansible
+- name: Add ssh private key to ansible
   copy:
     dest: /home/ansible/.ssh/id_rsa
     content: '{{ vaulted.id_rsa }}'

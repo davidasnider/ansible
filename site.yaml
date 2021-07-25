@@ -6,10 +6,7 @@
 - name: Add common settings for all servers
   hosts: all
   become: true
-  # vars_files:
-  # - site-variables.yaml
   environment:
-    # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
     vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
@@ -28,10 +25,7 @@
 - name: Setup master kubernetes nodes
   hosts: k8s1masters,k8s2masters,k8stestmasters
   become: true
-  # vars_files:
-  # - site-variables.yaml
   environment:
-    # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
     vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
@@ -90,7 +84,6 @@
 - hosts: giro
   become: true
   environment:
-    # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
     vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
