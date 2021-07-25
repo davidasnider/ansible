@@ -37,6 +37,7 @@
     - mailutils
     - ethtool
     - git
+    - ca-certificates
   tags:
   - autofs
   - collectd
