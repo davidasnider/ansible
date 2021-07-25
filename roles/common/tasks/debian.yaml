@@ -56,7 +56,7 @@
     - smartmontools
     - libatasmart4
   when:
-  - ansible_facts['lsb']['id'] != "Raspbian"
+  - ansible_architecture != "armv7l"
 
 - name: Update config for /etc/default/smartmontools
   lineinfile:
@@ -67,7 +67,7 @@
   notify:
   - restart smartmontools
   when:
-  - ansible_facts['lsb']['id'] != "Raspbian"
+  - ansible_architecture != "armv7l"
 
 - name: Create Rundeck user
   user:
