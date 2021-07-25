@@ -1,4 +1,4 @@
-- import_playbook: ../bootstrap/ubuntu_init.yaml
+- import_playbook: ../bootstrap/intel_init.yaml
 
 - hosts: all
   become: true
