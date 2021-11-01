@@ -4,12 +4,22 @@
 
   tasks:
 
+    - name: Add Vault Repo Key
+      apt_key:
+        url: https://apt.releases.hashicorp.com/gpg
+
+    - name: Add Hashi Vault to apt Sources
+      apt_repository:
+        repo: deb https://apt.releases.hashicorp.com focal main
+        state: present
+        filename: hashi_vault
+
     - name: Upgrade Ubuntu Packages
       apt:
         autoremove: yes
         autoclean: yes
         update_cache: yes
-        cache_valid_time: 86400 # Once per day 24x60x60
+        # cache_valid_time: 86400 # Once per day 24x60x60
         upgrade: dist
 
     - name: Install new packages
@@ -64,11 +74,21 @@
         chdir: /usr/local/bin
       when: download_kustomize_install.changed
 
+    - name: Install pre-commit
+      pip:
+        name: pre-commit
+        executable: pip3
+
 - hosts: localhost
   connection: local
   become: faLse
 
   tasks:
+    - name: Setup git email
+      command: git config --global user.email "david@davidsnider.org"
+
+    - name: Setup git name
+      command: git config --global user.name "David Snider"
 
     - name: Setup Pre-Commit template directory
       command: git config --global init.templateDir ~/.git-template
