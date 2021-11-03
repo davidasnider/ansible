@@ -7,7 +7,7 @@
     - name: fix /etc/resolv.conf
       copy:
         dest: /etc/resolv.conf
-        content: | 
+        content: |
           search thesniderpad.com
           nameserver 10.9.0.1
 
@@ -92,11 +92,11 @@
         name: hvac
         executable: pip3
 
-    - name: change user shell to zsh 
+    - name: change user shell to zsh
       user:
         name: david
         shell: /bin/zsh
-    
+
     - name: fix wsl resolv.conf
       blockinfile:
         path: /etc/wsl.conf
@@ -174,7 +174,7 @@
     - name: Install powerlevel10k
       git: repo=https://github.com/romkatv/powerlevel10k.git
         dest=~/.oh-my-zsh/custom/themes/powerlevel10k
-  
+
     - name: Check if zsh-syntax-highlighting
       stat:
         path: ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
