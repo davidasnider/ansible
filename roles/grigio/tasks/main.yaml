@@ -97,7 +97,7 @@
 
 # Install channels DVR
 - name: Create nfs mount for channels
-  ansible.posix.mount:
+  mount:
     src: shiraz:/mnt/SAMSUNG_1TB_NVME/channels
     path: /channels
     state: mounted
