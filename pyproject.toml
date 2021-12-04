@@ -1,19 +1,36 @@
-    [tool.black]
-    py36 = true
-    include = '\.pyi?$'
-    exclude = '''
-    /(
-        \.git
-      | \.hg
-      | \.mypy_cache
-      | \.tox
-      | \.venv
-      | _build
-      | buck-out
-      | build
-      | dist
+[tool.black]
+py36 = true
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 
-      # The following are specific to Black, you probably don't want those.
-      | blib2to3
-      | tests/data
-    )/
+  # The following are specific to Black, you probably don't want those.
+  | blib2to3
+  | tests/data
+)/
+'''
+
+[tool.poetry]
+name = "ansible"
+version = "0.1.0"
+description = ""
+authors = ["David Snider <david@davidsnider.org>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+detect-secrets = "=0.14.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
