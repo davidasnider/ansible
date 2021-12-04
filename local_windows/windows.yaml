@@ -4,9 +4,18 @@
 
   tasks:
 
+    - name: fix wsl resolv.conf generation
+      blockinfile:
+        path: /etc/wsl.conf
+        create: yes
+        block: |
+          [network]
+          generateResolvConf = false
+
     - name: fix /etc/resolv.conf
       copy:
         dest: /etc/resolv.conf
+        attributes: +i
         content: |
           search thesniderpad.com
           nameserver 10.9.0.1
@@ -38,6 +47,7 @@
         - vault
         - python-pip-whl
         - python3-pip
+        - python3-venv
         - zsh
         autoremove: yes
         autoclean: yes
@@ -97,13 +107,12 @@
         name: david
         shell: /bin/zsh
 
-    - name: fix wsl resolv.conf
-      blockinfile:
-        path: /etc/wsl.conf
-        create: yes
-        block: |
-          [network]
-          generateResolvConf = false
+    - name: Get poetry install script
+      get_url:
+        url: https://install.python-poetry.org
+        dest: /usr/local/src/install_poetry.sh
+        mode: '0755'
+
 
 - hosts: localhost
   connection: local
@@ -116,6 +125,8 @@
 
   tasks:
 
+    - name: Install poetry
+      command: python3 /usr/local/src/install_poetry.sh
 
     - name: Create id_rsa
       blockinfile:
