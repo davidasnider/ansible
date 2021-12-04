@@ -4,9 +4,18 @@
 
   tasks:
 
+    - name: fix wsl resolv.conf generation
+      blockinfile:
+        path: /etc/wsl.conf
+        create: yes
+        block: |
+          [network]
+          generateResolvConf = false
+
     - name: fix /etc/resolv.conf
       copy:
         dest: /etc/resolv.conf
+        attributes: +i
         content: |
           search thesniderpad.com
           nameserver 10.9.0.1
@@ -97,21 +106,13 @@
         name: david
         shell: /bin/zsh
 
-    - name: fix wsl resolv.conf
-      blockinfile:
-        path: /etc/wsl.conf
-        create: yes
-        block: |
-          [network]
-          generateResolvConf = false
-
 - hosts: localhost
   connection: local
   become: faLse
   environment:
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma: allowlist secret
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma: allowlist secret 
   gather_facts: false
 
   tasks:
