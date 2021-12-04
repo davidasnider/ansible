@@ -47,6 +47,7 @@
         - vault
         - python-pip-whl
         - python3-pip
+        - python3-venv
         - zsh
         autoremove: yes
         autoclean: yes
@@ -106,6 +107,13 @@
         name: david
         shell: /bin/zsh
 
+    - name: Get poetry install script
+      get_url:
+        url: https://install.python-poetry.org
+        dest: /usr/local/src/install_poetry.sh
+        mode: '0755'
+
+
 - hosts: localhost
   connection: local
   become: faLse
@@ -117,6 +125,8 @@
 
   tasks:
 
+    - name: Install poetry
+      command: python3 /usr/local/src/install_poetry.sh
 
     - name: Create id_rsa
       blockinfile:
