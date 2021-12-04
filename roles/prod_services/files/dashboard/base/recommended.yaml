@@ -220,7 +220,7 @@ spec:
       volumes:
         - name: kubernetes-dashboard-certs
           secret:
-            secretName: kubernetes-dashboard-certs
+            secretName: kubernetes-dashboard-certs # pragma: allowlist secret
         - name: tmp-volume
           emptyDir: {}
       serviceAccountName: kubernetes-dashboard

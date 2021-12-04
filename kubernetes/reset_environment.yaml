@@ -5,7 +5,7 @@
     username: '{{ vaulted.SHIRAZ_ADMIN_USER }}'
     url: '{{ vaulted.SHIRAZ_URL }}'
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma :allowlist secret
   tasks:
 
   # This will run a script that will delete all the luns. It loops through

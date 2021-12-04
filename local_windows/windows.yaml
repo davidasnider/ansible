@@ -4,12 +4,38 @@
 
   tasks:
 
+    - name: fix wsl resolv.conf generation
+      blockinfile:
+        path: /etc/wsl.conf
+        create: yes
+        block: |
+          [network]
+          generateResolvConf = false
+
+    - name: fix /etc/resolv.conf
+      copy:
+        dest: /etc/resolv.conf
+        attributes: +i
+        content: |
+          search thesniderpad.com
+          nameserver 10.9.0.1
+
+    - name: Add Vault Repo Key
+      apt_key:
+        url: https://apt.releases.hashicorp.com/gpg
+
+    - name: Add Hashi Vault to apt Sources
+      apt_repository:
+        repo: deb https://apt.releases.hashicorp.com impish main
+        state: present
+        filename: hashi_vault
+
     - name: Upgrade Ubuntu Packages
       apt:
         autoremove: yes
         autoclean: yes
         update_cache: yes
-        cache_valid_time: 86400 # Once per day 24x60x60
+        # cache_valid_time: 86400 # Once per day 24x60x60
         upgrade: dist
 
     - name: Install new packages
@@ -21,6 +47,8 @@
         - vault
         - python-pip-whl
         - python3-pip
+        - python3-venv
+        - zsh
         autoremove: yes
         autoclean: yes
         update_cache: yes
@@ -64,14 +92,78 @@
         chdir: /usr/local/bin
       when: download_kustomize_install.changed
 
+    - name: Install pre-commit
+      pip:
+        name: pre-commit
+        executable: pip3
+
+    - name: Install hvac
+      pip:
+        name: hvac
+        executable: pip3
+
+    - name: change user shell to zsh
+      user:
+        name: david
+        shell: /bin/zsh
+
+    - name: Get poetry install script
+      get_url:
+        url: https://install.python-poetry.org
+        dest: /usr/local/src/install_poetry.sh
+        mode: '0755'
+
+
 - hosts: localhost
   connection: local
   become: faLse
+  environment:
+    VAULT_ADDR: https://vault.thesniderpad.com
+  vars:
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma: allowlist secret
+  gather_facts: false
 
   tasks:
 
-    - name: Setup Pre-Commit template directory
-      command: git config --global init.templateDir ~/.git-template
+    - name: Install poetry
+      command: python3 /usr/local/src/install_poetry.sh
+
+    - name: Create id_rsa
+      blockinfile:
+        path: /home/david/.ssh/id_rsa
+        owner: david
+        mode: '0600'
+        group: david
+        block: '{{ vaulted.id_rsa }}'
+        create: yes
+
+    # If vaulted.data exists, you must first upgrade with do-release-upgrade -d
+    - name: Create id_rsa.pub
+      blockinfile:
+        path: /home/david/.ssh/id_rsa.pub
+        owner: david
+        mode: '0600'
+        group: david
+        block: '{{ vaulted.id_rsa_pub }}'
+        create: yes
+
+    - name: Gitconfig email
+      git_config:
+        name: user.email
+        scope: global
+        value: 'david@davidsnider.org'
+
+    - name: Gitconfig name
+      git_config:
+        name: user.name
+        scope: global
+        value: 'David Snider'
+
+    - name: Gitconfig Pre-Commit Template
+      git_config:
+        name: init.templateDir
+        scope: global
+        value: /home/david/.git-template
 
     - name: Populate Pre-Commit template directory
       command: pre-commit init-templatedir ~/.git-template
@@ -89,6 +181,10 @@
         dest=~/.oh-my-zsh
       when: not stat_oh_my_zsh_result.stat.exists
       tags: oh-my-zsh
+
+    - name: Install powerlevel10k
+      git: repo=https://github.com/romkatv/powerlevel10k.git
+        dest=~/.oh-my-zsh/custom/themes/powerlevel10k
 
     - name: Check if zsh-syntax-highlighting
       stat:
@@ -134,3 +230,8 @@
         group: david
         mode: '0640'
         backup: yes
+
+    - name: Create .kube
+      file:
+        path: /home/david/.kube
+        state: directory
