@@ -33,7 +33,7 @@ repos:
       - id: flake8
 
   - repo: https://github.com/executablebooks/mdformat
-    rev: 0.5.7 # Use the ref you want to point at
+    rev: 0.7.11 # Use the ref you want to point at
     hooks:
       - id: mdformat
         # optional
