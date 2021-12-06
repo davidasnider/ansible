@@ -5,6 +5,7 @@
   with_fileglob: /Users/david/.kube/*.kubeconfig
   become: false
   changed_when: false
+  tags: kubeconfig
 
 - name: Copy kubeconfigs to blanc
   copy:
