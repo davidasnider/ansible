@@ -61,6 +61,15 @@
       line: '%sudo ALL=(ALL) NOPASSWD: ALL'
     when: ansible_os_family == 'Debian'
 
+  - name: Change to old iptables
+    shell: |
+      iptables -F
+      update-alternatives --set iptables /usr/sbin/iptables-legacy
+      update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+    when:
+      - ansible_facts['os_family'] == "Debian"
+      # - ansible_facts['lsb']['id'] == "Raspbian"
+
   handlers:
   - name: reboot server
     reboot:
