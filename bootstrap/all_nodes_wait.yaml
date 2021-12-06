@@ -13,3 +13,7 @@
       delay: 10
       timeout: 300
     connection: local
+
+  - name: Wait 20 more seconds
+    pause:
+      seconds: 20
