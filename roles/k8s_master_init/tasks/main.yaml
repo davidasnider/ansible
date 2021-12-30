@@ -74,7 +74,7 @@
     - name: Copy Cert Manager Issuer file
       template:
         src: cert-manager-issuer.yaml
-        dest: /var/lib/rancher/k3s/server/manifests/cert-manager-issuer.yaml
+        dest: /usr/local/src/cert-manager-issuer.yaml
         owner: root
         group: root
         mode: '0640'
@@ -85,12 +85,22 @@
     - name: Copy Cert Manager Deployment
       get_url:
         url: https://github.com/jetstack/cert-manager/releases/download/v{{ cert_manager_version }}/cert-manager.yaml
-        dest: /var/lib/rancher/k3s/server/manifests/cert-manager.yaml
+        dest: /usr/local/src/cert-manager.yaml
         owner: root
         group: root
         mode: '0640'
-      when:
-      - masters[0] == inventory_hostname
+      tags: cert-manager
+
+    - name: Install cert-manager  # noqa 503
+      command: kubectl apply -f /usr/local/src/cert-manager.yaml
+      tags: cert-manager
+
+    - name: Install cert-manager-issuer  # noqa 503
+      command: kubectl apply -f /usr/local/src/cert-manager-issuer.yaml
+      retries: 30 # This seems to be failing since we are running it so close to cluster start, add some retries
+      delay: 5
+      register: result
+      until: result is not failed
       tags: cert-manager
 
     - name: Get kube-vip rbac manifest
@@ -100,6 +110,7 @@
         owner: root
         group: root
         mode: '0640'
+      tags: kube-vip
 
     - name: Copy kube-vip daemonset manifest
       template:
@@ -108,6 +119,7 @@
         owner: root
         group: root
         mode: '0640'
+      tags: kube-vip
 
     - name: Install k3s final service definition file
       template:
