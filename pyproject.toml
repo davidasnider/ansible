@@ -27,6 +27,7 @@ authors = ["David Snider <david@davidsnider.org>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+pydantic = "^1.8.2"
 
 [tool.poetry.dev-dependencies]
 detect-secrets = "=0.14.3"

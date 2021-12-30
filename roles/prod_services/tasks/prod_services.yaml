@@ -204,3 +204,35 @@
     chdir: /usr/local/src/metrics_k8s
   changed_when: false
   tags: metrics
+
+# Setup Cava automation
+- name: Get the cava repo
+  git:
+    repo: https://github.com/davidasnider/cava.git
+    dest: /usr/local/src/cava
+    depth: '1'
+    accept_hostkey: yes
+    version: "main"
+    force: yes
+  tags: cava
+  notify: Apply Cava Kustomize script
+
+# Generate secrets file
+- name: Create secrets file
+  template:
+      dest: /usr/local/src/cava/k8s/bases/secrets.yaml
+      src: secrets.yaml
+      owner: root
+      group: root
+      mode: '0600'
+  tags: cava
+  notify: Apply Cava Kustomize script
+
+# If cava namespace doesn't exist, trigger application
+- name: Run kustomize script when cava namespace does not exist
+  shell: kustomize build prod > /var/lib/rancher/k3s/server/manifests/cava.yaml
+  args:
+    executable: /bin/bash
+    chdir: /usr/local/src/cava/k8s
+  when: "'cava' not in namespaces.stdout"
+  tags: cava

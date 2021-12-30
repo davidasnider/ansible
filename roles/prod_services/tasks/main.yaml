@@ -36,11 +36,6 @@
   - masters[0] == inventory_hostname
   tags: kustomize
 
-- import_tasks: nonprod_services.yaml
-  when:
-  - not prod_cluster
-  - masters[0] == inventory_hostname
-
 - import_tasks: prod_services.yaml
   when:
   - prod_cluster | bool
@@ -56,15 +51,15 @@
   when:
   - masters[0] == inventory_hostname
 
-- name: install the Dashboard on nonprod
-  command: kubectl apply -k /usr/local/dashboard/nonprod
-  register: dashboard_install
-  tags: dashboard-install
-  delegate_to: '{{ masters[0] }}'
-  when:
-  - masters[0] == inventory_hostname
-  - not prod_cluster # False
-  changed_when: "'configured' in dashboard_install.stdout"
+# - name: install the Dashboard on nonprod
+#   command: kubectl apply -k /usr/local/dashboard/nonprod
+#   register: dashboard_install
+#   tags: dashboard-install
+#   delegate_to: '{{ masters[0] }}'
+#   when:
+#   - masters[0] == inventory_hostname
+#   - not prod_cluster # False
+#   changed_when: "'configured' in dashboard_install.stdout"
 
 - name: install the Dashboard on prod
   command: kubectl apply -k /usr/local/dashboard/prod
