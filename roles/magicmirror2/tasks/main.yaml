@@ -183,5 +183,6 @@
     dest: /home/magicmirror/MagicMirror/modules/MMM-Ring
     version: master
     accept_hostkey: yes
+    force: yes
   become_user: magicmirror
   notify: Install Ring
