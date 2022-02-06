@@ -186,3 +186,11 @@
     force: yes
   become_user: magicmirror
   notify: Install Ring
+
+- name: Force HDMI mode on rpi
+  blockinfile:
+    path: /boot/config.txt
+    block: |
+      hdmi_group=1
+      hdmi_mode=16
+  notify: reboot server
