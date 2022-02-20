@@ -165,6 +165,7 @@
     dest: /home/magicmirror/MagicMirror/modules/MMM-Wallpaper
     version: master
     accept_hostkey: yes
+    force: yes
   become_user: magicmirror
   notify: Install wallpaper dependencies
 
