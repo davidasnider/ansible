@@ -18,7 +18,7 @@
     dest: /etc/sudoers
     state: present
     regexp: ^%sudo
-    line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+    line: '%sudo ALL=(ALL) NOPASSWD: ALL' # pragma: allowlist secret
     mode: '0640'
 
 - name: Delete the pi user
