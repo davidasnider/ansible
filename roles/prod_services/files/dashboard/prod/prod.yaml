@@ -32,4 +32,4 @@ spec:
       volumes:
       - name: kubernetes-dashboard-certs
         secret:
-          secretName: k8s1-thesniderpad-com-tls
+          secretName: k8s1-thesniderpad-com-tls # pragma: allowlist secret

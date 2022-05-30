@@ -55,10 +55,6 @@ data:
         dc_smarthost "email-smtp.${SES_REGION:=us-east-1}.amazonaws.com::${SES_PORT:=587}"
       )
       echo "*.amazonaws.com:$SES_USER:$SES_PASSWORD" > /etc/exim4/passwd.client
-    # Allow to specify an arbitrary smarthost.
-    # Parameters: SMARTHOST_USER, SMARTHOST_PASSWORD: authentication parameters
-    # SMARTHOST_ALIASES: list of aliases to puth auth data for (semicolon separated)
-    # SMARTHOST_ADDRESS, SMARTHOST_PORT: connection parameters.
     elif [ "$SMARTHOST_ADDRESS" ] ; then
       opts+=(
         dc_eximconfig_configtype 'smarthost'
@@ -97,7 +93,7 @@ metadata:
   name: mail-thesniderpad-com
   namespace: mailrelay
 spec:
-  secretName: mail-thesniderpad-com-tls
+  secretName: mail-thesniderpad-com-tls # pragma: allowlist secret
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
@@ -168,7 +164,7 @@ spec:
           name: rewrite
       - name: certificates
         secret:
-          secretName: mail-thesniderpad-com-tls
+          secretName: mail-thesniderpad-com-tls # pragma: allowlist secret
 ---
 apiVersion: v1
 kind: Service

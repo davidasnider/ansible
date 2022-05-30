@@ -7,7 +7,7 @@
     # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma: allowlist secret
   gather_facts: false
   tasks:
 
@@ -58,7 +58,7 @@
       dest: /etc/sudoers
       state: present
       regexp: ^%sudo
-      line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+      line: '%sudo ALL=(ALL) NOPASSWD: ALL'  # pragma: allowlist secret
     when: ansible_os_family == 'Debian'
 
   - name: Change to old iptables
