@@ -3,32 +3,32 @@
     name: magicmirror
     create_home: yes
     groups:
-    - video
-    - audio
-    uid: '1008'
+      - video
+      - audio
+    uid: "1008"
     state: present
-    password: '{{ vaulted.LINUX_PASSWORD }}' # pragma: allowlist secret
+    password: "{{ vaulted.LINUX_PASSWORD }}" # pragma: allowlist secret
   notify: reboot server
 
 - name: git config email
   git_config:
     name: user.email
     scope: global
-    value: 'david@davidsnider.org'
+    value: "david@davidsnider.org"
   become_user: magicmirror
 
 - name: git config name
   git_config:
     name: user.name
     scope: global
-    value: 'David Snider'
+    value: "David Snider"
   become_user: magicmirror
 
 - name: disable overscan
   lineinfile:
     path: /boot/config.txt
     line: disable_overscan=1
-    mode: '0755'
+    mode: "0755"
   notify: reboot server
 
 - name: see if screenblanking is disabled
@@ -39,7 +39,7 @@
 - name: Disable screen blanking
   command: raspi-config nonint do_blanking 1
   when:
-  - "'1' not in get_blanking.stdout"
+    - "'1' not in get_blanking.stdout"
   notify: reboot server
 
 - name: see if autologin is enabled
@@ -50,14 +50,14 @@
 - name: Set autologin # noqa 305 command does not support variable setting
   shell: SUDO_USER=magicmirror raspi-config nonint do_boot_behaviour B4
   when:
-  - "'0' not in get_autologin.stdout"
+    - "'0' not in get_autologin.stdout"
   notify: reboot server
 
 - name: Ensure dependencies are present.
   apt:
     name:
-    - apt-transport-https
-    - gnupg2
+      - apt-transport-https
+      - gnupg2
     state: present
 
 - name: Add Nodesource apt key.
@@ -78,28 +78,27 @@
 - name: Update apt cache if repo was added.
   apt: update_cache=yes
   when: node_repo.changed
-  tags: ['skip_ansible_lint']
+  tags: ["skip_ansible_lint"]
 
 - name: Ensure Node.js and MagicMirror dependencies are installed.
   apt:
     name:
-    - nodejs
-    - jq
-    - devilspie2
-    - wmctrl
-    - ffmpeg
-    - omxplayer
-    - vlc
+      - nodejs
+      - jq
+      - devilspie2
+      - wmctrl
+      # - ffmpeg
+      # - omxplayer
+      # - vlc
     state: present
 
-- name: Git Stash before cloning # noqa 303
-  command: git stash
+- name: Git reset before cloning # noqa 303
+  command: git reset --hard
   args:
     chdir: /home/magicmirror/MagicMirror
   become_user: magicmirror
   changed_when: false
   failed_when: false
-  notify: Git Stash after cloning
 
 - name: Clone MagicMirror
   git:
@@ -109,7 +108,6 @@
     accept_hostkey: yes
   become_user: magicmirror
   notify: Install MagicMirror dependencies
-
 
 - name: Install pm2
   npm:
@@ -123,7 +121,7 @@
     dest: /home/magicmirror/MagicMirror/config/config.js
     owner: magicmirror
     group: magicmirror
-    mode: '0644'
+    mode: "0644"
   notify: restart magicmirror
 
 - name: Copy mm.sh
@@ -132,7 +130,7 @@
     dest: /home/magicmirror/mm.sh
     owner: magicmirror
     group: magicmirror
-    mode: '0755'
+    mode: "0755"
   register: mm_ssh
 
 - name: Check startup scripts
@@ -148,7 +146,7 @@
 - name: Setup startup scripts
   command: pm2 start mm.sh
   args:
-      chdir: /home/magicmirror
+    chdir: /home/magicmirror
   become_user: magicmirror
   when: "'/home/magicmirror/mm.sh' not in pm2_status.stdout"
 
@@ -159,13 +157,19 @@
   become_user: magicmirror
   when: "'/home/magicmirror/mm.sh' not in pm2_status.stdout"
 
+- name: Reset Git
+  command: git reset --hard
+  args:
+    chdir: /home/magicmirror/MagicMirror/modules/MMM-Wallpaper
+  become_user: magicmirror
+  changed_when: false
+
 - name: Install wallpaper
   git:
     repo: https://github.com/kolbyjack/MMM-Wallpaper.git
     dest: /home/magicmirror/MagicMirror/modules/MMM-Wallpaper
     version: master
     accept_hostkey: yes
-    force: yes
   become_user: magicmirror
   notify: Install wallpaper dependencies
 
@@ -178,16 +182,6 @@
   become_user: magicmirror
   notify: Install monthly calendar dependencies
 
-- name: Install Ring
-  git:
-    repo: https://github.com/DustinBryant/MMM-Ring.git
-    dest: /home/magicmirror/MagicMirror/modules/MMM-Ring
-    version: master
-    accept_hostkey: yes
-    force: yes
-  become_user: magicmirror
-  notify: Install Ring
-
 - name: Force HDMI mode on rpi
   blockinfile:
     path: /boot/config.txt
@@ -195,3 +189,12 @@
       hdmi_group=1
       hdmi_mode=16
   notify: reboot server
+
+- name: Install Countdown module
+  git:
+    repo: https://github.com/boazarad/MMM-CountDown.git
+    dest: /home/magicmirror/MagicMirror/modules/MMM-CountDown
+    version: master
+    accept_hostkey: yes
+  become_user: magicmirror
+  notify: Install countdown module dependencies

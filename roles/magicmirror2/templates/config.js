@@ -52,22 +52,28 @@ var config = {
 			}
 		},
 		{
-			module: "currentweather",
+			module: "weather",
 			position: "top_center",
 			config: {
-				location: "Sandy, UT",
+				type: 'current',
+				weatherProvider: 'openweathermap',
 				locationID: "5781061",
-				appid: "{{ vaulted.OPENWEATHER_APIKEY }}"
+				apiKey: "{{ vaulted.OPENWEATHER_APIKEY }}"
 			}
 		},
 		{
-			module: "weatherforecast",
+			module: "weather",
 			position: "top_center",
 			header: "Weather Forecast",
 			config: {
-				location: "Sandy, UT",
+				type: 'forecast',
+				// initialLoadDelay: 1000,
+				weatherProvider: 'openweathermap',
+				ignoreToday: true,
+				showPrecipitationAmount: true,
+				colored: true,
 				locationID: "5781061",
-				appid: "{{ vaulted.OPENWEATHER_APIKEY }}"
+				apiKey: "{{ vaulted.OPENWEATHER_APIKEY }}"
 			}
 		},
 		{
@@ -88,17 +94,6 @@ var config = {
 			}
 		},
 		{
-			module: "MMM-GoogleSheets",
-			header: "Weight Tracker",
-			position: "top_right",
-			config: {
-				url: "{{vaulted.WEIGHT_TRACKER_URL}}",
-				sheet: "Summary",
-				range: "A1:E4",
-				customStyles: ["background-color: transparent"]
-			}
-		},
-		{
 			module: "MMM-Wallpaper",
 			position: "fullscreen_below",
 			config: { // See "Configuration options" for more information.
@@ -107,14 +102,19 @@ var config = {
 					"chromecast",
 					"firetv",
 				],
-				slideInterval: 600 * 10000 // Change slides every minute
+				slideInterval: 600 * 10000 // Change slides every ten minutes
 			}
 		},
 		{
-			module: "MMM-Ring",
-			position: "middle_center",
+			module: 'MMM-CountDown',
+			position: 'top_right',
 			config: {
-				ring2faRefreshToken: "{{vaulted.ring2faRefreshToken}}"
+				event: "Germany Vacation",
+				date: '2022-06-21',
+				showHours: false,
+				showMinutes: false,
+				showSeconds: false,
+				daysLabel: " Days",
 			}
 		},
 	]

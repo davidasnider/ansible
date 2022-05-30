@@ -38,3 +38,9 @@
   args:
     chdir: /home/magicmirror/MagicMirror
   become_user: magicmirror
+
+- name: Install countdown module dependencies
+  command: npm install
+  args:
+    chdir: /home/magicmirror/MagicMirror/modules/MMM-CountDown
+  become_user: magicmirror
