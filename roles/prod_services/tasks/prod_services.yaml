@@ -77,6 +77,46 @@
     version: "master"
   tags: rundeck
 
+- name: Get the home automation repo
+  git:
+    repo: https://github.com/davidasnider/home_automation.git
+    dest: /usr/local/src/home_automation
+    version: 'main'
+  register: home_automation
+  tags:
+    - rundeck
+    - home_automation
+
+- name: Create the envs file for home automation
+  blockinfile:
+    path: /usr/local/src/home_automation/deploy/prod/.env
+    create: yes
+    block: |
+      tomorrow_io={{ vaulted.TOMORROW_IO }}
+      tmrw_location_id={{ vaulted.TMRW_LOCATION_ID }}
+      indigo_username={{ vaulted.INDIGO_USERNAME }}
+      indigo_password={{ vaulted.INDIGO_PASSWORD }}
+  when: home_automation.changed
+  tags:
+    - rundeck
+    - home_automation
+
+- name: Check if existing jobs exist
+  command: kubectl get job -n rundeck calc-sprinkler-multiplier
+  ignore_errors: true
+  tags: rundeck
+  changed_when: false
+  when: home_automation.changed
+
+- name: Delete existing jobs from rundeck
+  command: kubectl delete jobs calc-sprinkler-multiplier -n rundeck
+  changed_when: false
+  failed_when: false
+  when: home_automation.changed
+  tags:
+    - home_automation
+    - rundeck
+
 # Create the pods and services
 - name: Apply Rundeck Prod Kustomize script
   command: kubectl apply -k prod
@@ -84,6 +124,15 @@
     chdir: /usr/local/src/rundeck
   changed_when: false
   tags: rundeck
+
+- name: Recreate Home Automation Jobs
+  command: kubectl apply -k prod
+  args:
+    chdir: /usr/local/src/home_automation/deploy
+  tags:
+   - rundeck
+   - home_automation
+  when: home_automation.changed
 
 # Add secrets file
 - name: Create Secrets file for rundeck
@@ -94,52 +143,21 @@
     group: root
     mode: '0600'
   tags:
-    - tesla-collector
     - rundeck
   notify: Create Rundeck Secrets
 
-#### Create the tesla namespace and secrets
-- name: Get the tesla-collector repo
-  git:
-    repo: git@github.com:davidasnider/tesla-collector.git
-    dest: /usr/local/src/tesla-collector
-    key_file: /home/ansible/.ssh/id_rsa
-    depth: '1'
-    accept_hostkey: yes
-    version: "main"
-  tags: tesla-collector
-  notify: Recreate Tesla Job
-
-- name: Check if tesla job exists
-  command: kubectl get job -n rundeck tesla-collector
-  register: teslacollectorjob
-  ignore_errors: true
-  tags: tesla-collector
-  changed_when: false
-
 - name: Check if rundeck secrets exist
   command: kubectl get secret -n rundeck credentials
-  register: teslacollectorsecret
+  register: rundecksecrets
   ignore_errors: true
   tags:
-    - tesla-collector
     - rundeck
   changed_when: false
 
-- name: Recreate Tesla Job
-  command: kubectl apply -k prod
-  args:
-    chdir: /usr/local/src/tesla-collector/k8s
-  when: teslacollectorjob.failed
-  tags: tesla-collector
-
 - name: Recreate Rundeck Secrets
   command: kubectl apply -f /usr/local/src/rundeck-secrets.yaml
-  args:
-    chdir: /usr/local/src/tesla-collector/k8s
-  when: teslacollectorsecret.failed
+  when: rundecksecrets.failed
   tags:
-    - tesla-collector
     - rundeck
 
 # Setup Icinga Prod Services
