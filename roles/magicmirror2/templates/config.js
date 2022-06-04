@@ -48,7 +48,8 @@ var config = {
 			module: 'calendar_monthly',
 			position: 'top_left',
 			config: {
-				cssStyle: "block"
+				cssStyle: "block",
+				fetchInterval: 300000
 			}
 		},
 		{
