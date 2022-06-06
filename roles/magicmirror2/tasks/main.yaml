@@ -107,7 +107,9 @@
     version: master
     accept_hostkey: yes
   become_user: magicmirror
-  notify: Install MagicMirror dependencies
+  notify:
+    - Install MagicMirror dependencies
+    - restart magicmirror
 
 - name: Install pm2
   npm:
@@ -132,6 +134,8 @@
     group: magicmirror
     mode: "0755"
   register: mm_ssh
+  notify:
+    - restart magicmirror~
 
 - name: Check startup scripts
   shell: |
@@ -171,7 +175,9 @@
     version: master
     accept_hostkey: yes
   become_user: magicmirror
-  notify: Install wallpaper dependencies
+  notify:
+    - Install wallpaper dependencies
+    - restart magicmirror
 
 - name: Install monthly calendar
   git:
@@ -180,7 +186,9 @@
     version: master
     accept_hostkey: yes
   become_user: magicmirror
-  notify: Install monthly calendar dependencies
+  notify:
+    - Install monthly calendar dependencies
+    - restart magicmirror
 
 - name: Force HDMI mode on rpi
   blockinfile:
@@ -197,4 +205,17 @@
     version: master
     accept_hostkey: yes
   become_user: magicmirror
-  notify: Install countdown module dependencies
+  notify:
+    - Install countdown module dependencies
+    - restart magicmirror
+
+- name: Install IndoorTemperature-Endpoint
+  git:
+    repo: https://github.com/buxxi/MMM-IndoorTemperature-Endpoint.git
+    dest: /home/magicmirror/MagicMirror/modules/MMM-IndoorTemperature-Endpoint
+    version: master
+    accept_hostkey: yes
+  become_user: magicmirror
+  notify:
+    - Install indoor temperature module dependencies
+    - restart magicmirror
