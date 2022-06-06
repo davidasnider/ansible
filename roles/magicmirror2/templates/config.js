@@ -59,7 +59,8 @@ var config = {
 				type: 'current',
 				weatherProvider: 'openweathermap',
 				locationID: "5781061",
-				apiKey: "{{ vaulted.OPENWEATHER_APIKEY }}"
+				apiKey: "{{ vaulted.OPENWEATHER_APIKEY }}",
+				showIndoorTemperature: true,
 			}
 		},
 		{
@@ -117,6 +118,10 @@ var config = {
 				showSeconds: false,
 				daysLabel: " Days",
 			}
+		},
+		{
+			module: "MMM-IndoorTemperature-Endpoint",
+			config: {}
 		},
 	]
 };

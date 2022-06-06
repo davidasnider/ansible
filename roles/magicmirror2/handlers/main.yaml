@@ -44,3 +44,9 @@
   args:
     chdir: /home/magicmirror/MagicMirror/modules/MMM-CountDown
   become_user: magicmirror
+
+- name: Install indoor temperature module dependencies
+  command: npm install
+  args:
+    chdir: /home/magicmirror/MagicMirror/modules/MMM-IndoorTemperature-Endpoint
+  become_user: magicmirror
