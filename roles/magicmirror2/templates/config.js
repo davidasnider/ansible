@@ -2,7 +2,7 @@ var config = {
 	// address: "localhost",
 	address: "0.0.0.0",
 	port: 8080,
-	ipWhitelist: ["10.9.2.1", "127.0.0.1", "::ffff:127.0.0.1", "::1"],
+	ipWhitelist: ["10.0.0.0/8", "127.0.0.1", "::ffff:127.0.0.1", "::1"],
 	useHttps: false,
 	httpsPrivateKey: "",
 	httpsCertificate: "",

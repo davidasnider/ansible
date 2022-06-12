@@ -107,11 +107,14 @@
   # False
 - name: Check if existing jobs exist
   shell: (($(kubectl get job -n rundeck -l app=home_automation |wc -l)==3))
+  args:
+    executable: /bin/bash
   ignore_errors: true
-  tags: rundeck
+  tags:
+    - rundeck
+    - home_automation
   register: home_automation_job_check
   changed_when: false
-  when: home_automation.changed
 
 - name: Delete existing jobs from rundeck
   command: kubectl delete jobs calc-sprinkler-multiplier -n rundeck
