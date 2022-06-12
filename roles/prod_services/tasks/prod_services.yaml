@@ -101,10 +101,15 @@
     - rundeck
     - home_automation
 
+  # We are doing a little bit of shell logic here to get a true or false value
+  # as the number of jobs changes, you will need to change the number at the end
+  # of == to the number of jobs + 1 to get a "True" value. Otherwise it returns
+  # False
 - name: Check if existing jobs exist
-  command: kubectl get job -n rundeck calc-sprinkler-multiplier
+  shell: (($(kubectl get job -n rundeck -l app=home_automation |wc -l)==3))
   ignore_errors: true
   tags: rundeck
+  register: home_automation_job_check
   changed_when: false
   when: home_automation.changed
 
@@ -112,7 +117,18 @@
   command: kubectl delete jobs calc-sprinkler-multiplier -n rundeck
   changed_when: false
   failed_when: false
-  when: home_automation.changed
+  when: (home_automation.changed) or
+        (home_automation_job_check.failed)
+  tags:
+    - home_automation
+    - rundeck
+
+- name: Delete existing jobs from rundeck
+  command: kubectl delete jobs update-magic-mirror-temp -n rundeck
+  changed_when: false
+  failed_when: false
+  when: (home_automation.changed) or
+        (home_automation_job_check.failed)
   tags:
     - home_automation
     - rundeck
@@ -132,7 +148,8 @@
   tags:
    - rundeck
    - home_automation
-  when: home_automation.changed
+  when: (home_automation.changed) or
+        (home_automation_job_check.failed)
 
 # Add secrets file
 - name: Create Secrets file for rundeck
