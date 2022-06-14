@@ -268,7 +268,7 @@
 
 # If cava namespace doesn't exist, trigger application
 - name: Run kustomize script when cava namespace does not exist
-  shell: kustomize build prod > /var/lib/rancher/k3s/server/manifests/cava.yaml
+  shell: kustomize build prod | kubectl apply -f -
   args:
     executable: /bin/bash
     chdir: /usr/local/src/cava/k8s
