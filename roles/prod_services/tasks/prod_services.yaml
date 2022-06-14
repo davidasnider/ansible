@@ -5,6 +5,8 @@
   register: namespaces
   changed_when: false
   ignore_errors: true
+  tags:
+    - cava
 
 #### Create the docker registry
 # Validate the namespace doesn't already exist
