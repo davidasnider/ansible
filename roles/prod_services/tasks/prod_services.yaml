@@ -169,7 +169,7 @@
   notify: Create Rundeck Secrets
 
 - name: Check if rundeck secrets exist
-  command: kubectl get secret -n rundeck credentials
+  command: kubectl get secret -n rundeck indigo-secrets
   register: rundecksecrets
   ignore_errors: true
   tags:
