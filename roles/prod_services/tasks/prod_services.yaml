@@ -255,18 +255,20 @@
     version: "main"
     force: yes
   tags: cava
+  register: cavagit
   notify: Apply Cava Kustomize script
 
-# Generate secrets file
-- name: Create secrets file
+# Create Cava Secrets
+- name: Create cava secrets env-file
   template:
-      dest: /usr/local/src/cava/k8s/bases/secrets.yaml
-      src: secrets.yaml
-      owner: root
-      group: root
-      mode: '0600'
-  tags: cava
-  notify: Apply Cava Kustomize script
+    src: env-template
+    dest: /usr/local/src/cava/k8s/bases/.env
+    owner: root
+    group: root
+    mode: '0600'
+  register: cavaenv
+  tags:
+    - cava
 
 # If cava namespace doesn't exist, trigger application
 - name: Run kustomize script when cava namespace does not exist
@@ -274,5 +276,7 @@
   args:
     executable: /bin/bash
     chdir: /usr/local/src/cava/k8s
-  when: "'cava' not in namespaces.stdout"
+  when: ('cava' not in namespaces.stdout) or
+        (cavagit.changed) or
+        (cavaenv.changed)
   tags: cava
