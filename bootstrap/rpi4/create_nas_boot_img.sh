@@ -4,6 +4,7 @@ set -euxo pipefail
 
 # Fully update
 apt update
+apt -y upgrade
 apt -y full-upgrade
 apt install -y initramfs-tools open-iscsi
 touch /etc/iscsi/iscsi.initramfs
