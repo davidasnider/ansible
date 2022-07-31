@@ -15,4 +15,4 @@ diskutil unmountDisk /dev/disk2 && sudo dd bs=1m if=2019-09-26-raspbian-buster-l
 
 1. From the PARENT directory, run the following command:
 1. Raspbian based hosts
-   `$ ansible-playbook bootstrap/rpi_init.yaml --extra-vars "cluster=grigio"`
+   `ansible-playbook bootstrap/rpi_init.yaml --extra-vars "cluster=grigio"`

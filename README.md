@@ -41,9 +41,14 @@ ansible-playbook site.yaml -l k8s2
 
 ### Rebuild the kubernetes clusters
 
+NOTE: If you find that some of the nodes are not properly rebuilding, try resetting
+the iSCSI service on the TrueNas server.
+
+````bash
+
 ```bash
-ansible-playbook kubernetes/full_rebuild.yaml --extra-vars "cluster=k8s2"
-```
+ansible-playbook kubernetes/full_rebuild.yaml --extra-vars "cluster=k8s1"
+````
 
 ## Testing new versions of kubernetes
 

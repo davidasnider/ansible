@@ -8,6 +8,13 @@
     vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma: allowlist secret
   tasks:
 
+  - name: Remove all hosts from known hosts
+    ansible.builtin.known_hosts:
+      name: "{{ hostvars[item].hostname }}"
+      state: absent
+    loop: '{{ groups[cluster]|flatten(levels=1) }}'
+
+
   # This will run a script that will delete all the luns. It loops through
   # the group passed on the cmd line as cluster
   # Todo: make that a variable somehow.

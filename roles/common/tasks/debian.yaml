@@ -56,7 +56,7 @@
     - smartmontools
     - libatasmart4
   when:
-  - ansible_architecture != "armv7l"
+  - ansible_architecture != "aarch64"
 
 - name: Update config for /etc/default/smartmontools
   lineinfile:
@@ -67,7 +67,7 @@
   notify:
   - restart smartmontools
   when:
-  - ansible_architecture != "armv7l"
+  - ansible_architecture != "aarch64"
 
 - name: Create Rundeck user
   user:

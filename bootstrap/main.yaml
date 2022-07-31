@@ -68,7 +68,6 @@
       update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
     when:
       - ansible_facts['os_family'] == "Debian"
-      # - ansible_facts['lsb']['id'] == "Raspbian"
 
   handlers:
   - name: reboot server

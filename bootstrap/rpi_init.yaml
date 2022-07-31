@@ -20,27 +20,18 @@
       home: /home/ansible
       createhome: yes
       uid: 3000
-    when:
-    - ansible_facts['os_family'] == "Debian"
-    - ansible_facts['lsb']['id'] == "Raspbian"
 
   - name: Add Ansible user to admin group
     user:
       name: ansible
       groups: sudo
       append: yes
-    when:
-    - ansible_facts['os_family'] == "Debian"
-    - ansible_facts['lsb']['id'] == "Raspbian"
 
   - name: Add authorized key
     authorized_key:
       user: ansible
       state: present
       key: '{{ vaulted.id_rsa_pub }}'
-    when:
-    - ansible_facts['os_family'] == "Debian"
-    - ansible_facts['lsb']['id'] == "Raspbian"
 
   - name: Ensure admin group can sudo
     lineinfile:
@@ -48,9 +39,6 @@
       state: present
       regexp: ^%sudo
       line: '%sudo ALL=(ALL) NOPASSWD: ALL' # pragma: allowlist secret
-    when:
-    - ansible_facts['os_family'] == "Debian"
-    - ansible_facts['lsb']['id'] == "Raspbian"
 
   - name: Setup initrd build
     copy:
@@ -58,3 +46,8 @@
       content: |
         INITRD=Yes
         RPI_INITRD=Yes
+
+  - name: Install iptables
+    apt:
+      name: iptables
+      state: present

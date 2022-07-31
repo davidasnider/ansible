@@ -6,7 +6,7 @@
 - import_tasks: raspbian.yaml
   when:
   - ansible_facts['os_family'] == "Debian"
-  - ansible_architecture == "armv7l"
+  - ansible_architecture == "aarch64"
 
   tags: raspbian
 
