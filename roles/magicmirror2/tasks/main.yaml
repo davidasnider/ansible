@@ -83,13 +83,11 @@
 - name: Ensure Node.js and MagicMirror dependencies are installed.
   apt:
     name:
-      - nodejs
-      - jq
       - devilspie2
+      - jq
+      - nodejs
+      - npm
       - wmctrl
-      # - ffmpeg
-      # - omxplayer
-      # - vlc
     state: present
 
 - name: Git reset before cloning # noqa 303
@@ -135,7 +133,7 @@
     mode: "0755"
   register: mm_ssh
   notify:
-    - restart magicmirror~
+    - restart magicmirror
 
 - name: Check startup scripts
   shell: |
@@ -145,6 +143,7 @@
     executable: /bin/bash
   register: pm2_status
   become_user: magicmirror
+  failed_when: false
   changed_when: false
 
 - name: Setup startup scripts
@@ -161,12 +160,18 @@
   become_user: magicmirror
   when: "'/home/magicmirror/mm.sh' not in pm2_status.stdout"
 
+- name: Check if wallpaper directory exists
+  stat:
+    path: /home/magicmirror/MagicMirror/modules/MMM-Wallpaper
+  register: wallpaper_dir
+
 - name: Reset Git
   command: git reset --hard
   args:
     chdir: /home/magicmirror/MagicMirror/modules/MMM-Wallpaper
   become_user: magicmirror
   changed_when: false
+  when: wallpaper_dir.stat.exists
 
 - name: Install wallpaper
   git:
