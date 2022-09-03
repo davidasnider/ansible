@@ -7,7 +7,7 @@
     fstype: nfs
     boot: yes
   loop:
-  - {path: /System/Volumes/Data/backups/backups, src: 'shiraz:/mnt/HITACHI_2TB_SLOT3/backups'}
-  - {path: /System/Volumes/Data/backups/archive, src: 'shiraz:/mnt/SEAGATE_4TB_SLOT5/archive'}
-  - {path: /System/Volumes/Data/backups/data, src: 'shiraz:/mnt/HITACHI_2TB_SLOT3/data'}
-  - {path: /System/Volumes/Data/backups/docker, src: 'shiraz:/mnt/SEAGATE_3TB_SLOT2/docker'}
+  - {path: /System/Volumes/Data/backups/backups, src: 'shiraz:/mnt/RAIDZ/backups'}
+  - {path: /System/Volumes/Data/backups/archive, src: 'shiraz:/mnt/RAIDZ/archive'}
+  - {path: /System/Volumes/Data/backups/data, src: 'shiraz:/mnt/RAIDZ/data'}
+  - {path: /System/Volumes/Data/backups/docker, src: 'shiraz:/mnt/RAIDZ/docker'}

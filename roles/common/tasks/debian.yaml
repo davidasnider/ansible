@@ -207,20 +207,20 @@
     enabled: yes
   tags: nrpe
 
-- name: create nagios host monitoring file
-  blockinfile:
-    create: true
-    path: /shared/docker/icinga_master/conf.d/auto/{{ ansible_hostname }}.conf
-    block: |
-      object Host "{{ ansible_hostname }}" {
-        address = "{{ ansible_default_ipv4.address }}"
-        import "generic-host"
-        vars.nrpe_no_ssl = "true"
-        vars.kernel = "Linux"
-      }
-    mode: '0644'
-  tags: nrpe
-  when: test_env is not defined
+# - name: create nagios host monitoring file
+#   blockinfile:
+#     create: true
+#     path: /shared/docker/icinga_master/conf.d/auto/{{ ansible_hostname }}.conf
+#     block: |
+#       object Host "{{ ansible_hostname }}" {
+#         address = "{{ ansible_default_ipv4.address }}"
+#         import "generic-host"
+#         vars.nrpe_no_ssl = "true"
+#         vars.kernel = "Linux"
+#       }
+#     mode: '0644'
+#   tags: nrpe
+#   when: test_env is not defined
 
 - name: install ntp.conf
   template:

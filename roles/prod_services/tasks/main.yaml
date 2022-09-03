@@ -51,36 +51,6 @@
   when:
   - masters[0] == inventory_hostname
 
-# - name: install the Dashboard on nonprod
-#   command: kubectl apply -k /usr/local/dashboard/nonprod
-#   register: dashboard_install
-#   tags: dashboard-install
-#   delegate_to: '{{ masters[0] }}'
-#   when:
-#   - masters[0] == inventory_hostname
-#   - not prod_cluster # False
-#   changed_when: "'configured' in dashboard_install.stdout"
-
-- name: install the Dashboard on prod
-  command: kubectl apply -k /usr/local/dashboard/prod
-  register: dashboard_install
-  tags: dashboard-install
-  delegate_to: '{{ masters[0] }}'
-  when:
-  - masters[0] == inventory_hostname
-  - prod_cluster # Is true
-  changed_when: "'configured' in dashboard_install.stdout"
-
-- name: download the dashboard users files
-  copy:
-    src: dashboard-user.yaml
-    dest: /var/lib/rancher/k3s/server/manifests/dashboard-user.yaml
-    mode: '0644'
-  tags: dashboard-install
-  delegate_to: '{{ masters[0] }}'
-  when:
-  - masters[0] == inventory_hostname
-
 - name: Copy kubeconfig to /tmp
   command: cp /etc/rancher/k3s/k3s.yaml /tmp/k3s.yaml
   changed_when: false
