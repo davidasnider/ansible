@@ -129,3 +129,19 @@
   file:
     dest: /etc/rancher/k3s
     state: directory
+
+# seeing a lack of file handles in some cases
+
+- name: fs.inotify.max_user_instances
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_instances
+    value: 1024
+    state: present
+    reload: yes
+
+- name: fs.inotify.max_user_watches
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_watches
+    value: 16384
+    state: present
+    reload: yes
