@@ -89,16 +89,14 @@
     - rundeck
     - home_automation
 
-- name: Create the envs file for home automation
-  blockinfile:
-    path: /usr/local/src/home_automation/deploy/prod/.env
-    create: yes
-    block: |
-      tomorrow_io={{ vaulted.TOMORROW_IO }}
-      tmrw_location_id={{ vaulted.TMRW_LOCATION_ID }}
-      indigo_username={{ vaulted.INDIGO_USERNAME }}
-      indigo_password={{ vaulted.INDIGO_PASSWORD }}
-  when: home_automation.changed
+# Create Home Automation Secrets
+- name: Create home automation secrets env-file
+  template:
+    src: env-template
+    dest: /usr/local/src/home_automation/deploy/prod/.env
+    owner: root
+    group: root
+    mode: '0600'
   tags:
     - rundeck
     - home_automation
@@ -108,7 +106,7 @@
   # of == to the number of jobs + 1 to get a "True" value. Otherwise it returns
   # False
 - name: Check if existing jobs exist
-  shell: (($(kubectl get job -n rundeck -l app=home_automation |wc -l)==3))
+  shell: (($(kubectl get job -n rundeck -l app=home_automation |wc -l)==4))
   args:
     executable: /bin/bash
   ignore_errors: true
@@ -119,17 +117,9 @@
   changed_when: false
 
 - name: Delete existing jobs from rundeck
-  command: kubectl delete jobs calc-sprinkler-multiplier -n rundeck
-  changed_when: false
-  failed_when: false
-  when: (home_automation.changed) or
-        (home_automation_job_check.failed)
-  tags:
-    - home_automation
-    - rundeck
-
-- name: Delete existing jobs from rundeck
-  command: kubectl delete jobs update-magic-mirror-temp -n rundeck
+  command: kubectl delete jobs -n rundeck -l app=home_automation
+  args:
+    chdir: /usr/local/src/rundeck
   changed_when: false
   failed_when: false
   when: (home_automation.changed) or
@@ -155,32 +145,6 @@
    - home_automation
   when: (home_automation.changed) or
         (home_automation_job_check.failed)
-
-# Add secrets file
-- name: Create Secrets file for rundeck
-  template:
-    src: rundeck-secrets.yaml
-    dest: /usr/local/src/rundeck-secrets.yaml
-    owner: root
-    group: root
-    mode: '0600'
-  tags:
-    - rundeck
-  notify: Create Rundeck Secrets
-
-- name: Check if rundeck secrets exist
-  command: kubectl get secret -n rundeck indigo-secrets
-  register: rundecksecrets
-  ignore_errors: true
-  tags:
-    - rundeck
-  changed_when: false
-
-- name: Recreate Rundeck Secrets
-  command: kubectl apply -f /usr/local/src/rundeck-secrets.yaml
-  when: rundecksecrets.failed
-  tags:
-    - rundeck
 
 # Setup Icinga Prod Services
 - name: Get the Icinga repo
