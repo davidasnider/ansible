@@ -92,7 +92,7 @@
     path: /etc/kernel/postinst.d/initramfs-tools
     block: |
       # Only process v8+ kernels
-      (echo ${version} | grep '8+') && \
+      (echo ${version} | grep '\-v8\+') && \
       # delete initramfs entries in /boot/config.txt && \
       /bin/sed -i '/^initramfs /d' /boot/config.txt && \
       # insert initramfs entry in /boot/config.txt && \
