@@ -1,10 +1,7 @@
 - name: Bootstrap a host operating system
   hosts: '{{ cluster }}'
   become: true
-  # vars_files:
-  # - ../site-variables.yaml
   environment:
-    # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
     vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma: allowlist secret
