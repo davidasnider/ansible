@@ -92,7 +92,7 @@
     hostarch: ""
   when: ansible_architecture == 'x86_64'
 
-- name: set fact to arm64 for arfmv7l architecture
+- name: set fact to arm64 for raspberry pi architecture
   set_fact:
     hostarch: "-arm64"
   when: ansible_architecture == 'aarch64'

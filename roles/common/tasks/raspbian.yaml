@@ -91,8 +91,8 @@
   blockinfile:
     path: /etc/kernel/postinst.d/initramfs-tools
     block: |
-      # Only process 7l+ kernels
-      (echo ${version} | grep '7l+') && \
+      # Only process v8+ kernels
+      (echo ${version} | grep '8+') && \
       # delete initramfs entries in /boot/config.txt && \
       /bin/sed -i '/^initramfs /d' /boot/config.txt && \
       # insert initramfs entry in /boot/config.txt && \
