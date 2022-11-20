@@ -106,7 +106,7 @@
   # of == to the number of jobs + 1 to get a "True" value. Otherwise it returns
   # False
 - name: Check if existing jobs exist
-  shell: (($(kubectl get job -n rundeck -l app=home_automation |wc -l)==4))
+  shell: (($(kubectl get job -n rundeck -l app=home_automation | grep -v ^NAME | wc -l)==4))
   args:
     executable: /bin/bash
   ignore_errors: true
