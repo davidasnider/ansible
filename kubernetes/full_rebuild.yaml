@@ -7,10 +7,9 @@
 - import_playbook: ../bootstrap/all_nodes_wait.yaml
 
 - import_playbook: ../bootstrap/rpi_init.yaml
-  # when:
-  # - ansible_facts['os_family'] == "Debian"
-  # - ansible_architecture == "aarch64"
+  when: hostvars[inventory_hostname].serial is defined
 
 - import_playbook: ../bootstrap/intel_init.yaml
+  when: hostvars[inventory_hostname].serial is not defined
 
 - import_playbook: ../bootstrap/main.yaml
