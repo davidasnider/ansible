@@ -50,7 +50,7 @@
   tags: static_dns
 
 - name: Install Production Services on K8s Clusters
-  hosts: k8s1,k8s2,k8stest
+  hosts: k8s1,k8stest
   become: true
   environment:
     VAULT_ADDR: https://vault.thesniderpad.com

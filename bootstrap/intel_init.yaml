@@ -2,10 +2,7 @@
   hosts: '{{ cluster }}'
   gather_facts: no
   become: yes
-  # vars_files:
-  # - ../site-variables.yaml
   environment:
-    # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
     vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"  # pragma: allowlist secret
@@ -21,10 +18,7 @@
     when: hostvars[inventory_hostname].serial is not defined
 
 - hosts: '{{ cluster }}'
-  # vars_files:
-  # - ../site-variables.yaml
   environment:
-    # VAULT_TOKEN: '{{ vault_ansible_token }}'
     VAULT_ADDR: https://vault.thesniderpad.com
   vars:
     vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}"  # pragma: allowlist secret
@@ -75,9 +69,3 @@
     when:
     - ansible_facts['os_family'] == "Debian"
     - hostvars[inventory_hostname].serial is not defined
-
-  - name: Zero out physical disks
-    command: 'dd if=/dev/zero of={{ item.value.disk }} bs=512 count=5'
-    loop: '{{ k8s_disks|default({})|dict2items }}'
-    when: item.key is defined
-    tags: testing

@@ -63,3 +63,11 @@ ansible-playbook kubernetes/full_rebuild.yaml --extra-vars "cluster=k8s1"
    1. `ansible-playbook bootstrap/test-bootstrap.yaml -i test-inventory.yaml --extra-vars "cluster=k8stest"`
 1. Install the latest playbooks
    1. `ansible-playbook site.yaml -i test-inventory.yaml`
+
+## Updating local pv-provisioner
+
+```
+   cd ~/code/sig-storage-local-static-provisioner
+   git pull
+   helm template ./helm/provisioner -f ./helm/provisioner/values.yaml --namespace pv-provisioner > ~/code/ansible/roles/prod_services/files/provisioner-generated.yaml
+```

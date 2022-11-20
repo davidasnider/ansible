@@ -46,8 +46,3 @@
       content: |
         INITRD=Yes
         RPI_INITRD=Yes
-
-  - name: Install iptables
-    apt:
-      name: iptables
-      state: present

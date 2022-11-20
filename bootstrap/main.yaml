@@ -8,6 +8,17 @@
   gather_facts: false
   tasks:
 
+  - name: Zero out physical disks
+    command: 'dd if=/dev/zero of={{ item.value.disk }} bs=512 count=5'
+    loop: '{{ k8s_disks|default({})|dict2items }}'
+    when: item.key is defined
+    tags: testing
+
+  - name: Install iptables
+    apt:
+      name: iptables
+      state: present
+
   - name: Make sure /etc/hostname has the right name
     copy:
       dest: /etc/hostname

@@ -56,11 +56,8 @@
       delay: 5
       until: '" Ready" in nodes_status_ready.stdout'
 
-    - name: Install metallb namespace  # noqa 503
-      command: kubectl apply -f https://raw.githubusercontent.com/google/metallb/{{ metallb_version }}/manifests/namespace.yaml
-
     - name: Install metallb  # noqa 503
-      command: kubectl apply -f https://raw.githubusercontent.com/google/metallb/{{ metallb_version }}/manifests/metallb.yaml
+      command: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
 
     - name: Install metallb secret  # noqa 503
       shell: kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"

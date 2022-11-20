@@ -167,8 +167,8 @@ all:
         - ia02
         - ia03
         token: udy29x.ugyyk3tumg27atmr
-        k3s_version: 'v1.22.4%2Bk3s1'
-        metallb_version: v0.10.2
+        k3s_version: 'v1.25.4%2Bk3s1'
+        metallb_version: v0.13.7
         flannel_version: master
         dashboard_ip: 10.9.9.200
         power_url: http://blanc:8000/devices/012%20-%20K8S1
