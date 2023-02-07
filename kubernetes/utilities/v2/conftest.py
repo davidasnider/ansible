@@ -32,7 +32,6 @@ def base_zfs_dataset(parent, my_api):
 # Create a LUN to be used in tests.
 @pytest.fixture(scope="session")
 def test_lun(parent, my_api, base_zfs_dataset) -> str:
-
     # Setup
     mylun = models.iscsi_lun(
         name="deleteme-clone",

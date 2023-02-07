@@ -15,7 +15,6 @@ with open(LOGGING_CONFIG) as f:
 
 # get root logger
 def log():
-
     return logging.getLogger(__name__)
     # the __name__ resolve to "main" since we are at the root of the project
     # This will get the root logger since no logger in the configuration has this name.
@@ -37,7 +36,6 @@ class freenas_api(BaseSettings):
         return HTTPBasicAuth(self.username, self.password)
 
     def get(self, uri):
-
         get_url = self.url + uri
         response = requests.request("GET", get_url, auth=self.auth(), verify=False)
         log.info(f"Freenas Get {get_url}, good response: {response.ok}")
