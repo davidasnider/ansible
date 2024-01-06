@@ -1,19 +1,19 @@
 - hosts: "{{ cluster }}"
   become: false
   gather_facts: no
-  environment:
-    VAULT_ADDR: https://vault.thesniderpad.com
   vars:
-    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma: allowlist secret
+    vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma: allowlist secret
   tasks:
 
-  - name: turn hosts off
-    uri:
-      url: "{{ power_url }}"
-      method: PUT
-      body: isOn=0
-      status_code: 303
-      url_username: '{{ vaulted.INDIGO_USERNAME }}'
-      url_password: '{{ vaulted.INDIGO_PASSWORD }}' # pragma: allowlist secret
-    when: power_url is defined
+  - name: turn hosts on
+    ansible.builtin.uri:
+      url: "{{ indigo_base_url }}/command"
+      method: POST
+      body_format: json
+      body:
+        message: "indigo.device.turnOff"
+        objectId: '{{ indigo_device_id }}'
+      headers:
+        Authorization: "Bearer {{ vaulted.INDIGO_API_KEY }}"
+    when: indigo_device_id is defined
     delegate_to: localhost
