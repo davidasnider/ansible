@@ -2,15 +2,17 @@
 
 ![CI](https://github.com/davidasnider/ansible/workflows/CI/badge.svg)
 
-## Installing `hvac` inside brew
+## Setup runtime/dev workstation
 
-Brew installed Ansible does not have the hvac module enabled and requires
-installation every time you update ansible. You must run the following command
-to install `hvac`:
+All configuration needed for development setup is in the Makefile.
 
-```bash
-"$(brew --cellar ansible)/$(brew info ansible --json=v1 | jq -r '.[].linked_keg')/libexec/bin/pip" install hvac
-```
+`make setup-dev`
+
+## Activate Python Virtual Environment
+
+Ansible is installed via Poetry. (this is done automatically in VS Code)
+
+`source .venv/bin/activate`
 
 ## Secrets
 

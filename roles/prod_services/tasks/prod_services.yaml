@@ -1,7 +1,5 @@
 - name: Get all existing namespaces
-  command: kubectl get namespaces
-  args:
-    warn: no
+  ansible.builtin.command: kubectl get namespaces
   register: namespaces
   changed_when: false
   ignore_errors: true

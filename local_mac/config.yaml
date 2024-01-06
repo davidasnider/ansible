@@ -7,10 +7,6 @@
       homebrew:
         name:
           [
-            ansible,
-            ansible-lint,
-            black,
-            flake8,
             git,
             htop,
             iperf,
@@ -19,10 +15,8 @@
             kustomize,
             minikube,
             nmap,
-            opa,
             packer,
             plantuml,
-            pre-commit,
             qemu,
             vault,
             watch,

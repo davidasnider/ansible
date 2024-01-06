@@ -5,7 +5,7 @@ all:
       static_dns_records:
       - name: k8s1
         ip: 10.9.9.200
-      - name: k8s2
+      - name: available
         ip: 10.9.9.201
       - name: mail
         ip: 10.9.9.202
@@ -77,7 +77,7 @@ all:
               serial: db460bd5
               pool: SAMSUNG_1TB_NVME
               boot_from_san: true
-              power_url: http://blanc:8000/devices/K8S2
+              indigo_device_id: 1463655360
             r406:
               hostname: r406
               hostmac: dc:a6:32:45:fc:83
@@ -85,7 +85,7 @@ all:
               serial: 8883c656
               pool: SAMSUNG_1TB_NVME
               boot_from_san: true
-              power_url: http://blanc:8000/devices/K8S2
+              indigo_device_id: 1463655360
             r407:
               hostname: r407
               hostmac: dc:a6:32:28:d4:fa
@@ -93,7 +93,7 @@ all:
               serial: 5d9d5cd5
               pool: SAMSUNG_1TB_NVME
               boot_from_san: true
-              power_url: http://blanc:8000/devices/K8S2
+              indigo_device_id: 1463655360
             r408:
               hostname: r408
               hostmac: dc:a6:32:61:11:1b
@@ -101,7 +101,7 @@ all:
               serial: 529babfe
               pool: SAMSUNG_1TB_NVME
               boot_from_san: true
-              power_url: http://blanc:8000/devices/K8S2
+              indigo_device_id: 1463655360
             ia01:
               hostname: ia01
               hostmac: 00:01:2e:48:a8:89
@@ -111,7 +111,7 @@ all:
               extent_filename: iamaster
               dataset: iamaster_iscsi_luns
               blocksize: 512
-              power_url: http://blanc:8000/devices/IA01%20-%20K8S2
+              indigo_device_id: 969379999
               zfs_snapshot: 20220731 # Comment this if it's the same for rpi's as well
               k8s_disks: #these will be added to a /mnt folder for local pvcs
                 disk1:
@@ -127,7 +127,7 @@ all:
               dataset: iamaster_iscsi_luns
               blocksize: 512
               zfs_snapshot: 20220731 # Comment this if it's the same for rpi's as well
-              power_url: http://blanc:8000/devices/IA02%20-%20K8S1
+              indigo_device_id: 1129410905
               k8s_disks: #these will be added to a /mnt folder for local pvcs
                 disk1:
                   disk: /dev/disk/by-path/pci-0000:00:17.0-ata-3
@@ -141,7 +141,7 @@ all:
               extent_filename: iamaster
               dataset: iamaster_iscsi_luns
               blocksize: 512
-              power_url: http://blanc:8000/devices/012%20-%20IA03%20-%20K8S1
+              indigo_device_id: 1811135084
               zfs_snapshot: 20220731 # Comment this if it's the same for rpi's as well
               k8s_disks: #these will be added to a /mnt folder for local pvcs
                 disk1:
@@ -171,7 +171,7 @@ all:
         metallb_version: v0.13.7
         flannel_version: master
         dashboard_ip: 10.9.9.200
-        power_url: http://blanc:8000/devices/012%20-%20K8S1
+        indigo_device_id: 867658962
         cluster_name: k8s1
         extent_filename: rpi4master
         prod_cluster: true
@@ -180,3 +180,4 @@ all:
     ansible_user: ansible
     boot_from_san: false
     ups: client
+    indigo_base_url: http://blanc:8000/v2/api
