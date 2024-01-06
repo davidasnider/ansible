@@ -108,18 +108,18 @@ var config = {
 			}
 		},
 		// Uncomment this when we have something to count down to!
-		// {
-		// 	module: 'MMM-CountDown',
-		// 	position: 'top_right',
-		// 	config: {
-		// 		event: "Germany Vacation",
-		// 		date: '2022-06-21',
-		// 		showHours: false,
-		// 		showMinutes: false,
-		// 		showSeconds: false,
-		// 		daysLabel: " Days",
-		// 	}
-		// },
+		{
+			module: 'MMM-CountDown',
+			position: 'top_right',
+			config: {
+				event: "Thailand Vacation",
+				date: '2024-02-09',
+				showHours: false,
+				showMinutes: false,
+				showSeconds: false,
+				daysLabel: " Days",
+			}
+		},
 		{
 			module: "MMM-IndoorTemperature-Endpoint",
 			config: {}
