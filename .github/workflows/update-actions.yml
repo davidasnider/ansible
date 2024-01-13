@@ -1,0 +1,17 @@
+name: Update Actions
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs every day at midnight
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Update Actions
+        uses: ActionsRML/update-actions@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
