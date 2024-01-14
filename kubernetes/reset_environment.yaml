@@ -19,7 +19,7 @@
   # the group passed on the cmd line as cluster
   # Todo: make that a variable somehow.
   - name: Delete each of the iscsi luns for the nodes in the group
-    shell: ~/code/ansible/.venv/bin/python3 ./utilities/v2/delete_lun.py {{ item }} {{ hostvars[item].pool }} {{ hostvars[item].zfs_snapshot }} {{ hostvars[item].dataset }}
+    shell: ~/code/ansible/.venv/bin/python3 ./utilities/v2/delete_lun.py --target_name {{ item }} --pool {{ hostvars[item].pool }} --snapshot {{ hostvars[item].zfs_snapshot }} --dataset {{ hostvars[item].dataset }}
     loop: '{{ groups[cluster]|flatten(levels=1) }}'
 
 # Create the LUNS on shiraz for Raspberry Pi

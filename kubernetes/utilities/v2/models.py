@@ -55,44 +55,35 @@ class freenas_api(BaseSettings):
     def auth(self):
         return HTTPBasicAuth(self.username, self.password.get_secret_value())
 
-    def get(self, uri):
-        get_url = f"{self.url}{uri}"
-        response = requests.request("GET", get_url, auth=self.auth(), verify=False)
-        log.info(f"Freenas Get {get_url}, good response: {response.ok}")
-        return response
-
-    def post(self, uri, headers=None, data=None):
+    def make_request(self, method: str, uri: str, headers=None, data=None):
         if headers is None:
             headers = {}
         if data is None:
             data = {}
-        post_url = f"{self.url}{uri}"
-        response = requests.post(
-            url=post_url,
+        url = f"{self.url}{uri}"
+        response = requests.request(
+            method,
+            url,
             auth=self.auth(),
             headers=headers,
-            data=json.dumps(data),
+            data=json.dumps(data) if data else None,
             verify=False,
         )
-        log.info(f"Freenas Post {post_url}, good response: {response.ok}")
+        log.info(f"Freenas {method} {url}, good response: {response.ok}")
+        response.raise_for_status()
         return response
 
+    def get(self, uri):
+        return self.make_request("GET", uri)
+
+    def post(self, uri, headers=None, data=None):
+        return self.make_request("POST", uri, headers, data)
+
     def delete(self, uri, data=None):
-        if data is None:
-            data = {}
         headers = {
             "Content-Type": "application/json",
         }
-        post_url = f"{self.url}{uri}"
-        response = requests.delete(
-            post_url,
-            headers=headers,
-            data=json.dumps(data),
-            auth=self.auth(),
-            verify=False,
-        )
-        log.info(f"Freenas Post {post_url}, good response: {response.ok}")
-        return response.ok
+        return self.make_request("DELETE", uri, headers, data)
 
 
 class iscsi_lun(BaseModel):
