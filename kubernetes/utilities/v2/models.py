@@ -1,4 +1,5 @@
-from pydantic import BaseModel, HttpUrl, BaseSettings
+from pydantic import BaseModel, HttpUrl
+from pydantic_settings import BaseSettings
 import requests
 from requests.auth import HTTPBasicAuth
 import json
@@ -36,13 +37,13 @@ class freenas_api(BaseSettings):
         return HTTPBasicAuth(self.username, self.password)
 
     def get(self, uri):
-        get_url = self.url + uri
+        get_url = str(self.url) + uri
         response = requests.request("GET", get_url, auth=self.auth(), verify=False)
         log.info(f"Freenas Get {get_url}, good response: {response.ok}")
         return response
 
     def post(self, uri, headers={}, data={}):
-        post_url = self.url + uri
+        post_url = str(self.url) + uri
         response = requests.post(
             url=post_url,
             auth=self.auth(),
@@ -57,7 +58,7 @@ class freenas_api(BaseSettings):
         headers = {
             "Content-Type": "application/json",
         }
-        post_url = self.url + uri
+        post_url = str(self.url) + uri
         response = requests.request(
             "DELETE",
             post_url,
