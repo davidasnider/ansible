@@ -1,4 +1,4 @@
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, SecretStr
 from pydantic_settings import BaseSettings
 import requests
 from requests.auth import HTTPBasicAuth
@@ -14,36 +14,59 @@ with open(LOGGING_CONFIG) as f:
     logging.config.dictConfig(config_dict)
 
 
-# get root logger
-def log():
-    return logging.getLogger(__name__)
-    # the __name__ resolve to "main" since we are at the root of the project
-    # This will get the root logger since no logger in the configuration has this name.
+def get_logger():
+    """
+    Returns the root logger. If no logger with the name of this module exists,
+    a new one will be created.
+
+    Returns:
+    logging.Logger: The logger.
+    """
+    logger = logging.getLogger(__name__)
+    if not logger.hasHandlers():
+        # Create a console handler with a higher log level
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.WARNING)
+
+        # Create a formatter and add it to the handlers
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        console_handler.setFormatter(formatter)
+
+        # Add the handlers to the logger
+        logger.addHandler(console_handler)
+
+    return logger
 
 
 def log_config():
     return config_dict
 
 
-log = log()
+log = get_logger()
 
 
 class freenas_api(BaseSettings):
     url: HttpUrl
     username: str
-    password: str
+    password: SecretStr
 
     def auth(self):
-        return HTTPBasicAuth(self.username, self.password)
+        return HTTPBasicAuth(self.username, self.password.get_secret_value())
 
     def get(self, uri):
-        get_url = str(self.url) + uri
+        get_url = f"{self.url}{uri}"
         response = requests.request("GET", get_url, auth=self.auth(), verify=False)
         log.info(f"Freenas Get {get_url}, good response: {response.ok}")
         return response
 
-    def post(self, uri, headers={}, data={}):
-        post_url = str(self.url) + uri
+    def post(self, uri, headers=None, data=None):
+        if headers is None:
+            headers = {}
+        if data is None:
+            data = {}
+        post_url = f"{self.url}{uri}"
         response = requests.post(
             url=post_url,
             auth=self.auth(),
@@ -54,13 +77,14 @@ class freenas_api(BaseSettings):
         log.info(f"Freenas Post {post_url}, good response: {response.ok}")
         return response
 
-    def delete(self, uri, data={}) -> bool:
+    def delete(self, uri, data=None):
+        if data is None:
+            data = {}
         headers = {
             "Content-Type": "application/json",
         }
-        post_url = str(self.url) + uri
-        response = requests.request(
-            "DELETE",
+        post_url = f"{self.url}{uri}"
+        response = requests.delete(
             post_url,
             headers=headers,
             data=json.dumps(data),
@@ -88,7 +112,7 @@ class iscsi_lun(BaseModel):
     blocksize: int = 512
 
     def target_exists(self):
-        url = "/api/v2.0/iscsi/target?name=" + self.name
+        url = f"/api/v2.0/iscsi/target?name={self.name}"
         response = self.api_connection.get(url)
         exists = False
         for response_item in response.json():
@@ -99,7 +123,7 @@ class iscsi_lun(BaseModel):
         return exists
 
     def get_target_details(self):
-        url = "/api/v2.0/iscsi/target?name=" + self.name
+        url = f"/api/v2.0/iscsi/target?name={self.name}"
         response = self.api_connection.get(url)
         id = None
         for response_item in response.json():
@@ -127,7 +151,7 @@ class iscsi_lun(BaseModel):
     def delete_target(self):
         if self.target_exists():
             id = self.target_id
-            url = "/api/v2.0/iscsi/target/id/" + str(id)
+            url = f"/api/v2.0/iscsi/target/id/{str(id)}"
             payload = False  # Don't force delete
             response = self.api_connection.delete(url, data=payload)
             log.info(
@@ -140,7 +164,7 @@ class iscsi_lun(BaseModel):
     def create_dataset(self):
         url = "/api/v2.0/pool/dataset"
         payload = {
-            "name": self.parent + "/" + self.name,
+            "name": f"{self.parent}/{self.name}",
             "type": "FILESYSTEM",
             "compression": "OFF",
             "atime": "OFF",
@@ -155,7 +179,7 @@ class iscsi_lun(BaseModel):
     def create_dataset_snapshot(self, snapshot_name):
         url = "/api/v2.0/zfs/snapshot"
         payload = {
-            "dataset": self.parent + "/" + self.name,
+            "dataset": f"{self.parent}/{self.name}",
             "name": snapshot_name,
             "recursive": False,
             "properties": {},
@@ -169,12 +193,8 @@ class iscsi_lun(BaseModel):
     def clone_dataset(self):
         url = "/api/v2.0/zfs/snapshot/clone"
         payload = {
-            "snapshot": self.parent
-            + "/"
-            + self.clone_from_dataset
-            + "@"
-            + self.clone_from_snapshot,
-            "dataset_dst": self.parent + "/" + self.name,
+            "snapshot": f"{self.parent}/{self.clone_from_dataset}@{self.clone_from_snapshot}",
+            "dataset_dst": f"{self.parent}/{self.name}",
         }
         response = self.api_connection.post(url, data=payload)
         log.info(
@@ -183,14 +203,7 @@ class iscsi_lun(BaseModel):
         return response.ok
 
     def delete_dataset_snapshot(self, snapshot_name):
-        url = (
-            "/api/v2.0/zfs/snapshot/id/"
-            + self.parent
-            + "%2F"
-            + self.name
-            + "@"
-            + snapshot_name
-        )
+        url = f"/api/v2.0/zfs/snapshot/id/{self.parent}%2F{self.name}@{snapshot_name}"
         payload = {}
         response = self.api_connection.delete(url, data=payload)
         log.info(f"Delete dataset snapshot {self.parent}/{self.name}@{snapshot_name}")
@@ -198,7 +211,7 @@ class iscsi_lun(BaseModel):
 
     def delete_dataset(self):
         if self.dataset_exists():
-            url = "/api/v2.0/pool/dataset/id/" + self.parent + "%2F" + self.name
+            url = f"/api/v2.0/pool/dataset/id/{self.parent}%2F{self.name}"
             payload = {"recursive": True, "force": True}
             result = self.api_connection.delete(url, data=payload)
             log.info(f"Delete dataset {self.name}")
@@ -208,7 +221,7 @@ class iscsi_lun(BaseModel):
             return False
 
     def dataset_exists(self):
-        url = "/api/v2.0/pool/dataset?name=" + self.parent + "/" + self.name
+        url = f"/api/v2.0/pool/dataset?name={self.parent}/{self.name}"
         result = self.api_connection.get(url)
         if len(result.json()) == 1:  # We should only get one result on the query
             log.info(f"Dataset {self.name} exists")
@@ -219,11 +232,11 @@ class iscsi_lun(BaseModel):
 
     def create_extent(self, size: int = 0):
         url = "/api/v2.0/iscsi/extent"
-        path = "/mnt/" + self.parent + "/" + self.name + "/"
+        path = f"/mnt/{self.parent}/{self.name}/"
         if self.extent_file is None:
-            path = path + self.name
+            path = f"{path}{self.name}"
         else:
-            path = path + self.extent_file
+            path = f"{path}{self.extent_file}"
 
         payload = {
             "name": self.name,
@@ -247,7 +260,7 @@ class iscsi_lun(BaseModel):
 
     def delete_extent(self):
         if self.extent_exists():  # Make sure extent exists
-            url = "/api/v2.0/iscsi/extent/id/" + str(self.extent_id)
+            url = f"/api/v2.0/iscsi/extent/id/{str(self.extent_id)}"
             payload = {}
             result = self.api_connection.delete(url, data=payload)
             log.info(f"Delete extent {self.name} good response {result}")
@@ -256,7 +269,7 @@ class iscsi_lun(BaseModel):
             log.info(f"Extent {self.name} does not exist")
 
     def extent_exists(self):
-        url = "/api/v2.0/iscsi/extent?name=" + self.name
+        url = f"/api/v2.0/iscsi/extent?name={self.name}"
 
         response = self.api_connection.get(url)
 
@@ -290,7 +303,7 @@ class iscsi_lun(BaseModel):
 
     def delete_target_extent(self):
         if self.target_extent_exists():
-            url = "/api/v2.0/iscsi/targetextent/id/" + str(self.extent_target_id)
+            url = f"/api/v2.0/iscsi/targetextent/id/{str(self.extent_target_id)}"
             payload = False  # Don't force
             result = self.api_connection.delete(url, data=payload)
             log.info(
@@ -315,12 +328,7 @@ class iscsi_lun(BaseModel):
                 )
                 return False
 
-        url = (
-            "/api/v2.0/iscsi/targetextent?target="
-            + str(self.target_id)
-            + "&extent="
-            + str(self.extent_id)
-        )
+        url = f"/api/v2.0/iscsi/targetextent?target={self.target_id}&extent={self.extent_id}"
         response = self.api_connection.get(url)
         if response.ok:
             # Assuming there will always be a single item in the response, [0]

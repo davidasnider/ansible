@@ -1,6 +1,5 @@
 import pytest
 from v2 import models, create_lun
-import os
 from unittest.mock import Mock, patch
 
 
