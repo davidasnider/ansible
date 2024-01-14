@@ -275,13 +275,13 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "detect-secrets"
-version = "0.14.3"
+version = "1.4.0"
 description = "Tool for detecting secrets in the codebase"
 optional = false
 python-versions = "*"
 files = [
-    {file = "detect_secrets-0.14.3-py2.py3-none-any.whl", hash = "sha256:dc56fb75ddc221eed4e998127230b59154024910121778bf38100a29da04c5cd"},
-    {file = "detect_secrets-0.14.3.tar.gz", hash = "sha256:953466e6e4a698cd6ee5bce060173889d7383a7ebf7a2cf3774ab7718bf826a3"},
+    {file = "detect_secrets-1.4.0-py3-none-any.whl", hash = "sha256:d08ecabeee8b68c0acb0e8a354fb98d822a653f6ed05e520cead4c6fc1fc02cd"},
+    {file = "detect_secrets-1.4.0.tar.gz", hash = "sha256:d56787e339758cef48c9ccd6692f7a094b9963c979c9813580b0169e41132833"},
 ]
 
 [package.dependencies]
@@ -289,6 +289,7 @@ pyyaml = "*"
 requests = "*"
 
 [package.extras]
+gibberish = ["gibberish-detector"]
 word-list = ["pyahocorasick"]
 
 [[package]]
@@ -803,4 +804,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "c3818e26cb7293f5a814f415139f3a87c65bc8b4832f575b778efeeeb90ffabc"
+content-hash = "dec4c5cfefea2f18bc0fc659cfdd0c962c0849eeb056ebecdeb9f018ce4da29f"

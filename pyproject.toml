@@ -32,7 +32,7 @@ ansible = "^9.1.0"
 hvac = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
-detect-secrets = "=0.14.3"
+detect-secrets = "=1.4.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.6.0"
