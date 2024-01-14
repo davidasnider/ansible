@@ -24,7 +24,7 @@
 
 # Create the LUNS on shiraz for Raspberry Pi
   - name: Create each of the iscsi luns for the nodes in the group rpimaster
-    shell: ~/code/ansible/.venv/bin/python3 ./utilities/v2/create_lun.py {{ item }} {{ hostvars[item].pool }} {{ hostvars[item].zfs_snapshot }} {{ hostvars[item].dataset }} {{ hostvars[item].extent_filename }} {{ hostvars[item].blocksize }}
+    command: ~/code/ansible/.venv/bin/python3 ./utilities/v2/create_lun.py --target_name {{ item }} --pool {{ hostvars[item].pool }} --snapshot {{ hostvars[item].zfs_snapshot }} --dataset {{ hostvars[item].dataset }} --extent_file {{ hostvars[item].extent_filename }} --blocksize {{ hostvars[item].blocksize }}
     loop: '{{ groups[cluster]|flatten(levels=1) }}'
 
 - hosts: gw

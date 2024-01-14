@@ -45,6 +45,7 @@ jobs:
       pull-requests: write
     needs:
       - gitleaks
+      - pytest
     steps:
       - uses: hmarr/auto-approve-action@v3.2.1
         with:
