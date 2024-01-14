@@ -5,7 +5,6 @@ This script creates a LUN (Logical Unit Number) given command line arguments.
 import argparse
 import logging
 from v2 import models
-import sys
 
 
 def main(args):
