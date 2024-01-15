@@ -1,6 +1,9 @@
 import argparse
-from v2 import models
+import models
 import sys
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def main(args):
@@ -28,10 +31,10 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Delete a LUN.")
-    parser.add_argument("target_name", help="The target name")
-    parser.add_argument("pool", help="The pool name")
-    parser.add_argument("snapshot", help="The snapshot name")
-    parser.add_argument("dataset", help="The dataset name")
+    parser.add_argument("--target_name", help="The target name")
+    parser.add_argument("--pool", help="The pool name")
+    parser.add_argument("--snapshot", help="The snapshot name")
+    parser.add_argument("--dataset", help="The dataset name")
 
     args = parser.parse_args()
     main(args)

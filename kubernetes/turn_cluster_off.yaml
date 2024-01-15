@@ -5,7 +5,7 @@
     vaulted: "{{ lookup('hashi_vault', 'url=https://vault.thesniderpad.com secret=ansible/data/variables')}}" # pragma: allowlist secret
   tasks:
 
-  - name: turn hosts on
+  - name: turn hosts off
     ansible.builtin.uri:
       url: "{{ indigo_base_url }}/command"
       method: POST

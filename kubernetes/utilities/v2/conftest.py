@@ -1,5 +1,5 @@
 import pytest
-from v2 import models
+import models
 
 
 # The parent dataset to be tested against.
