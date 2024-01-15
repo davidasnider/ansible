@@ -134,6 +134,13 @@
   notify:
     - restart magicmirror
 
+- name: Update pm2_status
+  shell: pm2 update &
+  args:
+    executable: /bin/bash
+  become_user: magicmirror
+  failed_when: false
+  changed_when: false
 - name: Check startup scripts
   shell: |
     set -o pipefail

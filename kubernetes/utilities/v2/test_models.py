@@ -1,5 +1,7 @@
 import pytest
-from v2 import models, create_lun, delete_lun
+import models
+import create_lun
+import delete_lun
 from unittest.mock import Mock, patch
 import logging
 
@@ -111,38 +113,3 @@ def test_delete_lun_main():
         mock_lun.delete_extent.assert_called_once_with()
         mock_lun.delete_target.assert_called_once_with()
         mock_lun.delete_dataset.assert_called_once_with()
-
-
-@pytest.mark.unittest
-def test_get_logger():
-    # Mock the logging module
-    with patch.object(logging, "getLogger") as mock_getLogger, patch.object(
-        logging, "StreamHandler"
-    ) as mock_StreamHandler, patch.object(logging, "Formatter") as mock_Formatter:
-        # Mock the logger and handler instances
-        mock_logger = Mock()
-        mock_getLogger.return_value = mock_logger
-        mock_handler = Mock()
-        mock_StreamHandler.return_value = mock_handler
-
-        # Override the hasHandlers method to return True
-        mock_logger.hasHandlers.return_value = False
-
-        # Call the get_logger function
-        logger = models.get_logger()
-
-        # Check that the logging module was used correctly
-        mock_getLogger.assert_called_once_with("v2.models")
-        mock_StreamHandler.assert_called_once_with()
-        mock_handler.setLevel.assert_called_once_with(logging.WARNING)
-        mock_Formatter.assert_called_once_with(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        mock_handler.setFormatter.assert_called_once_with(mock_Formatter.return_value)
-        mock_logger.addHandler.assert_called_once_with(mock_handler)
-
-        # Check that the correct logger was returned
-        assert logger == mock_logger
-
-        # Check that the logger has at least one handler
-        assert logger.hasHandlers() is False

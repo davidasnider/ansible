@@ -4,7 +4,7 @@ This script creates a LUN (Logical Unit Number) given command line arguments.
 
 import argparse
 import logging
-from v2 import models
+import models
 
 
 def main(args):
@@ -37,12 +37,12 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create a LUN.")
-    parser.add_argument("target_name", help="Hostname in ansible")
-    parser.add_argument("pool", help="Pool in ansible")
-    parser.add_argument("snapshot", help="ZFS snapshot in ansible")
-    parser.add_argument("dataset", help="Dataset snapshot in ansible")
-    parser.add_argument("extent_file", help="Extent file")
-    parser.add_argument("blocksize", help="Block size")
+    parser.add_argument("--target_name", help="Hostname in ansible")
+    parser.add_argument("--pool", help="Pool in ansible")
+    parser.add_argument("--snapshot", help="ZFS snapshot in ansible")
+    parser.add_argument("--dataset", help="Dataset snapshot in ansible")
+    parser.add_argument("--extent_file", help="Extent file")
+    parser.add_argument("--blocksize", help="Block size")
 
     args = parser.parse_args()
 
