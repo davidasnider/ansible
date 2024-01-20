@@ -166,7 +166,7 @@ all:
         - ia01
         - ia02
         - ia03
-        k3s_version: 'v1.26.12%2Bk3s1'
+        k3s_version: 'v1.29.0%2Bk3s1'
         metallb_version: v0.13.7
         flannel_version: master
         dashboard_ip: 10.9.9.200
