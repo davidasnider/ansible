@@ -11,6 +11,11 @@
     dest: /etc/systemd/system/k3s.service
   when: node_cluster_status.failed
 
+- name: Get the token for joining the cluster
+  command: cat /var/lib/rancher/k3s/server/token
+  register: join_token
+  delegate_to: '{{ masters[0] }}'
+
 - name: Create k3s config.yaml
   copy:
     dest: /etc/rancher/k3s/config.yaml
@@ -22,7 +27,7 @@
         - servicelb
         - traefik
         - local-storage
-      token: {{ token }}
+      token: {{ join_token.stdout }}
       server: https://{{ masters[0] }}:6443
   when: node_cluster_status.failed
 
