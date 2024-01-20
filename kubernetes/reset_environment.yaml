@@ -1,7 +1,7 @@
 - hosts: 127.0.0.1
   environment:
     VAULT_ADDR: https://vault.thesniderpad.com
-    password: '{{ vaulted.LINUX_CLEAR_PASSWORD }}'
+    password: '{{ vaulted.SHIRAZ_ADMIN_PASSWORD }}'
     username: '{{ vaulted.SHIRAZ_ADMIN_USER }}'
     url: '{{ vaulted.SHIRAZ_URL }}'
   vars:
