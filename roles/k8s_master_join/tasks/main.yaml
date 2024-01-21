@@ -48,18 +48,3 @@
   delay: 5
   until: '" Ready" in nodes_status_ready.stdout'
   when: node_cluster_status.failed
-
-# - name: Install final k3s service definition file
-#   template:
-#     src: k3s.service.final.j2
-#     dest: /etc/systemd/system/k3s.service
-#   when: node_cluster_status.failed
-
-# - name: restart k3s service
-#   systemd:
-#     state: restarted
-#     enabled: true
-#     name: k3s
-#     daemon_reload: yes
-#     no_block: true
-#   when: node_cluster_status.failed
