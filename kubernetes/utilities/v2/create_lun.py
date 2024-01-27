@@ -35,7 +35,7 @@ def main(args):
     mylun.create_target_extent()
 
 
-if __name__ == "__main__":
+def get_args():
     parser = argparse.ArgumentParser(description="Create a LUN.")
     parser.add_argument("--target_name", help="Hostname in ansible")
     parser.add_argument("--pool", help="Pool in ansible")
@@ -45,7 +45,9 @@ if __name__ == "__main__":
     parser.add_argument("--blocksize", help="Block size")
 
     args = parser.parse_args()
+    return args
 
+
+if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-
-    main(args)
+    main(get_args())
