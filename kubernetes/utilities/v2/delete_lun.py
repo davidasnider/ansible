@@ -29,7 +29,7 @@ def main(args):
         sys.exit(1)
 
 
-if __name__ == "__main__":
+def get_args():
     parser = argparse.ArgumentParser(description="Delete a LUN.")
     parser.add_argument("--target_name", help="The target name")
     parser.add_argument("--pool", help="The pool name")
@@ -37,4 +37,9 @@ if __name__ == "__main__":
     parser.add_argument("--dataset", help="The dataset name")
 
     args = parser.parse_args()
-    main(args)
+    return args
+
+
+if __name__ == "__main__":
+
+    main(get_args())
