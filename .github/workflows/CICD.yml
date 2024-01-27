@@ -13,6 +13,10 @@ jobs:
 
   pytest:
     runs-on: ubuntu-latest
+    env:
+      url: http://localhost
+      username: test
+      password: notarealpassword #pragma: allowlist secret
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
