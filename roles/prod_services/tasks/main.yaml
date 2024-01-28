@@ -145,3 +145,18 @@
   tags: dns-antiaffinity
   register: coredns
   changed_when: "'configured' in coredns.stdout"
+
+- name: Get the number of replicas for coredns
+  shell: kubectl get deployment coredns -n kube-system -o jsonpath='{.spec.replicas}'
+  register: coredns_replicas
+  tags: dns-antiaffinity
+  when:
+  - masters[0] == inventory_hostname
+  changed_when: false
+
+- name: Scale coredns to 3 replicas if necessary
+  shell: kubectl scale deployment coredns -n kube-system --replicas=3
+  when:
+  - masters[0] == inventory_hostname
+  - coredns_replicas.stdout | int != 3
+  tags: dns-antiaffinity
