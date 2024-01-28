@@ -65,6 +65,7 @@
     group: root
     mode: '0644'
   register: mailrelay_manifest_changed
+  tags: mailrelay
 
 # Setup rundeck
 - name: Get the rundeck repo
