@@ -1,0 +1,78 @@
+- name: Rolling upgrade of all nodes
+  hosts: all
+  serial: 3 # only do two nodes at a time
+  order: shuffle # choose the nodes randomly
+  vars:
+    masters: "{{ groups['k8s1masters'] }}"
+  tasks:
+    - name: Get the list of k8s nodes
+      shell: kubectl get nodes -o jsonpath='{.items[*].metadata.name}'
+      register: nodes
+      delegate_to: localhost
+      until: nodes is succeeded
+      retries: 3
+      delay: 10
+
+    - name: Check if the current host is a k8s node
+      set_fact:
+        is_node: "{{ inventory_hostname in nodes.stdout.split() }}"
+      ignore_errors: true
+
+    - name: Cordon the k8s node
+      shell: kubectl cordon {{ inventory_hostname }}
+      delegate_to: localhost
+      register: result
+      when: is_node
+      until: result is succeeded
+      retries: 3
+      delay: 10
+
+    - name: Drain the node if it is a k8s node
+      shell: kubectl drain {{ inventory_hostname }} --ignore-daemonsets --delete-emptydir-data
+      when: is_node
+      delegate_to: localhost
+      register: result
+      until: result is succeeded
+      retries: 3
+      delay: 10
+
+    - name: Update packages and reboot hosts
+      block:
+        - name: Update homebrew  on macOS
+          homebrew:
+            update_homebrew: yes
+            upgrade_all: yes
+          when: ansible_os_family == "Darwin"
+          tags: update
+
+        - name: Update software on macOS
+          command: softwareupdate -i -a
+          when: ansible_os_family == "Darwin"
+          become: true
+
+        - name: Full upgrade packages on Debian-based systems
+          ansible.builtin.apt:
+            update_cache: yes
+            upgrade: full
+            dpkg_options: 'force-confdef,force-confold'
+            autoremove: yes
+          environment:
+            DEBIAN_FRONTEND: noninteractive
+          when: ansible_os_family == "Debian"
+          become: true
+
+        - name: Reboot the node
+          ansible.builtin.reboot:
+          become: true
+          when:
+          - inventory_hostname != "shiraz" # This is the nas.. it would be bad as many hosts boot from it
+          - inventory_hostname != "gw" # This is the gw.. it would be bad as... internet...
+
+    - name: Uncordon the k8s node
+      shell: kubectl uncordon {{ inventory_hostname }}
+      delegate_to: localhost
+      when: is_node
+      register: result
+      until: result is succeeded
+      retries: 3
+      delay: 10
