@@ -30,7 +30,7 @@ python = "^3.10"
 pydantic = "^2.6.1"
 ansible = "^9.2.0"
 hvac = "^2.1.0"
-pydantic-settings = "^2.1.0"
+pydantic-settings = "^2.2.1"
 
 [tool.poetry.dev-dependencies]
 detect-secrets = "=1.4.0"
