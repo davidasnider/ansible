@@ -1,6 +1,6 @@
 - name: Rolling upgrade of all nodes
   hosts: all
-  serial: 3 # only do two nodes at a time
+  serial: 3 # only do three nodes at a time
   order: shuffle # choose the nodes randomly
   vars:
     masters: "{{ groups['k8s1masters'] }}"

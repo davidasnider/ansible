@@ -112,8 +112,8 @@ var config = {
 			module: 'MMM-CountDown',
 			position: 'top_right',
 			config: {
-				event: "Thailand Vacation",
-				date: '2024-02-09',
+				event: "UofO Family Weekend",
+				date: '2024-03-26',
 				showHours: false,
 				showMinutes: false,
 				showSeconds: false,
