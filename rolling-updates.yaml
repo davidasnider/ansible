@@ -2,6 +2,7 @@
   hosts: all
   serial: 3 # only do three nodes at a time
   order: shuffle # choose the nodes randomly
+  strategy: free # don't wait for the previous batch to finish
   vars:
     masters: "{{ groups['k8s1masters'] }}"
   tasks:
