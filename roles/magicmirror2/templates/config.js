@@ -113,7 +113,7 @@ var config = {
 			position: 'top_right',
 			config: {
 				event: "UofO Family Weekend",
-				date: '2024-03-26',
+				date: '2024-04-26',
 				showHours: false,
 				showMinutes: false,
 				showSeconds: false,
