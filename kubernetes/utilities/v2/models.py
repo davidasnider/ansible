@@ -52,6 +52,9 @@ class freenas_api(BaseSettings):
     username: str
     password: SecretStr
 
+    class Config:
+        env_file = ".env"
+
     def auth(self):
         return HTTPBasicAuth(self.username, self.password.get_secret_value())
 
