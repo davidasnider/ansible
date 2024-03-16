@@ -38,6 +38,7 @@
     - ethtool
     - git
     - ca-certificates
+    - apt-transport-https
   tags:
   - autofs
   - collectd
