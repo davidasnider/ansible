@@ -24,6 +24,7 @@
     - name: Install new packages
       apt:
         pkg:
+        - gh
         - htop
         - iperf
         - jq
