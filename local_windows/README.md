@@ -1,8 +1,8 @@
 # This is not really for Windows, it's for WSL
 
-## Install ansible on WSL
+# Initialize repo dev and dependencies
 
-apt upgrade && apt install ansible
+In the parent directory of this one, `make setup-dev`
 
 ## Run playbook
 
