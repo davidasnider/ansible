@@ -173,13 +173,17 @@
         block: |
           plugins=(git)
 
-    # Todo Add the vault address variable here
-
-    # Todo, get this from the mac and add it here.
-    # - name: Automatically enable .venv in shell
-    #   blockinfile:
-    #     path: ~/.zshrc
-    #     block: |
+    - name: Activate venv in current/child directory
+      blockinfile:
+        path: ~/.zshrc
+        block: |
+          chpwd() {
+              if [ -d .venv ]; then
+                  source .venv/bin/activate
+              elif [[ $PWD != $(dirname $VIRTUAL_ENV)/* ]] && type deactivate > /dev/null 2>&1; then
+                  deactivate
+              fi
+          }
 
     - name: Create .kube
       file:

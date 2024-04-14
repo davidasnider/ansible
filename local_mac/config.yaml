@@ -134,3 +134,16 @@
         url: https://raw.githubusercontent.com/caiogondim/bullet-train-oh-my-zsh-theme/master/bullet-train.zsh-theme
         dest: ~/.oh-my-zsh/themes/bullet-train.zsh-theme
       tags: oh-my-zsh
+
+    - name: Activate venv in current/child directory
+      blockinfile:
+        path: ~/.zshrc
+        block: |
+          chpwd() {
+              if [ -d .venv ]; then
+                  source .venv/bin/activate
+              elif [[ $PWD != $(dirname $VIRTUAL_ENV)/* ]] && type deactivate > /dev/null 2>&1; then
+                  deactivate
+              fi
+          }
+      tags: venv
