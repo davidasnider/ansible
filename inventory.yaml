@@ -132,21 +132,21 @@ all:
                 disk1:
                   disk: /dev/disk/by-path/pci-0000:00:17.0-ata-3
                   path: /mnt/disk1
-            ia03:
-              hostname: ia03
-              hostmac: 68:05:ca:28:1c:09
-              ip: 10.9.9.15
-              pool: SAMSUNG_1TB_NVME
-              boot_from_san: true
-              extent_filename: iamaster
-              dataset: iamaster_iscsi_luns
-              blocksize: 512
-              indigo_device_id: 1811135084
-              zfs_snapshot: 20220731 # Comment this if it's the same for rpi's as well
-              k8s_disks: #these will be added to a /mnt folder for local pvcs
-                disk1:
-                  disk: /dev/disk/by-path/pci-0000:03:00.0-nvme-1
-                  path: /mnt/disk1
+            # ia03:  # likely dead...
+            #   hostname: ia03
+            #   hostmac: 68:05:ca:28:1c:09
+            #   ip: 10.9.9.15
+            #   pool: SAMSUNG_1TB_NVME
+            #   boot_from_san: true
+            #   extent_filename: iamaster
+            #   dataset: iamaster_iscsi_luns
+            #   blocksize: 512
+            #   indigo_device_id: 1811135084
+            #   zfs_snapshot: 20220731 # Comment this if it's the same for rpi's as well
+            #   k8s_disks: #these will be added to a /mnt folder for local pvcs
+            #     disk1:
+            #       disk: /dev/disk/by-path/pci-0000:03:00.0-nvme-1
+            #       path: /mnt/disk1
       vars:
         zfs_snapshot: 20220731
         dataset: rpi4master_iscsi_luns
