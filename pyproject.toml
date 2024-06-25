@@ -30,7 +30,7 @@ python = "^3.10"
 pydantic = "^2.7.4"
 ansible = "^10.1.0"
 hvac = "^2.3.0"
-pydantic-settings = "^2.3.3"
+pydantic-settings = "^2.3.4"
 poetry-plugin-export = "^1.8.0"
 
 [tool.poetry.dev-dependencies]
