@@ -27,7 +27,7 @@ authors = ["David Snider <david@davidsnider.org>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pydantic = "^2.8.2"
+pydantic = "^2.9.0"
 ansible = "^10.3.0"
 hvac = "^2.3.0"
 pydantic-settings = "^2.4.0"
